@@ -1,5 +1,6 @@
 
 
+
 # Re-saving to trigger reload
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
@@ -64,7 +65,7 @@ async def get_user_assessments(user_id: str):
             ability=data.get('ability'),
             knowledge=data.get('knowledge'),
             skills=data.get('skills'),
-            career_recommendations=data.get('careerRecommendations')
+            career_recommendations=data.get('career_recommendations') or data.get('careerRecommendations')
         )
 
     except HTTPException as http_exc:

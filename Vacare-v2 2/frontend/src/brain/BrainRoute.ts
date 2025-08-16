@@ -184,7 +184,7 @@ export namespace Brain {
 
   /**
    * @description Retrieves all assessment results for a given user from Firestore. This includes interest, ability, knowledge, skills, and career recommendations. The data is intended for use by an n8n workflow to generate a comprehensive report.
-   * @tags dbtn/module:user_data, dbtn/hasAuth
+   * @tags dbtn/module:user_data
    * @name get_user_assessments
    * @summary Get User Assessments
    * @request GET:/routes/user-assessments/{user_id}
