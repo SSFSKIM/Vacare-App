@@ -248,21 +248,33 @@ export interface SkillScore {
   rating: number;
 }
 
-/** TranslationRequest */
-export interface TranslationRequest {
-  /** Text */
-  text: string;
+/** UserAssessments */
+export interface UserAssessments {
   /**
-   * Target Language
-   * @default "Korean"
+   * Interest
+   * Interest assessment results
    */
-  target_language?: string;
-}
-
-/** TranslationResponse */
-export interface TranslationResponse {
-  /** Translated Text */
-  translated_text: string;
+  interest?: Record<string, any> | null;
+  /**
+   * Ability
+   * Ability assessment results
+   */
+  ability?: Record<string, any> | null;
+  /**
+   * Knowledge
+   * Knowledge assessment results
+   */
+  knowledge?: Record<string, any> | null;
+  /**
+   * Skills
+   * Skills assessment results
+   */
+  skills?: Record<string, any> | null;
+  /**
+   * Career Recommendations
+   * Career recommendations
+   */
+  career_recommendations?: Record<string, any> | null;
 }
 
 /** UserScores */
@@ -337,6 +349,11 @@ export type CalculateResultsData = AssessmentResult;
 
 export type CalculateResultsError = HTTPValidationError;
 
-export type TranslateTextData = TranslationResponse;
+export interface GetUserAssessmentsParams {
+  /** User Id */
+  userId: string;
+}
 
-export type TranslateTextError = HTTPValidationError;
+export type GetUserAssessmentsData = UserAssessments;
+
+export type GetUserAssessmentsError = HTTPValidationError;

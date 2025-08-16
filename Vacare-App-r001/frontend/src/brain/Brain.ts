@@ -19,9 +19,9 @@ import {
   GetKnowledgeQuestionsData,
   GetQuestionsData,
   GetSkillQuestionsData,
-  TranslateTextData,
-  TranslateTextError,
-  TranslationRequest,
+  GetUserAssessmentsData,
+  GetUserAssessmentsError,
+  GetUserAssessmentsParams,
   UserScores,
 } from "./data-contracts";
 import { ContentType, HttpClient, RequestParams } from "./http-client";
@@ -204,19 +204,17 @@ export class Brain<SecurityDataType = unknown> extends HttpClient<SecurityDataTy
     });
 
   /**
-   * @description Translates the given text to the target language using OpenAI.
+   * @description Retrieves all assessment results for a given user from Firestore. This includes interest, ability, knowledge, skills, and career recommendations. The data is intended for use by an n8n workflow to generate a comprehensive report.
    *
-   * @tags dbtn/module:translate, dbtn/hasAuth
-   * @name translate_text
-   * @summary Translate Text
-   * @request POST:/routes/translate
+   * @tags dbtn/module:user_data, dbtn/hasAuth
+   * @name get_user_assessments
+   * @summary Get User Assessments
+   * @request GET:/routes/user-assessments/{user_id}
    */
-  translate_text = (data: TranslationRequest, params: RequestParams = {}) =>
-    this.request<TranslateTextData, TranslateTextError>({
-      path: `/routes/translate`,
-      method: "POST",
-      body: data,
-      type: ContentType.Json,
+  get_user_assessments = ({ userId, ...query }: GetUserAssessmentsParams, params: RequestParams = {}) =>
+    this.request<GetUserAssessmentsData, GetUserAssessmentsError>({
+      path: `/routes/user-assessments/${userId}`,
+      method: "GET",
       ...params,
     });
 }

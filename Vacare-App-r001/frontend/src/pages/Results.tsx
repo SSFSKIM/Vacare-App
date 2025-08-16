@@ -1,4 +1,8 @@
-import React, { useCallback } from "react";
+
+
+
+
+import React, { useCallback, useState } from "react";
 import { NavigationBar } from "../components/NavigationBar";
 import { useFirebaseAssessmentStore } from "../utils/firebase-assessment-store";
 import { LoadingSpinner } from "../components/LoadingSpinner";
@@ -6,14 +10,29 @@ import { ErrorMessage } from "../components/ErrorMessage";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { InterestResults } from "components/InterestResults";
 import { AbilityResults } from "components/AbilityResults";
-import { KnowledgeResults } from "components/KnowledgeResults";
-import { SkillResults } from "components/SkillResults";
+import { KnowledgeResults } from 'components/KnowledgeResults';
+import { SkillResults } from 'components/SkillResults';
+import { InterestTab } from 'components/InterestTab';
 import { CareerRecommendations } from "components/CareerRecommendations";
 import { useApi, apiService } from "utils/useApi";
+import { Button } from "@/components/ui/button";
+import { useUserGuardContext } from "app";
+import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 export default function Results() {
+  const { user } = useUserGuardContext();
   const { assessment, isLoading, error, setCareerRecommendations } =
     useFirebaseAssessmentStore();
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const [report, setReport] = useState<any>(null);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   const {
     isLoading: isAnalyzing,
@@ -61,6 +80,49 @@ export default function Results() {
     }
   }, [assessment, analyze, setCareerRecommendations]);
 
+  const handleGenerateReport = async () => {
+    if (!user) {
+      toast.error("You must be logged in to generate a report.");
+      return;
+    }
+
+    setIsGeneratingReport(true);
+    toast.info("Generating your career report... This may take a moment.");
+
+    const webhookUrl = "http://localhost:5678/webhook/generate-comprehensive-report";
+
+    try {
+      const response = await fetch(webhookUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user.uid,
+          userEmail: user.email,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to trigger report generation.");
+      }
+
+      const reportData = await response.json();
+      console.log("Received full response from n8n:", reportData);
+      
+      setReport(reportData.report);
+      console.log("Set report state with:", reportData.report);
+
+      setIsReportModalOpen(true);
+      toast.success("Your report has been generated successfully!");
+    } catch (err) {
+      console.error("Failed to generate report:", err);
+      toast.error("There was an error generating your report. Please try again later.");
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -89,12 +151,28 @@ export default function Results() {
       <NavigationBar />
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-5xl mx-auto">
-          <h1 className="text-4xl font-bold mb-2 text-center">
-            Your Assessment Results
-          </h1>
-          <p className="text-lg text-muted-foreground mb-8 text-center">
-            Explore your unique strengths and interests.
-          </p>
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold mb-2">
+              Your Assessment Results
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              Explore your unique strengths and interests.
+            </p>
+            <Button 
+              onClick={handleGenerateReport} 
+              disabled={isGeneratingReport}
+              className="mt-4"
+            >
+              {isGeneratingReport ? (
+                <>
+                  <LoadingSpinner size="sm" />
+                  <span className="ml-2">Generating...</span>
+                </>
+              ) : (
+                "Generate Full Report"
+              )}
+            </Button>
+          </div>
 
           <Tabs defaultValue="interest" className="w-full">
             <TabsList className="grid w-full grid-cols-5">
@@ -127,6 +205,25 @@ export default function Results() {
           </Tabs>
         </div>
       </main>
+
+      <Dialog open={isReportModalOpen} onOpenChange={setIsReportModalOpen}>
+        <DialogContent className="max-w-4xl h-[90vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle>{report?.content?.title || "Career Development Report"}</DialogTitle>
+            <DialogDescription>
+              {report?.reportType} - Generated on{" "}
+              {report?.generatedAt
+                ? new Date(report.generatedAt).toLocaleDateString()
+                : "N/A"}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex-grow overflow-y-auto pr-4 mt-4">
+            <pre className="whitespace-pre-wrap text-sm font-sans">
+              {report?.content?.aiAnalysis || "Report content is not available. Please check the browser console for errors."}
+            </pre>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -83,8 +83,8 @@ export default function Profile() {
         </div>
       </div>
 
-      <div className="flex justify-center">
-        <div className="w-full max-w-2xl">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="md:col-span-1">
           <Card className="shadow-lg">
             <CardHeader>
               <CardTitle className="text-2xl">Personal Information</CardTitle>
@@ -180,7 +180,86 @@ export default function Profile() {
             </CardContent>
           </Card>
         </div>
+
+        <div className="md:col-span-2">
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-2xl">Assessment Summary</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <p>Loading assessment results...</p>
+              ) : (
+                <div className="space-y-6">
+                  <AssessmentResultDisplay
+                    title="Interest Assessment"
+                    results={assessment?.interest.results}
+                  />
+                  <AssessmentResultDisplay
+                    title="Ability Assessment"
+                    results={assessment?.ability.results}
+                  />
+                  <AssessmentResultDisplay
+                    title="Knowledge Assessment"
+                    results={assessment?.knowledge.results}
+                  />
+                  <AssessmentResultDisplay
+                    title="Skills Assessment"
+                    results={assessment?.skills.results}
+                  />
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
 }
+
+const AssessmentResultDisplay = ({ title, results }) => {
+  const getTopResults = (results) => {
+    if (!results || results.length === 0) return [];
+    // Handle different result structures (some might have 'name', others 'subset')
+    const sorted = [...results]
+      .sort((a, b) => b.score - a.score);
+    
+    // If results have subsets, group them
+    if(sorted[0]?.subset) {
+      const subsetResults = sorted.reduce((acc, curr) => {
+        if(!acc[curr.subset]) {
+          acc[curr.subset] = [];
+        }
+        acc[curr.subset].push(curr);
+        return acc;
+      }, {});
+      
+      return Object.entries(subsetResults).map(([subset, items]) => ({
+        name: subset,
+        score: items.reduce((sum, item) => sum + item.score, 0) / items.length
+      })).slice(0, 3);
+    }
+    
+    return sorted.slice(0, 3);
+  };
+
+  const topResults = getTopResults(results);
+
+  return (
+    <div className="p-4 rounded-lg bg-gray-50">
+      <h3 className="text-xl font-semibold mb-3">{title}</h3>
+      {topResults.length > 0 ? (
+        <ul className="space-y-2">
+          {topResults.map((result, index) => (
+            <li key={index} className="flex justify-between items-center">
+              <span>{result.name}</span>
+              <span className="font-bold text-lg text-blue-600">{result.score.toFixed(2)}</span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-muted-foreground">No results yet. Complete the assessment to see your summary!</p>
+      )}
+    </div>
+  );
+};

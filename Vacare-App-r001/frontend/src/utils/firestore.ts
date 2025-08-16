@@ -116,10 +116,10 @@ export const saveProfileData = async (
 ): Promise<void> => {
   try {
     const assessmentRef = doc(assessmentsCollection, userId);
-    await setDoc(assessmentRef, {
+    await updateDoc(assessmentRef, {
       profile: profileData,
       lastUpdated: Date.now(),
-    }, { merge: true });
+    });
   } catch (error) {
     console.error("Error saving profile data:", error);
     throw error;

@@ -13,8 +13,7 @@ import {
   GetKnowledgeQuestionsData,
   GetQuestionsData,
   GetSkillQuestionsData,
-  TranslateTextData,
-  TranslationRequest,
+  GetUserAssessmentsData,
   UserScores,
 } from "./data-contracts";
 
@@ -184,17 +183,20 @@ export namespace Brain {
   }
 
   /**
-   * @description Translates the given text to the target language using OpenAI.
-   * @tags dbtn/module:translate, dbtn/hasAuth
-   * @name translate_text
-   * @summary Translate Text
-   * @request POST:/routes/translate
+   * @description Retrieves all assessment results for a given user from Firestore. This includes interest, ability, knowledge, skills, and career recommendations. The data is intended for use by an n8n workflow to generate a comprehensive report.
+   * @tags dbtn/module:user_data, dbtn/hasAuth
+   * @name get_user_assessments
+   * @summary Get User Assessments
+   * @request GET:/routes/user-assessments/{user_id}
    */
-  export namespace translate_text {
-    export type RequestParams = {};
+  export namespace get_user_assessments {
+    export type RequestParams = {
+      /** User Id */
+      userId: string;
+    };
     export type RequestQuery = {};
-    export type RequestBody = TranslationRequest;
+    export type RequestBody = never;
     export type RequestHeaders = {};
-    export type ResponseBody = TranslateTextData;
+    export type ResponseBody = GetUserAssessmentsData;
   }
 }
