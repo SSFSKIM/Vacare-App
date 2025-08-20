@@ -140,6 +140,21 @@ export class Brain<SecurityDataType = unknown> extends HttpClient<SecurityDataTy
     });
 
   /**
+   * @description Retrieves all assessment results for a given user from Firestore. This includes interest, ability, knowledge, skills, and career recommendations. The data is intended for use by an n8n workflow to generate a comprehensive report.
+   *
+   * @tags dbtn/module:user_data
+   * @name get_user_assessments
+   * @summary Get User Assessments
+   * @request GET:/routes/user-assessments/{user_id}
+   */
+  get_user_assessments = ({ userId, ...query }: GetUserAssessmentsParams, params: RequestParams = {}) =>
+    this.request<GetUserAssessmentsData, GetUserAssessmentsError>({
+      path: `/routes/user-assessments/${userId}`,
+      method: "GET",
+      ...params,
+    });
+
+  /**
    * @description Get all ability assessment questions
    *
    * @tags dbtn/module:assessment_api, dbtn/hasAuth
@@ -200,21 +215,6 @@ export class Brain<SecurityDataType = unknown> extends HttpClient<SecurityDataTy
       method: "POST",
       body: data,
       type: ContentType.Json,
-      ...params,
-    });
-
-  /**
-   * @description Retrieves all assessment results for a given user from Firestore. This includes interest, ability, knowledge, skills, and career recommendations. The data is intended for use by an n8n workflow to generate a comprehensive report.
-   *
-   * @tags dbtn/module:user_data
-   * @name get_user_assessments
-   * @summary Get User Assessments
-   * @request GET:/routes/user-assessments/{user_id}
-   */
-  get_user_assessments = ({ userId, ...query }: GetUserAssessmentsParams, params: RequestParams = {}) =>
-    this.request<GetUserAssessmentsData, GetUserAssessmentsError>({
-      path: `/routes/user-assessments/${userId}`,
-      method: "GET",
       ...params,
     });
 }

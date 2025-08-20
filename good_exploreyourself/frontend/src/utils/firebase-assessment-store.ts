@@ -1,4 +1,5 @@
 
+
 // Enhanced firebase-assessment-store.ts with improved data protection
 
 import { create } from "zustand";
@@ -396,17 +397,356 @@ export const useFirebaseAssessmentStore = create<FirebaseAssessmentStore>((set, 
   },
   
   // Implement other methods with similar safety checks...
-  setAbilityAnswer: async (answer) => { /* Similar implementation */ },
-  setAbilityQuestionIndex: async (index) => { /* Similar implementation */ },
-  setAbilityResults: async (results, subset) => { /* Similar implementation */ },
-  resetAbilityAssessment: async () => { /* Similar implementation */ },
-  setKnowledgeAnswer: async (answer) => { /* Similar implementation */ },
-  setKnowledgeResults: async (results, subset) => { /* Similar implementation */ },
-  resetKnowledgeAssessment: async () => { /* Similar implementation */ },
-  setSkillAnswer: async (answer) => { /* Similar implementation */ },
-  setSkillResults: async (results, subset) => { /* Similar implementation */ },
-  resetSkillAssessment: async () => { /* Similar implementation */ },
-  setCareerRecommendations: async (recommendations) => { /* Similar implementation */ },
+  // setAbilityAnswer implementation
+  setAbilityAnswer: async (answer) => {
+    const { user, assessment, initializationPhase } = get();
+    if (!user || !assessment || initializationPhase !== 'complete') {
+      console.warn('Cannot set ability answer: user not authenticated or initialization incomplete');
+      return;
+    }
+    
+    try {
+      const updatedAnswers = [
+        ...assessment.ability.answers.filter(a => a.questionId !== answer.questionId),
+        answer
+      ];
+      
+      set({
+        assessment: {
+          ...assessment,
+          ability: {
+            ...assessment.ability,
+            answers: updatedAnswers
+          }
+        }
+      });
+      
+      await updateAbilityAnswers(
+        user.uid,
+        updatedAnswers,
+        assessment.ability.currentQuestionIndex
+      );
+    } catch (error) {
+      console.error('Error setting ability answer:', error);
+      set({ error: error as Error });
+    }
+  },
+
+  // setAbilityQuestionIndex implementation
+  setAbilityQuestionIndex: async (index) => {
+    const { user, assessment, initializationPhase } = get();
+    if (!user || !assessment || initializationPhase !== 'complete') return;
+    
+    try {
+      set({
+        assessment: {
+          ...assessment,
+          ability: {
+            ...assessment.ability,
+            currentQuestionIndex: index
+          }
+        }
+      });
+      
+      await updateAbilityAnswers(
+        user.uid,
+        assessment.ability.answers,
+        index
+      );
+    } catch (error) {
+      console.error('Error setting ability question index:', error);
+      set({ error: error as Error });
+    }
+  },
+
+  // CRITICAL FIX: setAbilityResults implementation
+  setAbilityResults: async (results, subset) => {
+    const { user, assessment, initializationPhase } = get();
+    if (!user || !assessment || initializationPhase !== 'complete') {
+      console.warn('Cannot set ability results: user not authenticated or initialization incomplete');
+      return;
+    }
+    
+    try {
+      // Ensure each result has the subset field
+      const resultsWithSubset = results.map(r => ({
+        ...r,
+        subset: subset
+      }));
+      
+      // Merge with existing results, replacing only the same subset
+      const existingResults = assessment.ability.results || [];
+      const otherSubsetResults = existingResults.filter(r => r.subset !== subset);
+      const updatedResults = [...otherSubsetResults, ...resultsWithSubset];
+      
+      // Update local state
+      set({
+        assessment: {
+          ...assessment,
+          ability: {
+            ...assessment.ability,
+            results: updatedResults
+          }
+        }
+      });
+      
+      // Update Firebase
+      await updateAbilityResults(user.uid, updatedResults);
+      console.log(`Successfully saved ${subset} ability results to Firebase`);
+    } catch (error) {
+      console.error('Error setting ability results:', error);
+      set({ error: error as Error });
+      throw error; // Re-throw to handle in calling code
+    }
+  },
+
+  // resetAbilityAssessment implementation
+  resetAbilityAssessment: async () => {
+    const { user, assessment, initializationPhase } = get();
+    if (!user || !assessment || initializationPhase !== 'complete') return;
+    
+    try {
+      const resetAbility = {
+        answers: [],
+        currentQuestionIndex: 0,
+        results: []
+      };
+      
+      set({
+        assessment: {
+          ...assessment,
+          ability: resetAbility
+        }
+      });
+      
+      await updateAbilityAnswers(user.uid, [], 0);
+      await updateAbilityResults(user.uid, []);
+    } catch (error) {
+      console.error('Error resetting ability assessment:', error);
+      set({ error: error as Error });
+    }
+  },
+
+  // setKnowledgeAnswer implementation
+  setKnowledgeAnswer: async (answer) => {
+    const { user, assessment, initializationPhase } = get();
+    if (!user || !assessment || initializationPhase !== 'complete') {
+      console.warn('Cannot set knowledge answer: user not authenticated or initialization incomplete');
+      return;
+    }
+    
+    try {
+      const updatedAnswers = [
+        ...assessment.knowledge.answers.filter(a => a.questionId !== answer.questionId),
+        answer
+      ];
+      
+      set({
+        assessment: {
+          ...assessment,
+          knowledge: {
+            ...assessment.knowledge,
+            answers: updatedAnswers
+          }
+        }
+      });
+      
+      await updateKnowledgeAnswers(user.uid, updatedAnswers);
+    } catch (error) {
+      console.error('Error setting knowledge answer:', error);
+      set({ error: error as Error });
+    }
+  },
+
+  // setKnowledgeResults implementation
+  setKnowledgeResults: async (results, subset) => {
+    const { user, assessment, initializationPhase } = get();
+    if (!user || !assessment || initializationPhase !== 'complete') {
+      console.warn('Cannot set knowledge results: user not authenticated or initialization incomplete');
+      return;
+    }
+    
+    try {
+      // Ensure each result has the subset field
+      const resultsWithSubset = results.map(r => ({
+        ...r,
+        subset: subset
+      }));
+      
+      // Merge with existing results, replacing only the same subset
+      const existingResults = assessment.knowledge.results || [];
+      const otherSubsetResults = existingResults.filter(r => r.subset !== subset);
+      const updatedResults = [...otherSubsetResults, ...resultsWithSubset];
+      
+      // Update local state
+      set({
+        assessment: {
+          ...assessment,
+          knowledge: {
+            ...assessment.knowledge,
+            results: updatedResults
+          }
+        }
+      });
+      
+      // Update Firebase
+      await updateKnowledgeResults(user.uid, updatedResults);
+      console.log(`Successfully saved ${subset} knowledge results to Firebase`);
+    } catch (error) {
+      console.error('Error setting knowledge results:', error);
+      set({ error: error as Error });
+      throw error;
+    }
+  },
+
+  // resetKnowledgeAssessment implementation
+  resetKnowledgeAssessment: async () => {
+    const { user, assessment, initializationPhase } = get();
+    if (!user || !assessment || initializationPhase !== 'complete') return;
+    
+    try {
+      const resetKnowledge = {
+        answers: [],
+        results: []
+      };
+      
+      set({
+        assessment: {
+          ...assessment,
+          knowledge: resetKnowledge
+        }
+      });
+      
+      await updateKnowledgeAnswers(user.uid, []);
+      await updateKnowledgeResults(user.uid, []);
+    } catch (error) {
+      console.error('Error resetting knowledge assessment:', error);
+      set({ error: error as Error });
+    }
+  },
+
+  // setSkillAnswer implementation
+  setSkillAnswer: async (answer) => {
+    const { user, assessment, initializationPhase } = get();
+    if (!user || !assessment || initializationPhase !== 'complete') {
+      console.warn('Cannot set skill answer: user not authenticated or initialization incomplete');
+      return;
+    }
+    
+    try {
+      const updatedAnswers = [
+        ...assessment.skills.answers.filter(a => a.questionId !== answer.questionId),
+        answer
+      ];
+      
+      set({
+        assessment: {
+          ...assessment,
+          skills: {
+            ...assessment.skills,
+            answers: updatedAnswers
+          }
+        }
+      });
+      
+      await updateSkillAnswers(user.uid, updatedAnswers);
+    } catch (error) {
+      console.error('Error setting skill answer:', error);
+      set({ error: error as Error });
+    }
+  },
+
+  // setSkillResults implementation
+  setSkillResults: async (results, subset) => {
+    const { user, assessment, initializationPhase } = get();
+    if (!user || !assessment || initializationPhase !== 'complete') {
+      console.warn('Cannot set skill results: user not authenticated or initialization incomplete');
+      return;
+    }
+    
+    try {
+      // Ensure each result has the subset field
+      const resultsWithSubset = results.map(r => ({
+        ...r,
+        subset: subset
+      }));
+      
+      // Merge with existing results, replacing only the same subset
+      const existingResults = assessment.skills.results || [];
+      const otherSubsetResults = existingResults.filter(r => r.subset !== subset);
+      const updatedResults = [...otherSubsetResults, ...resultsWithSubset];
+      
+      // Update local state
+      set({
+        assessment: {
+          ...assessment,
+          skills: {
+            ...assessment.skills,
+            results: updatedResults
+          }
+        }
+      });
+      
+      // Update Firebase
+      await updateSkillResults(user.uid, updatedResults);
+      console.log(`Successfully saved ${subset} skill results to Firebase`);
+    } catch (error) {
+      console.error('Error setting skill results:', error);
+      set({ error: error as Error });
+      throw error;
+    }
+  },
+
+  // resetSkillAssessment implementation
+  resetSkillAssessment: async () => {
+    const { user, assessment, initializationPhase } = get();
+    if (!user || !assessment || initializationPhase !== 'complete') return;
+    
+    try {
+      const resetSkills = {
+        answers: [],
+        results: []
+      };
+      
+      set({
+        assessment: {
+          ...assessment,
+          skills: resetSkills
+        }
+      });
+      
+      await updateSkillAnswers(user.uid, []);
+      await updateSkillResults(user.uid, []);
+    } catch (error) {
+      console.error('Error resetting skill assessment:', error);
+      set({ error: error as Error });
+    }
+  },
+
+  // setCareerRecommendations implementation
+  setCareerRecommendations: async (recommendations) => {
+    const { user, assessment, initializationPhase } = get();
+    if (!user || !assessment || initializationPhase !== 'complete') {
+      console.warn('Cannot set career recommendations: user not authenticated or initialization incomplete');
+      return;
+    }
+    
+    try {
+      set({
+        assessment: {
+          ...assessment,
+          careerRecommendations: recommendations
+        }
+      });
+      
+      await updateCareerRecommendations(user.uid, recommendations);
+      console.log('Successfully saved career recommendations to Firebase');
+    } catch (error) {
+      console.error('Error setting career recommendations:', error);
+      set({ error: error as Error });
+      throw error;
+    }
+  },
   
   resetAllAssessments: async () => {
     const { user, initializationPhase } = get();

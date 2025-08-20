@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { NavigationBar } from "../components/NavigationBar";
 import { Button } from "@/components/ui/button";
@@ -9,12 +10,12 @@ import brain from "brain";
 import { useNavigate } from "react-router-dom";
 import { useAbilityTestStore, useInitializeFirebaseStore } from "../utils/test-migration-helper";
 
-export default function PsychomotorAbilityTest() {
+export default function CognitiveAbilityTest() {
   // Initialize Firebase assessment store
   useInitializeFirebaseStore();
 
   // Get store handlers for ability test
-  const { setAbilityResults, storeLoading: firebaseLoading, storeError: firebaseError } = useAbilityTestStore('psychomotor-ability');
+  const { setAbilityResults, storeLoading: firebaseLoading, storeError: firebaseError } = useAbilityTestStore('cognitive-ability');
 
   const [answers, setAnswers] = useState<{[key: number]: number}>({});
   const [questions, setQuestions] = React.useState<any[]>([]);
@@ -28,14 +29,14 @@ export default function PsychomotorAbilityTest() {
     : 0;
 
   React.useEffect(() => {
-    const savedAnswers = localStorage.getItem('psychomotor-ability-answers');
+    const savedAnswers = localStorage.getItem('cognitive-ability-answers');
     if (savedAnswers) {
       setAnswers(JSON.parse(savedAnswers));
     }
   }, []);
 
   React.useEffect(() => {
-    localStorage.setItem('psychomotor-ability-answers', JSON.stringify(answers));
+    localStorage.setItem('cognitive-ability-answers', JSON.stringify(answers));
   }, [answers]);
 
   React.useEffect(() => {
@@ -43,9 +44,9 @@ export default function PsychomotorAbilityTest() {
       try {
         const response = await brain.get_ability_questions();
         const data = await response.json();
-        // Filter only psychomotor questions
-        const psychomotorQuestions = data.filter((q: any) => q.category === "Psychomotor");
-        setQuestions(psychomotorQuestions);
+        // Filter only cognitive questions
+        const cognitiveQuestions = data.filter((q: any) => q.category === "Cognitive");
+        setQuestions(cognitiveQuestions);
       } catch (err) {
         setError("Failed to load questions. Please try again later.");
       } finally {
@@ -65,7 +66,8 @@ export default function PsychomotorAbilityTest() {
   };
 
   const handleSubmit = async () => {
-    const subset = 'psychomotor';
+    // The subset is determined by the question category
+    const subset = 'cognitive';
 
     if (Object.keys(answers).length < questions.length) {
       toast.error("Please answer all questions before submitting.");
@@ -81,17 +83,18 @@ export default function PsychomotorAbilityTest() {
 
       // Submit answers to the API
       const response = await brain.calculate_ability_results({
-        answers: answersToSubmit
+        answers: answersToSubmit,
+        subset: "cognitive-ability",
       });
       const responseData = await response.json();
       
-      // Store results in Firebase
+      // Store results in Firebase with the subset information
       const success = await setAbilityResults(responseData);
       
       if (success) {
-        toast.success("Psychomotor abilities results saved successfully!");
+        toast.success("Cognitive abilities results saved successfully!");
         // Clear local storage after successful submission
-        localStorage.removeItem('psychomotor-ability-answers');
+        localStorage.removeItem('cognitive-ability-answers');
         // Navigate to ability selection page
         navigate('/ability-selection');
       } else {
@@ -130,7 +133,7 @@ export default function PsychomotorAbilityTest() {
       <NavigationBar />
       <main className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold mb-8 text-center">Psychomotor Abilities Assessment</h1>
+          <h1 className="text-4xl font-bold mb-8 text-center">Cognitive Abilities Assessment</h1>
           <div className="mb-8">
             <div className="flex justify-between text-sm mb-2">
               <span>{Math.round(progress)}% complete</span>
@@ -139,8 +142,8 @@ export default function PsychomotorAbilityTest() {
             <Progress value={progress} className="w-full" />
           </div>
           <p className="text-lg text-muted-foreground mb-8 text-center">
-            Rate your interest in developing each psychomotor ability on a scale from 10 to 100.
-            Focus on how motivated you would be to enhance these abilities, not your current proficiency.
+            Rate your interest in developing each cognitive ability on a scale from 10 to 100.
+            Focus on how motivated you would be to improve these abilities, not your current level.
           </p>
 
           <div className="space-y-8">
@@ -210,7 +213,7 @@ export default function PsychomotorAbilityTest() {
                 onClick={() => {
                   if (window.confirm('Are you sure you want to clear your progress?')) {
                     setAnswers({});
-                    localStorage.removeItem('psychomotor-ability-answers');
+                    localStorage.removeItem('cognitive-ability-answers');
                   }
                 }}
               >

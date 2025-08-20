@@ -123,6 +123,24 @@ export namespace Brain {
   }
 
   /**
+   * @description Retrieves all assessment results for a given user from Firestore. This includes interest, ability, knowledge, skills, and career recommendations. The data is intended for use by an n8n workflow to generate a comprehensive report.
+   * @tags dbtn/module:user_data
+   * @name get_user_assessments
+   * @summary Get User Assessments
+   * @request GET:/routes/user-assessments/{user_id}
+   */
+  export namespace get_user_assessments {
+    export type RequestParams = {
+      /** User Id */
+      userId: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetUserAssessmentsData;
+  }
+
+  /**
    * @description Get all ability assessment questions
    * @tags dbtn/module:assessment_api, dbtn/hasAuth
    * @name get_ability_questions
@@ -180,23 +198,5 @@ export namespace Brain {
     export type RequestBody = AnswersRequest;
     export type RequestHeaders = {};
     export type ResponseBody = CalculateResultsData;
-  }
-
-  /**
-   * @description Retrieves all assessment results for a given user from Firestore. This includes interest, ability, knowledge, skills, and career recommendations. The data is intended for use by an n8n workflow to generate a comprehensive report.
-   * @tags dbtn/module:user_data
-   * @name get_user_assessments
-   * @summary Get User Assessments
-   * @request GET:/routes/user-assessments/{user_id}
-   */
-  export namespace get_user_assessments {
-    export type RequestParams = {
-      /** User Id */
-      userId: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = GetUserAssessmentsData;
   }
 }

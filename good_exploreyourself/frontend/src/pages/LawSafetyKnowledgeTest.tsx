@@ -1,26 +1,34 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { NavigationBar } from "../components/NavigationBar";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { KnowledgeAnswerGrid } from "../components/KnowledgeAnswerGrid";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Check } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 import brain from "brain";
-import { useNavigate } from "react-router-dom";
-import { useAbilityTestStore, useInitializeFirebaseStore } from "../utils/test-migration-helper";
+import { useInitializeFirebaseStore, useKnowledgeTestStore } from "../utils/test-migration-helper";
+import { toast } from "sonner";
 
-export default function SensoryAbilityTest() {
-  // Initialize Firebase assessment store
-  useInitializeFirebaseStore();
+const STORAGE_KEY = 'law_safety_knowledge_test_progress';
 
-  // Get store handlers for ability test
-  const { setAbilityResults, storeLoading: firebaseLoading, storeError: firebaseError } = useAbilityTestStore('sensory-ability');
-
-  const [answers, setAnswers] = useState<{[key: number]: number}>({});
+export default function LawSafetyKnowledgeTest() {
+  const [answers, setAnswers] = useState<{[key: number]: number}>(() => {
+    // Load saved answers from localStorage
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : {};
+  });
   const [questions, setQuestions] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const navigate = useNavigate();
+  
+  // Initialize Firebase assessment store
+  useInitializeFirebaseStore();
+  
+  // Get migration-compatible store functions
+  const { setKnowledgeResults, storeLoading, storeError } = useKnowledgeTestStore('law-safety-knowledge');
 
   // Calculate progress
   const progress = questions.length > 0
@@ -28,24 +36,27 @@ export default function SensoryAbilityTest() {
     : 0;
 
   React.useEffect(() => {
-    const savedAnswers = localStorage.getItem('sensory-ability-answers');
+    const savedAnswers = localStorage.getItem('law-safety-knowledge-answers');
     if (savedAnswers) {
       setAnswers(JSON.parse(savedAnswers));
     }
   }, []);
 
   React.useEffect(() => {
-    localStorage.setItem('sensory-ability-answers', JSON.stringify(answers));
+    localStorage.setItem('law-safety-knowledge-answers', JSON.stringify(answers));
   }, [answers]);
 
   React.useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const response = await brain.get_ability_questions();
+        const response = await brain.get_knowledge_questions();
         const data = await response.json();
-        // Filter only sensory questions
-        const sensoryQuestions = data.filter((q: any) => q.category === "Sensory");
-        setQuestions(sensoryQuestions);
+        // Filter only law and public safety questions
+        const lawSafetyQuestions = data.filter((q: any) => [
+          "Public Safety and Security",
+          "Law and Government"
+        ].includes(q.name));
+        setQuestions(lawSafetyQuestions);
       } catch (err) {
         setError("Failed to load questions. Please try again later.");
       } finally {
@@ -61,45 +72,46 @@ export default function SensoryAbilityTest() {
       ...prev,
       [questionId]: value
     }));
-    toast.success(`Rated: ${value}`);
+    // Optionally, keep a toast message if desired, e.g.:
+    // toast.success(`Rated: ${value}`);
   };
 
   const handleSubmit = async () => {
-    const subset = 'sensory';
-
     if (Object.keys(answers).length < questions.length) {
       toast.error("Please answer all questions before submitting.");
       return;
     }
 
     try {
-      // Convert answers to the expected format
-      const answersToSubmit = Object.entries(answers).map(([questionId, rating]) => ({
-        questionId: parseInt(questionId),
-        rating
-      }));
-
-      // Submit answers to the API
-      const response = await brain.calculate_ability_results({
-        answers: answersToSubmit
+      // Calculate results for this subset
+      const response = await brain.calculate_knowledge_results({
+        answers: Object.entries(answers).map(([questionId, rating]) => ({
+          questionId: parseInt(questionId),
+          rating
+        }))
       });
       const responseData = await response.json();
       
-      // Store results in Firebase
-      const success = await setAbilityResults(responseData);
+      // Add subset to each result
+      const resultsWithSubset = {
+        ...responseData,
+        results: responseData.results.map((r: any) => ({
+          ...r,
+          subset: 'law & safety'
+        }))
+      };
       
-      if (success) {
-        toast.success("Sensory abilities results saved successfully!");
-        // Clear local storage after successful submission
-        localStorage.removeItem('sensory-ability-answers');
-        // Navigate to ability selection page
-        navigate('/ability-selection');
-      } else {
-        setError("Failed to save results. Please try again.");
-      }
+      // Store the results
+      await setKnowledgeResults(resultsWithSubset);
+      
+      // Clear local storage
+      localStorage.removeItem('law-safety-knowledge-answers');
+      
+      navigate("/knowledge-selection");
     } catch (err) {
-      console.error("Error submitting answers:", err);
+      console.error("Submit error:", err);
       setError("Failed to submit answers. Please try again.");
+      toast.error("Failed to submit answers. Please try again.");
     }
   };
 
@@ -114,12 +126,17 @@ export default function SensoryAbilityTest() {
     );
   }
 
-  if (error) {
+  if (error || storeError) {
     return (
       <div className="min-h-screen bg-background">
         <NavigationBar />
         <main className="container mx-auto px-4 py-16">
-          <div className="text-center text-red-500">{error}</div>
+          <div className="text-center text-red-500">{error || storeError?.message || "An unexpected error occurred"}</div>
+          <div className="mt-4 flex justify-center">
+            <Button onClick={() => navigate("/knowledge-selection")} variant="outline">
+              Return to Knowledge Selection
+            </Button>
+          </div>
         </main>
       </div>
     );
@@ -130,7 +147,7 @@ export default function SensoryAbilityTest() {
       <NavigationBar />
       <main className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold mb-8 text-center">Sensory Abilities Assessment</h1>
+          <h1 className="text-4xl font-bold mb-8 text-center">Law and Public Safety Knowledge Assessment</h1>
           <div className="mb-8">
             <div className="flex justify-between text-sm mb-2">
               <span>{Math.round(progress)}% complete</span>
@@ -139,8 +156,8 @@ export default function SensoryAbilityTest() {
             <Progress value={progress} className="w-full" />
           </div>
           <p className="text-lg text-muted-foreground mb-8 text-center">
-            Rate your interest in developing each sensory ability on a scale from 10 to 100.
-            Focus on how enthusiastic you would be to enhance these abilities, not your current proficiency.
+            Rate your interest in developing law and public safety knowledge on a scale from 0 to 100.
+            Focus on how passionate you would be to learn more in these areas, not your current knowledge.
           </p>
 
           <div className="space-y-8">
@@ -163,42 +180,11 @@ export default function SensoryAbilityTest() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  {/* First row: 10-50 */}
-                  <div className="grid grid-cols-5 gap-2">
-                    {[10, 20, 30, 40, 50].map((value) => (
-                      <Button
-                        key={value}
-                        variant={answers[question.id] === value ? 'default' : 'outline'}
-                        onClick={() => handleAnswerChange(question.id, value)}
-                        className="p-2 h-auto flex flex-col gap-1"
-                        size="sm"
-                      >
-                        <span>{value}</span>
-                        {value === 10 && <span className="text-xs">Low</span>}
-                        {value === 30 && <span className="text-xs">Medium</span>}
-                        {value === 50 && <span className="text-xs">High</span>}
-                      </Button>
-                    ))}
-                  </div>
-                  
-                  {/* Second row: 60-100 */}
-                  <div className="grid grid-cols-5 gap-2">
-                    {[60, 70, 80, 90, 100].map((value) => (
-                      <Button
-                        key={value}
-                        variant={answers[question.id] === value ? 'default' : 'outline'}
-                        onClick={() => handleAnswerChange(question.id, value)}
-                        className="p-2 h-auto flex flex-col gap-1"
-                        size="sm"
-                      >
-                        <span>{value}</span>
-                        {value === 70 && <span className="text-xs">Very High</span>}
-                        {value === 100 && <span className="text-xs">Exceptional</span>}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
+                <KnowledgeAnswerGrid 
+                  questionId={question.id} 
+                  currentAnswer={answers[question.id]} 
+                  onAnswerChange={handleAnswerChange} 
+                />
               </Card>
             ))}
           </div>
@@ -210,15 +196,27 @@ export default function SensoryAbilityTest() {
                 onClick={() => {
                   if (window.confirm('Are you sure you want to clear your progress?')) {
                     setAnswers({});
-                    localStorage.removeItem('sensory-ability-answers');
+                    localStorage.removeItem('law-safety-knowledge-answers');
                   }
                 }}
+                disabled={storeLoading}
               >
                 Clear Progress
               </Button>
             )}
-            <Button size="lg" onClick={handleSubmit}>
-              Submit Answers
+            <Button 
+              size="lg" 
+              onClick={handleSubmit} 
+              disabled={storeLoading || Object.keys(answers).length < questions.length}
+            >
+              {storeLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Submit Answers"
+              )}
             </Button>
           </div>
         </div>

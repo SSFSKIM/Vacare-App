@@ -1,3 +1,4 @@
+
 from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import List, Dict
@@ -516,6 +517,7 @@ class AbilityAnswer(BaseModel):
 
 class AbilityAnswersRequest(BaseModel):
     answers: List[AbilityAnswer]
+    subset: str
 
 class AbilityResultItem(BaseModel):
     name: str
@@ -527,6 +529,7 @@ class AbilityAssessmentResult(BaseModel):
     results: List[AbilityResultItem]
     topAbilities: List[str]
     categoryAverages: Dict[str, float]
+    subset: str
 
 @router.get("/ability-questions")
 def get_ability_questions() -> List[AbilityQuestion]:
@@ -535,7 +538,7 @@ def get_ability_questions() -> List[AbilityQuestion]:
     return [AbilityQuestion(**q) for q in questions]
 
 @router.post("/calculate-ability-results")
-def calculate_ability_results(answers: AbilityAnswersRequest) -> AbilityAssessmentResult:
+def calculate_ability_results(request: AbilityAnswersRequest) -> AbilityAssessmentResult:
     """Calculate ability assessment results based on answers"""
     results = []
     category_scores = {}
@@ -545,7 +548,7 @@ def calculate_ability_results(answers: AbilityAnswersRequest) -> AbilityAssessme
     questions = parse_ability_questions()
     question_map = {q['id']: q for q in questions}
 
-    for answer in answers.answers:
+    for answer in request.answers:
         question = question_map[answer.questionId]
         score = answer.rating
 
@@ -578,7 +581,8 @@ def calculate_ability_results(answers: AbilityAnswersRequest) -> AbilityAssessme
     return AbilityAssessmentResult(
         results=results,
         topAbilities=top_abilities,
-        categoryAverages=category_averages
+        categoryAverages=category_averages,
+        subset=request.subset
     )
 
 

@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { useAppContext } from 'components/AppProvider';
 
@@ -116,10 +117,13 @@ export const apiService = {
     }
   },
 
-  async calculateResults(type: 'interest' | 'ability' | 'knowledge' | 'skill', answers: Answer[]) {
-    // This is an example. You'll need to replace 'calculate_knowledge_results'
-    // with the actual brain methods for each assessment type.
-    const body = { answers };
+  async submitAssessment(type: string, answers: any[], subset?: string) {
+    // This function can be expanded to handle different assessment types
+    const body: any = { answers };
+    if (subset) {
+      body.subset = subset;
+    }
+
     switch (type) {
         case 'interest':
             return await brain.calculate_results(body);

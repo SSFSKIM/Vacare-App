@@ -10,6 +10,8 @@ export interface AbilityAnswer {
 export interface AbilityAnswersRequest {
   /** Answers */
   answers: AbilityAnswer[];
+  /** Subset */
+  subset: string;
 }
 
 /** AbilityAssessmentResult */
@@ -20,6 +22,8 @@ export interface AbilityAssessmentResult {
   topAbilities: string[];
   /** Categoryaverages */
   categoryAverages: Record<string, number>;
+  /** Subset */
+  subset: string;
 }
 
 /** AbilityQuestion */
@@ -335,6 +339,15 @@ export type AnalyzeResultsData = RecommendationResponse;
 
 export type AnalyzeResultsError = HTTPValidationError;
 
+export interface GetUserAssessmentsParams {
+  /** User Id */
+  userId: string;
+}
+
+export type GetUserAssessmentsData = UserAssessments;
+
+export type GetUserAssessmentsError = HTTPValidationError;
+
 /** Response Get Ability Questions */
 export type GetAbilityQuestionsData = AbilityQuestion[];
 
@@ -348,12 +361,3 @@ export type GetQuestionsData = Question[];
 export type CalculateResultsData = AssessmentResult;
 
 export type CalculateResultsError = HTTPValidationError;
-
-export interface GetUserAssessmentsParams {
-  /** User Id */
-  userId: string;
-}
-
-export type GetUserAssessmentsData = UserAssessments;
-
-export type GetUserAssessmentsError = HTTPValidationError;

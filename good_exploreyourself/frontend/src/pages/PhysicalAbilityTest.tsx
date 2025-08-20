@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { NavigationBar } from "../components/NavigationBar";
 import { Button } from "@/components/ui/button";
@@ -81,7 +82,8 @@ export default function PhysicalAbilityTest() {
 
       // Submit answers to the API
       const response = await brain.calculate_ability_results({
-        answers: answersToSubmit
+        answers: answersToSubmit,
+        subset,
       });
       const responseData = await response.json();
       
