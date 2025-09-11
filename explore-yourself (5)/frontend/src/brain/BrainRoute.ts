@@ -2,6 +2,7 @@ import {
   AbilityAnswersRequest,
   AnalysisRequest,
   AnalyzeAssessmentResultsData,
+  AnalyzeMultiCategoryData,
   AnalyzeResultsData,
   AnswersRequest,
   CalculateAbilityResultsData,
@@ -108,7 +109,7 @@ export namespace Brain {
   }
 
   /**
-   * @description Analyze user assessment results and recommend matching occupations
+   * @description Original single-category endpoint (backward compatibility)
    * @tags dbtn/module:career_recommendation, dbtn/hasAuth
    * @name analyze_results
    * @summary Analyze Results
@@ -120,6 +121,21 @@ export namespace Brain {
     export type RequestBody = UserScores;
     export type RequestHeaders = {};
     export type ResponseBody = AnalyzeResultsData;
+  }
+
+  /**
+   * @description New multi-category weighted aggregation endpoint
+   * @tags dbtn/module:career_recommendation, dbtn/hasAuth
+   * @name analyze_multi_category
+   * @summary Analyze Multi Category
+   * @request POST:/routes/career-recommendation/analyze-multi
+   */
+  export namespace analyze_multi_category {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = UserScores;
+    export type RequestHeaders = {};
+    export type ResponseBody = AnalyzeMultiCategoryData;
   }
 
   /**

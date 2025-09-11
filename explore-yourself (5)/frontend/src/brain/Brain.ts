@@ -3,6 +3,8 @@ import {
   AnalysisRequest,
   AnalyzeAssessmentResultsData,
   AnalyzeAssessmentResultsError,
+  AnalyzeMultiCategoryData,
+  AnalyzeMultiCategoryError,
   AnalyzeResultsData,
   AnalyzeResultsError,
   AnswersRequest,
@@ -123,7 +125,7 @@ export class Brain<SecurityDataType = unknown> extends HttpClient<SecurityDataTy
     });
 
   /**
-   * @description Analyze user assessment results and recommend matching occupations
+   * @description Original single-category endpoint (backward compatibility)
    *
    * @tags dbtn/module:career_recommendation, dbtn/hasAuth
    * @name analyze_results
@@ -133,6 +135,23 @@ export class Brain<SecurityDataType = unknown> extends HttpClient<SecurityDataTy
   analyze_results = (data: UserScores, params: RequestParams = {}) =>
     this.request<AnalyzeResultsData, AnalyzeResultsError>({
       path: `/routes/career-recommendation/analyze`,
+      method: "POST",
+      body: data,
+      type: ContentType.Json,
+      ...params,
+    });
+
+  /**
+   * @description New multi-category weighted aggregation endpoint
+   *
+   * @tags dbtn/module:career_recommendation, dbtn/hasAuth
+   * @name analyze_multi_category
+   * @summary Analyze Multi Category
+   * @request POST:/routes/career-recommendation/analyze-multi
+   */
+  analyze_multi_category = (data: UserScores, params: RequestParams = {}) =>
+    this.request<AnalyzeMultiCategoryData, AnalyzeMultiCategoryError>({
+      path: `/routes/career-recommendation/analyze-multi`,
       method: "POST",
       body: data,
       type: ContentType.Json,

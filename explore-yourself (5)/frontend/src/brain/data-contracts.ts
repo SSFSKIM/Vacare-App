@@ -110,6 +110,23 @@ export interface CareerMatch {
   correlation: number;
 }
 
+/** CategoryContribution */
+export interface CategoryContribution {
+  /** Category */
+  category: string;
+  /** Score */
+  score: number;
+  /** Weight */
+  weight: number;
+  /** Overlap Count */
+  overlap_count: number;
+  /**
+   * Elements Matched
+   * @default []
+   */
+  elements_matched?: string[];
+}
+
 /** HTTPValidationError */
 export interface HTTPValidationError {
   /** Detail */
@@ -176,6 +193,8 @@ export interface OccupationMatch {
   correlation: number;
   /** Description */
   description?: string | null;
+  /** Contributions */
+  contributions?: CategoryContribution[] | null;
 }
 
 /** Question */
@@ -194,6 +213,21 @@ export interface RecommendationResponse {
   matches: OccupationMatch[];
   /** Category */
   category: string;
+  /**
+   * Methodology
+   * @default "Multi-category weighted aggregation"
+   */
+  methodology?: string;
+  /**
+   * Total Occupations Analyzed
+   * @default 0
+   */
+  total_occupations_analyzed?: number;
+  /**
+   * Categories Used
+   * @default []
+   */
+  categories_used?: string[];
 }
 
 /** ResultItem */
@@ -338,6 +372,10 @@ export type AnalyzeAssessmentResultsError = HTTPValidationError;
 export type AnalyzeResultsData = RecommendationResponse;
 
 export type AnalyzeResultsError = HTTPValidationError;
+
+export type AnalyzeMultiCategoryData = RecommendationResponse;
+
+export type AnalyzeMultiCategoryError = HTTPValidationError;
 
 export interface GetUserAssessmentsParams {
   /** User Id */
