@@ -125,40 +125,6 @@ export class Brain<SecurityDataType = unknown> extends HttpClient<SecurityDataTy
     });
 
   /**
-   * @description Original single-category endpoint (backward compatibility)
-   *
-   * @tags dbtn/module:career_recommendation, dbtn/hasAuth
-   * @name analyze_results
-   * @summary Analyze Results
-   * @request POST:/routes/career-recommendation/analyze
-   */
-  analyze_results = (data: UserScores, params: RequestParams = {}) =>
-    this.request<AnalyzeResultsData, AnalyzeResultsError>({
-      path: `/routes/career-recommendation/analyze`,
-      method: "POST",
-      body: data,
-      type: ContentType.Json,
-      ...params,
-    });
-
-  /**
-   * @description New multi-category weighted aggregation endpoint
-   *
-   * @tags dbtn/module:career_recommendation, dbtn/hasAuth
-   * @name analyze_multi_category
-   * @summary Analyze Multi Category
-   * @request POST:/routes/career-recommendation/analyze-multi
-   */
-  analyze_multi_category = (data: UserScores, params: RequestParams = {}) =>
-    this.request<AnalyzeMultiCategoryData, AnalyzeMultiCategoryError>({
-      path: `/routes/career-recommendation/analyze-multi`,
-      method: "POST",
-      body: data,
-      type: ContentType.Json,
-      ...params,
-    });
-
-  /**
    * @description Retrieves all assessment results for a given user from Firestore. This includes interest, ability, knowledge, skills, and career recommendations. The data is intended for use by an n8n workflow to generate a comprehensive report.
    *
    * @tags dbtn/module:user_data
@@ -231,6 +197,40 @@ export class Brain<SecurityDataType = unknown> extends HttpClient<SecurityDataTy
   calculate_results = (data: AnswersRequest, params: RequestParams = {}) =>
     this.request<CalculateResultsData, CalculateResultsError>({
       path: `/routes/calculate-results`,
+      method: "POST",
+      body: data,
+      type: ContentType.Json,
+      ...params,
+    });
+
+  /**
+   * @description Original single-category endpoint (backward compatibility)
+   *
+   * @tags dbtn/module:career_recommendation, dbtn/hasAuth
+   * @name analyze_results
+   * @summary Analyze Results
+   * @request POST:/routes/career-recommendation/analyze
+   */
+  analyze_results = (data: UserScores, params: RequestParams = {}) =>
+    this.request<AnalyzeResultsData, AnalyzeResultsError>({
+      path: `/routes/career-recommendation/analyze`,
+      method: "POST",
+      body: data,
+      type: ContentType.Json,
+      ...params,
+    });
+
+  /**
+   * @description New multi-category weighted aggregation endpoint
+   *
+   * @tags dbtn/module:career_recommendation, dbtn/hasAuth
+   * @name analyze_multi_category
+   * @summary Analyze Multi Category
+   * @request POST:/routes/career-recommendation/analyze-multi
+   */
+  analyze_multi_category = (data: UserScores, params: RequestParams = {}) =>
+    this.request<AnalyzeMultiCategoryData, AnalyzeMultiCategoryError>({
+      path: `/routes/career-recommendation/analyze-multi`,
       method: "POST",
       body: data,
       type: ContentType.Json,

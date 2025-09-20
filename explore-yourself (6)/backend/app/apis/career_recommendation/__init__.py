@@ -98,10 +98,18 @@ def calculate_element_correlations_all(
     user_elements: List[Any],
     dataframe_name: str,
     element_type: str,
-    scale: str = "Level"
+    scale: str = "Level",
+    normalization_method: str = 'minmax'
 ) -> Tuple[Dict[str, float], Dict[str, int], Dict[str, List[str]]]:
     """
     Calculate correlations for all occupations in a category
+    
+    Args:
+        user_elements: List of user scores (SkillScore, AbilityScore, etc.)
+        dataframe_name: Name of the O*NET dataset to load
+        element_type: Type of element ('skills', 'abilities', 'knowledge')
+        scale: Scale to filter on (default 'Level')
+        normalization_method: 'minmax' or 'zscore' for scale normalization
     
     Returns:
         - scores: {occupation: correlation_score}
@@ -132,25 +140,35 @@ def calculate_element_correlations_all(
         user_dict = {item.name: item.rating for item in user_elements}
         user_profile = pd.Series(user_dict)
         
-        # Process each occupation
-        for occupation in pivot.index:
-            occupation_profile = pivot.loc[occupation]
+        # Check minimum overlap threshold BEFORE normalization
+        common_elements = list(
+            set(user_profile.index) & set(pivot.columns)
+        )
+        
+        if len(common_elements) < MIN_OVERLAP_THRESHOLD.get(element_type, 3):
+            print(f"Warning: Too few common {element_type} elements ({len(common_elements)} < {MIN_OVERLAP_THRESHOLD.get(element_type, 3)})")
+            return scores, overlaps, matched_elements
+        
+        # Apply normalization to get common elements and normalized values
+        normalized_pivot, normalized_user = normalize_vectors(
+            pivot, user_profile, method=normalization_method
+        )
+        
+        if normalized_pivot.empty or normalized_user.empty:
+            print(f"Warning: No common elements found for {element_type} normalization")
+            return scores, overlaps, matched_elements
             
-            # Find common elements
-            common_elements = list(
-                set(user_profile.index) & set(occupation_profile.index)
-            )
+        common_elements = list(normalized_user.index)
+        print(f"Processing {element_type}: {len(common_elements)} normalized elements")
+        
+        # Process each occupation - now we know all have enough overlap
+        for occupation in normalized_pivot.index:
+            # Get normalized profiles
+            occupation_profile = normalized_pivot.loc[occupation]
             
-            if len(common_elements) < MIN_OVERLAP_THRESHOLD.get(element_type, 3):
-                continue  # Skip if too few overlapping elements
-            
-            # Get aligned profiles
-            user_aligned = user_profile[common_elements]
-            occ_aligned = occupation_profile[common_elements]
-            
-            # Calculate Pearson correlation
-            if user_aligned.std() > 0 and occ_aligned.std() > 0:
-                r, _ = pearsonr(user_aligned, occ_aligned)
+            # Calculate Pearson correlation on normalized data
+            if normalized_user.std() > 0 and occupation_profile.std() > 0:
+                r, _ = pearsonr(normalized_user, occupation_profile)
                 # Convert to 0-1 range
                 score = (r + 1) / 2
                 
@@ -159,7 +177,7 @@ def calculate_element_correlations_all(
                 matched_elements[occupation] = common_elements
             
     except Exception as e:
-        logger.error(f"Error calculating {element_type} correlations: {str(e)}")
+        print(f"Error calculating {element_type} correlations: {str(e)}")
         
     return scores, overlaps, matched_elements
 
@@ -280,6 +298,79 @@ def aggregate_multi_category_scores(
     
     return aggregated
 
+def normalize_vectors(
+    occupation_df: pd.DataFrame, 
+    user_series: pd.Series, 
+    method: str = 'minmax'
+) -> Tuple[pd.DataFrame, pd.Series]:
+    """
+    Normalize both occupation data and user vector to comparable scales.
+    
+    Args:
+        occupation_df: DataFrame with occupations as rows, elements as columns
+        user_series: Series with user ratings for elements
+        method: 'minmax' for 0-1 scaling or 'zscore' for z-score normalization
+    
+    Returns:
+        Tuple of (normalized_occupation_df, normalized_user_series)
+        Both will only include common elements/features.
+    """
+    # Find common elements between user and occupation data
+    common_elements = list(
+        set(user_series.index) & set(occupation_df.columns)
+    )
+    
+    if len(common_elements) == 0:
+        logger.warning("No common elements found for normalization")
+        return pd.DataFrame(), pd.Series()
+    
+    # Subset to common elements only
+    occ_subset = occupation_df[common_elements].copy()
+    user_subset = user_series[common_elements].copy()
+    
+    if method == 'minmax':
+        # Min-max normalization: (x - min) / (max - min)
+        for element in common_elements:
+            col_min = occ_subset[element].min()
+            col_max = occ_subset[element].max()
+            
+            # Add epsilon to prevent division by zero
+            range_val = col_max - col_min
+            if range_val < 1e-8:  # Nearly constant column
+                logger.debug(f"Element '{element}' has near-zero variance, setting to 0.5")
+                occ_subset[element] = 0.5
+                user_subset[element] = 0.5
+            else:
+                # Normalize occupation data
+                occ_subset[element] = (occ_subset[element] - col_min) / range_val
+                # Normalize user data using same min/max
+                user_subset[element] = (user_subset[element] - col_min) / range_val
+                # Clip user values to [0,1] in case they fall outside occupation range
+                user_subset[element] = np.clip(user_subset[element], 0, 1)
+    
+    elif method == 'zscore':
+        # Z-score normalization: (x - mean) / std
+        for element in common_elements:
+            col_mean = occ_subset[element].mean()
+            col_std = occ_subset[element].std()
+            
+            # Add epsilon to prevent division by zero
+            if col_std < 1e-8:  # Nearly constant column
+                logger.debug(f"Element '{element}' has near-zero std, setting to 0")
+                occ_subset[element] = 0.0
+                user_subset[element] = 0.0
+            else:
+                # Normalize occupation data
+                occ_subset[element] = (occ_subset[element] - col_mean) / col_std
+                # Normalize user data using same mean/std
+                user_subset[element] = (user_subset[element] - col_mean) / col_std
+    
+    else:
+        raise ValueError(f"Unsupported normalization method: {method}")
+    
+    logger.debug(f"Normalized {len(common_elements)} elements using {method} method")
+    return occ_subset, user_subset
+
 # ============= Main Endpoints =============
 
 @router.post("/analyze")
@@ -336,21 +427,24 @@ def analyze_multi_category(user_scores: UserScores) -> RecommendationResponse:
                 category_scores,
                 "elements-abilities-csv",
                 'abilities',
-                scale="Level"
+                scale="Level",
+                normalization_method='minmax'
             )
         elif category_name == 'knowledge':
             scores, overlaps, elements = calculate_element_correlations_all(
                 category_scores,
                 "elements-knowledge-2-csv",
                 'knowledge',
-                scale="Level"
+                scale="Level",
+                normalization_method='minmax'
             )
         elif category_name == 'skills':
             scores, overlaps, elements = calculate_element_correlations_all(
                 category_scores,
                 "elements-skills-csv",
                 'skills',
-                scale="Level"
+                scale="Level",
+                normalization_method='minmax'
             )
         
         if scores:  # Only add if we got valid scores
@@ -431,7 +525,8 @@ def _calculate_skill_correlations(user_skills: List[SkillScore]) -> List[Occupat
         user_skills,
         "elements-skills-csv",
         'skills',
-        scale="Level"
+        scale="Level",
+        normalization_method='minmax'
     )
     
     sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
@@ -452,7 +547,8 @@ def _calculate_ability_correlations(user_abilities: List[AbilityScore]) -> List[
         user_abilities,
         "elements-abilities-csv",
         'abilities',
-        scale="Level"
+        scale="Level",
+        normalization_method='minmax'
     )
     
     sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
@@ -473,7 +569,8 @@ def _calculate_knowledge_correlations(user_knowledge: List[KnowledgeScore]) -> L
         user_knowledge,
         "elements-knowledge-2-csv",
         'knowledge',
-        scale="Level"
+        scale="Level",
+        normalization_method='minmax'
     )
     
     sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)

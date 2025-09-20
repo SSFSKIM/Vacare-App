@@ -109,36 +109,6 @@ export namespace Brain {
   }
 
   /**
-   * @description Original single-category endpoint (backward compatibility)
-   * @tags dbtn/module:career_recommendation, dbtn/hasAuth
-   * @name analyze_results
-   * @summary Analyze Results
-   * @request POST:/routes/career-recommendation/analyze
-   */
-  export namespace analyze_results {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = UserScores;
-    export type RequestHeaders = {};
-    export type ResponseBody = AnalyzeResultsData;
-  }
-
-  /**
-   * @description New multi-category weighted aggregation endpoint
-   * @tags dbtn/module:career_recommendation, dbtn/hasAuth
-   * @name analyze_multi_category
-   * @summary Analyze Multi Category
-   * @request POST:/routes/career-recommendation/analyze-multi
-   */
-  export namespace analyze_multi_category {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = UserScores;
-    export type RequestHeaders = {};
-    export type ResponseBody = AnalyzeMultiCategoryData;
-  }
-
-  /**
    * @description Retrieves all assessment results for a given user from Firestore. This includes interest, ability, knowledge, skills, and career recommendations. The data is intended for use by an n8n workflow to generate a comprehensive report.
    * @tags dbtn/module:user_data
    * @name get_user_assessments
@@ -214,5 +184,35 @@ export namespace Brain {
     export type RequestBody = AnswersRequest;
     export type RequestHeaders = {};
     export type ResponseBody = CalculateResultsData;
+  }
+
+  /**
+   * @description Original single-category endpoint (backward compatibility)
+   * @tags dbtn/module:career_recommendation, dbtn/hasAuth
+   * @name analyze_results
+   * @summary Analyze Results
+   * @request POST:/routes/career-recommendation/analyze
+   */
+  export namespace analyze_results {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = UserScores;
+    export type RequestHeaders = {};
+    export type ResponseBody = AnalyzeResultsData;
+  }
+
+  /**
+   * @description New multi-category weighted aggregation endpoint
+   * @tags dbtn/module:career_recommendation, dbtn/hasAuth
+   * @name analyze_multi_category
+   * @summary Analyze Multi Category
+   * @request POST:/routes/career-recommendation/analyze-multi
+   */
+  export namespace analyze_multi_category {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = UserScores;
+    export type RequestHeaders = {};
+    export type ResponseBody = AnalyzeMultiCategoryData;
   }
 }

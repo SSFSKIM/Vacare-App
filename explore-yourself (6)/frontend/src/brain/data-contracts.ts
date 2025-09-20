@@ -369,14 +369,6 @@ export type AnalyzeAssessmentResultsData = AnalysisResponse;
 
 export type AnalyzeAssessmentResultsError = HTTPValidationError;
 
-export type AnalyzeResultsData = RecommendationResponse;
-
-export type AnalyzeResultsError = HTTPValidationError;
-
-export type AnalyzeMultiCategoryData = RecommendationResponse;
-
-export type AnalyzeMultiCategoryError = HTTPValidationError;
-
 export interface GetUserAssessmentsParams {
   /** User Id */
   userId: string;
@@ -399,3 +391,11 @@ export type GetQuestionsData = Question[];
 export type CalculateResultsData = AssessmentResult;
 
 export type CalculateResultsError = HTTPValidationError;
+
+export type AnalyzeResultsData = RecommendationResponse;
+
+export type AnalyzeResultsError = HTTPValidationError;
+
+export type AnalyzeMultiCategoryData = RecommendationResponse;
+
+export type AnalyzeMultiCategoryError = HTTPValidationError;
