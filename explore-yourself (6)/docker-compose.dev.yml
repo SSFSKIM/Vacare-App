@@ -21,7 +21,6 @@ services:
     volumes:
       - ./frontend:/app/frontend
       - ./backend:/app/backend
-      - /app/frontend/node_modules  # Prevent overwriting node_modules
       - /app/backend/__pycache__    # Prevent overwriting cache
     restart: unless-stopped
     networks:
@@ -43,7 +42,6 @@ services:
       - REACT_APP_API_URL=http://localhost:8001
     volumes:
       - ./frontend:/app/frontend
-      - /app/frontend/node_modules
     networks:
       - va-care-dev-network
     profiles:
