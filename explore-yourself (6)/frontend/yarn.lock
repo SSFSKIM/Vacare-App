@@ -35822,6 +35822,7 @@ __metadata:
     react-pro-sidebar: "npm:^1.1.0"
     react-quill: "npm:2.0.0"
     react-reader: "npm:2.0.12"
+    react-refresh: "npm:0.17.0"
     react-remark: "npm:2.1.0"
     react-resizable-panels: "npm:^2.1.2"
     react-rnd: "npm:^10.5.2"
@@ -50401,7 +50402,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-refresh@npm:^0.17.0":
+"react-refresh@npm:0.17.0, react-refresh@npm:^0.17.0":
   version: 0.17.0
   resolution: "react-refresh@npm:0.17.0"
   checksum: 002cba940384c9930008c0bce26cac97a9d5682bc623112c2268ba0c155127d9c178a9a5cc2212d560088d60dfd503edd808669a25f9b377f316a32361d0b23c
