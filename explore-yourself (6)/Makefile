@@ -1,19 +1,26 @@
-install-backend:
-	chmod +x backend/install.sh
-	chmod +x backend/run.sh
-	cd backend && ./install.sh
+.PHONY: build up down logs dev prod clean
 
-install-frontend:
-	chmod +x frontend/install.sh
-	chmod +x frontend/run.sh
-	cd frontend && ./install.sh
+# 개발 환경
+dev:
+	docker-compose -f docker-compose.dev.yml up --build
 
-install: install-backend install-frontend
+# 프로덕션 환경
+prod:
+	docker-compose up --build
 
-run-backend:
-	cd backend && ./run.sh
+# 백그라운드 실행
+up:
+	docker-compose up -d --build
 
-run-frontend:
-	cd frontend && ./run.sh
+# 중지
+down:
+	docker-compose down
 
-.DEFAULT_GOAL := install
+# 로그 확인
+logs:
+	docker-compose logs -f
+
+# 정리
+clean:
+	docker-compose down -v
+	docker system prune -f
