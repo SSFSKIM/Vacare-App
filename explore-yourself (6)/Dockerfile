@@ -3,9 +3,10 @@ FROM node:18-alpine AS frontend-builder
 
 WORKDIR /app/frontend
 
-# Copy package files
-COPY frontend/package.json frontend/yarn.lock ./
-RUN yarn install --frozen-lockfile
+# Copy package files for Yarn PnP
+COPY frontend/package.json frontend/yarn.lock frontend/.pnp.cjs frontend/.pnp.loader.mjs ./
+COPY frontend/.yarn /app/frontend/.yarn
+RUN corepack enable && corepack prepare yarn@4.0.2 --activate && yarn install
 
 # Copy frontend source
 COPY frontend/ ./

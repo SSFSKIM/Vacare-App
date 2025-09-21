@@ -1400,6 +1400,26 @@ class ScoreCalibrationResponse(BaseModel):
     auc_after: Optional[float] = None
     samples: int
 
+
+class BootstrapValidationRequest(BaseModel):
+    dataset_name: Optional[str] = "career-validation-csv"
+    sample_occupations: Optional[int] = 200
+    positives_per_occupation: Optional[int] = 1
+    negatives_per_positive: Optional[int] = 3
+    topn_abilities: Optional[int] = 6
+    topn_skills: Optional[int] = 6
+    topn_knowledge: Optional[int] = 6
+    include_interests: Optional[bool] = True
+    noise_std: Optional[float] = 5.0
+
+
+class BootstrapValidationResponse(BaseModel):
+    dataset_name: str
+    occupations_used: int
+    rows: int
+    positives: int
+    negatives: int
+
 @router.post("/analyze")
 def analyze_results(user_scores: UserScores) -> RecommendationResponse:
     """
@@ -1524,6 +1544,134 @@ async def calibrate_scores(req: ScoreCalibrationRequest) -> ScoreCalibrationResp
     return ScoreCalibrationResponse(**result)
 
 
+@router.post("/bootstrap-validation")
+async def bootstrap_validation(req: BootstrapValidationRequest) -> BootstrapValidationResponse:
+    """Generate a synthetic validation dataset from O*NET frames.
+
+    Builds user-like profiles from top Level×Importance features of each occupation
+    and pairs them with positive (target occupation) and negative (other occupations)
+    samples to enable initial weight/threshold optimization in the absence of logs.
+    """
+    if db is None:
+        raise HTTPException(status_code=503, detail="Databutton storage unavailable in this environment")
+
+    try:
+        # Load frames
+        abil = db.storage.dataframes.get("elements-abilities-csv")
+        skl = db.storage.dataframes.get("elements-skills-csv")
+        knw = db.storage.dataframes.get("elements-knowledge-2-csv")
+        itx = db.storage.dataframes.get("elements-interests-csv") if req.include_interests else None
+
+        if abil is None or skl is None or knw is None:
+            raise HTTPException(status_code=503, detail="Required O*NET frames missing")
+
+        # Helper to compute top-N element lists per occupation
+        def topn(df: pd.DataFrame, n: int) -> Dict[str, List[Tuple[str, float]]]:
+            df_imp = df[df["Scale Name"] == "Importance"][["Title", "Element Name", "Data Value"]]
+            df_lvl = df[df["Scale Name"] == "Level"]["Data Value"]
+            merged = df[df["Scale Name"] == "Level"][['Title', 'Element Name', 'Data Value']].copy()
+            merged.rename(columns={"Data Value": "Level"}, inplace=True)
+            df_imp2 = df_imp.rename(columns={"Data Value": "Importance"})
+            merged = merged.merge(df_imp2, on=["Title", "Element Name"], how="left")
+            merged["score"] = merged["Level"].fillna(0.0) * (merged["Importance"].fillna(0.0) / 100.0)
+            top_map: Dict[str, List[Tuple[str, float]]] = {}
+            for title, grp in merged.groupby("Title"):
+                top = grp.sort_values("score", ascending=False).head(n)
+                top_map[str(title)] = [(str(r["Element Name"]), float(r["Level"])) for _, r in top.iterrows()]
+            return top_map
+
+        top_abil = topn(abil, int(req.topn_abilities or 0)) if (req.topn_abilities or 0) > 0 else {}
+        top_skl = topn(skl, int(req.topn_skills or 0)) if (req.topn_skills or 0) > 0 else {}
+        top_knw = topn(knw, int(req.topn_knowledge or 0)) if (req.topn_knowledge or 0) > 0 else {}
+
+        occ_titles = sorted(set(top_abil.keys()) | set(top_skl.keys()) | set(top_knw.keys()))
+        if req.sample_occupations and req.sample_occupations > 0:
+            occ_titles = occ_titles[: int(req.sample_occupations)]
+
+        # Precompute occupation interest profiles
+        occ_interests: Dict[str, Dict[str, float]] = {}
+        if itx is not None:
+            for _, row in itx.iterrows():
+                t = str(row['Title'])
+                occ_interests.setdefault(t, {})[str(row['Element Name'])] = float(row['Data Value'])
+
+        rng = np.random.default_rng()
+        rows: List[Dict[str, Any]] = []
+
+        def make_items(pairs: List[Tuple[str, float]], noise_std: float) -> List[Dict[str, Any]]:
+            items = []
+            for name, level in pairs:
+                noisy = float(np.clip(level + rng.normal(0.0, noise_std), 0.0, 100.0))
+                items.append({"name": name, "rating": noisy})
+            return items
+
+        neg_per_pos = int(req.negatives_per_positive or 0)
+        pos_per_occ = int(req.positives_per_occupation or 1)
+        noise = float(req.noise_std or 0.0)
+
+        for title in occ_titles:
+            abil_items = make_items(top_abil.get(title, []), noise)
+            skl_items = make_items(top_skl.get(title, []), noise)
+            knw_items = make_items(top_knw.get(title, []), noise)
+
+            interests_items: List[Dict[str, Any]] = []
+            if req.include_interests and title in occ_interests:
+                prof = occ_interests[title]
+                total = sum(prof.values()) or 1.0
+                for k, v in prof.items():
+                    interests_items.append({"name": k, "rating": float(100.0 * v / total)})
+
+            for _ in range(max(1, pos_per_occ)):
+                # Positive sample
+                rows.append({
+                    "interests": interests_items or None,
+                    "abilities": abil_items or None,
+                    "knowledge": knw_items or None,
+                    "skills": skl_items or None,
+                    "occupation": title,
+                    "label": 1
+                })
+
+                # Negatives for the same user profile
+                if neg_per_pos > 0 and len(occ_titles) > 1:
+                    neg_choices = [o for o in occ_titles if o != title]
+                    pick = rng.choice(neg_choices, size=min(neg_per_pos, len(neg_choices)), replace=False)
+                    for neg_title in np.atleast_1d(pick):
+                        rows.append({
+                            "interests": interests_items or None,
+                            "abilities": abil_items or None,
+                            "knowledge": knw_items or None,
+                            "skills": skl_items or None,
+                            "occupation": str(neg_title),
+                            "label": 0
+                        })
+
+        df = pd.DataFrame(rows)
+
+        # Try to persist dataset into Databutton storage
+        saved = False
+        for method in ("put", "set"):
+            try:
+                saver = getattr(db.storage.dataframes, method, None)
+                if saver is not None:
+                    saver(req.dataset_name or "career-validation-csv", df)
+                    saved = True
+                    break
+            except Exception:
+                continue
+
+        return BootstrapValidationResponse(
+            dataset_name=req.dataset_name or "career-validation-csv",
+            occupations_used=len(occ_titles),
+            rows=len(df),
+            positives=int(df['label'].sum()),
+            negatives=int(len(df) - int(df['label'].sum()))
+        )
+
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Bootstrap generation failed: {exc}")
 @router.post("/analyze-multi")
 def analyze_multi_category(user_scores: UserScores) -> RecommendationResponse:
     """
