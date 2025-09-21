@@ -329,6 +329,7 @@
     "react-pro-sidebar": "^1.1.0",
     "react-quill": "2.0.0",
     "react-reader": "2.0.12",
+    "react-refresh": "0.17.0",
     "react-remark": "2.1.0",
     "react-resizable-panels": "^2.1.2",
     "react-rnd": "^10.5.2",
