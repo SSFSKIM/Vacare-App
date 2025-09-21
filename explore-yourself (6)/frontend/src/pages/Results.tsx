@@ -57,7 +57,7 @@ const handleAnalyzeCareers = useCallback(async () => {
 
   try {
     // 수정된 부분: Interest는 category를 name으로 사용
-    const response = await brain.analyze_results({
+    const response = await brain.analyze_multi_category({
       interests: interest.results.map((r) => ({
         name: r.category,  // 이 부분이 핵심 - category를 name으로 사용
         rating: r.score,

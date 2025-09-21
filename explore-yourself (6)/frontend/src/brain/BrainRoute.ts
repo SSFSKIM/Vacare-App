@@ -9,12 +9,19 @@ import {
   CalculateKnowledgeResultsData,
   CalculateResultsData,
   CalculateSkillResultsData,
+  CalibrateData,
+  CalibrateScoresData,
+  CalibrationRequest,
   CheckHealthData,
   GetAbilityQuestionsData,
+  GetCalibrationData,
   GetKnowledgeQuestionsData,
   GetQuestionsData,
   GetSkillQuestionsData,
   GetUserAssessmentsData,
+  OptimizationRequest,
+  OptimizeWeightsData,
+  ScoreCalibrationRequest,
   UserScores,
 } from "./data-contracts";
 
@@ -199,6 +206,66 @@ export namespace Brain {
     export type RequestBody = UserScores;
     export type RequestHeaders = {};
     export type ResponseBody = AnalyzeResultsData;
+  }
+
+  /**
+   * @description Return the current calibration values and a small sample of rules.
+   * @tags dbtn/module:career_recommendation, dbtn/hasAuth
+   * @name get_calibration
+   * @summary Get Calibration
+   * @request GET:/routes/career-recommendation/calibration
+   */
+  export namespace get_calibration {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetCalibrationData;
+  }
+
+  /**
+   * @description Re-run calibration using live O*NET frames from Databutton storage.
+   * @tags dbtn/module:career_recommendation, dbtn/hasAuth
+   * @name calibrate
+   * @summary Calibrate
+   * @request POST:/routes/career-recommendation/calibrate
+   */
+  export namespace calibrate {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = CalibrationRequest;
+    export type RequestHeaders = {};
+    export type ResponseBody = CalibrateData;
+  }
+
+  /**
+   * No description
+   * @tags dbtn/module:career_recommendation, dbtn/hasAuth
+   * @name optimize_weights
+   * @summary Optimize Weights
+   * @request POST:/routes/career-recommendation/optimize-weights
+   */
+  export namespace optimize_weights {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = OptimizationRequest;
+    export type RequestHeaders = {};
+    export type ResponseBody = OptimizeWeightsData;
+  }
+
+  /**
+   * No description
+   * @tags dbtn/module:career_recommendation, dbtn/hasAuth
+   * @name calibrate_scores
+   * @summary Calibrate Scores
+   * @request POST:/routes/career-recommendation/calibrate-scores
+   */
+  export namespace calibrate_scores {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = ScoreCalibrationRequest;
+    export type RequestHeaders = {};
+    export type ResponseBody = CalibrateScoresData;
   }
 
   /**
