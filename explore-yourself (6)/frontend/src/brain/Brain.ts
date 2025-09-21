@@ -16,14 +16,24 @@ import {
   CalculateResultsError,
   CalculateSkillResultsData,
   CalculateSkillResultsError,
+  CalibrateData,
+  CalibrateError,
+  CalibrateScoresData,
+  CalibrateScoresError,
+  CalibrationRequest,
   CheckHealthData,
   GetAbilityQuestionsData,
+  GetCalibrationData,
   GetKnowledgeQuestionsData,
   GetQuestionsData,
   GetSkillQuestionsData,
   GetUserAssessmentsData,
   GetUserAssessmentsError,
   GetUserAssessmentsParams,
+  OptimizationRequest,
+  OptimizeWeightsData,
+  OptimizeWeightsError,
+  ScoreCalibrationRequest,
   UserScores,
 } from "./data-contracts";
 import { ContentType, HttpClient, RequestParams } from "./http-client";
@@ -214,6 +224,72 @@ export class Brain<SecurityDataType = unknown> extends HttpClient<SecurityDataTy
   analyze_results = (data: UserScores, params: RequestParams = {}) =>
     this.request<AnalyzeResultsData, AnalyzeResultsError>({
       path: `/routes/career-recommendation/analyze`,
+      method: "POST",
+      body: data,
+      type: ContentType.Json,
+      ...params,
+    });
+
+  /**
+   * @description Return the current calibration values and a small sample of rules.
+   *
+   * @tags dbtn/module:career_recommendation, dbtn/hasAuth
+   * @name get_calibration
+   * @summary Get Calibration
+   * @request GET:/routes/career-recommendation/calibration
+   */
+  get_calibration = (params: RequestParams = {}) =>
+    this.request<GetCalibrationData, any>({
+      path: `/routes/career-recommendation/calibration`,
+      method: "GET",
+      ...params,
+    });
+
+  /**
+   * @description Re-run calibration using live O*NET frames from Databutton storage.
+   *
+   * @tags dbtn/module:career_recommendation, dbtn/hasAuth
+   * @name calibrate
+   * @summary Calibrate
+   * @request POST:/routes/career-recommendation/calibrate
+   */
+  calibrate = (data: CalibrationRequest, params: RequestParams = {}) =>
+    this.request<CalibrateData, CalibrateError>({
+      path: `/routes/career-recommendation/calibrate`,
+      method: "POST",
+      body: data,
+      type: ContentType.Json,
+      ...params,
+    });
+
+  /**
+   * No description
+   *
+   * @tags dbtn/module:career_recommendation, dbtn/hasAuth
+   * @name optimize_weights
+   * @summary Optimize Weights
+   * @request POST:/routes/career-recommendation/optimize-weights
+   */
+  optimize_weights = (data: OptimizationRequest, params: RequestParams = {}) =>
+    this.request<OptimizeWeightsData, OptimizeWeightsError>({
+      path: `/routes/career-recommendation/optimize-weights`,
+      method: "POST",
+      body: data,
+      type: ContentType.Json,
+      ...params,
+    });
+
+  /**
+   * No description
+   *
+   * @tags dbtn/module:career_recommendation, dbtn/hasAuth
+   * @name calibrate_scores
+   * @summary Calibrate Scores
+   * @request POST:/routes/career-recommendation/calibrate-scores
+   */
+  calibrate_scores = (data: ScoreCalibrationRequest, params: RequestParams = {}) =>
+    this.request<CalibrateScoresData, CalibrateScoresError>({
+      path: `/routes/career-recommendation/calibrate-scores`,
       method: "POST",
       body: data,
       type: ContentType.Json,

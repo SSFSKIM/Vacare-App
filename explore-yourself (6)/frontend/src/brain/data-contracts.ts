@@ -102,6 +102,49 @@ export interface AssessmentResult {
   topCategories: string[];
 }
 
+/** CalibrationRequest */
+export interface CalibrationRequest {
+  /**
+   * Importance Percentile
+   * @default 75
+   */
+  importance_percentile?: number | null;
+  /**
+   * Level Percentile
+   * @default 65
+   */
+  level_percentile?: number | null;
+  /**
+   * Top K
+   * @default 20
+   */
+  top_k?: number | null;
+  /** Dataset Name */
+  dataset_name?: string | null;
+  /** Importance Candidates */
+  importance_candidates?: number[] | null;
+  /** Ratio Candidates */
+  ratio_candidates?: number[] | null;
+}
+
+/** CalibrationResponse */
+export interface CalibrationResponse {
+  /** Importance Critical Threshold */
+  importance_critical_threshold: number;
+  /** Min Requirement Ratio */
+  min_requirement_ratio: number;
+  /** Rules Count */
+  rules_count: number;
+  /** Sample Rules */
+  sample_rules: Record<string, any>[];
+  /** Dimension Weights */
+  dimension_weights: Record<string, number>;
+  /** Combination Weights */
+  combination_weights: Record<string, number>;
+  /** Score Calibration */
+  score_calibration: Record<string, any>;
+}
+
 /** CareerMatch */
 export interface CareerMatch {
   /** Title */
@@ -195,6 +238,35 @@ export interface OccupationMatch {
   description?: string | null;
   /** Contributions */
   contributions?: CategoryContribution[] | null;
+  /** Raw Score */
+  raw_score?: number | null;
+  /** Calibrated */
+  calibrated?: boolean | null;
+}
+
+/** OptimizationRequest */
+export interface OptimizationRequest {
+  /**
+   * Dataset Name
+   * @default "career-validation-csv"
+   */
+  dataset_name?: string | null;
+  /** Dimension Candidates */
+  dimension_candidates?: Record<string, number>[] | null;
+  /** Combination Candidates */
+  combination_candidates?: Record<string, number>[] | null;
+}
+
+/** OptimizationResponse */
+export interface OptimizationResponse {
+  /** Dimension Weights */
+  dimension_weights: Record<string, number>;
+  /** Combination Weights */
+  combination_weights: Record<string, number>;
+  /** Auc */
+  auc: number;
+  /** Evaluated Pairs */
+  evaluated_pairs: number;
 }
 
 /** Question */
@@ -238,6 +310,41 @@ export interface ResultItem {
   score: number;
   /** Description */
   description: string;
+}
+
+/** ScoreCalibrationRequest */
+export interface ScoreCalibrationRequest {
+  /**
+   * Dataset Name
+   * @default "career-validation-csv"
+   */
+  dataset_name?: string | null;
+  /**
+   * Learning Rate
+   * @default 0.01
+   */
+  learning_rate?: number | null;
+  /**
+   * Max Iter
+   * @default 500
+   */
+  max_iter?: number | null;
+}
+
+/** ScoreCalibrationResponse */
+export interface ScoreCalibrationResponse {
+  /** A */
+  A: number;
+  /** B */
+  B: number;
+  /** Iterations */
+  iterations: number;
+  /** Auc Before */
+  auc_before: number;
+  /** Auc After */
+  auc_after?: number | null;
+  /** Samples */
+  samples: number;
 }
 
 /** ScoreItem */
@@ -395,6 +502,20 @@ export type CalculateResultsError = HTTPValidationError;
 export type AnalyzeResultsData = RecommendationResponse;
 
 export type AnalyzeResultsError = HTTPValidationError;
+
+export type GetCalibrationData = CalibrationResponse;
+
+export type CalibrateData = CalibrationResponse;
+
+export type CalibrateError = HTTPValidationError;
+
+export type OptimizeWeightsData = OptimizationResponse;
+
+export type OptimizeWeightsError = HTTPValidationError;
+
+export type CalibrateScoresData = ScoreCalibrationResponse;
+
+export type CalibrateScoresError = HTTPValidationError;
 
 export type AnalyzeMultiCategoryData = RecommendationResponse;
 
