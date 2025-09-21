@@ -18,7 +18,8 @@ declare const __API_PATH__: string;
 export const API_PATH = __API_PATH__;
 
 declare const __API_URL__: string;
-export const API_URL = __API_URL__;
+const DEFAULT_API_PATH = '/routes';
+export const API_URL = __API_URL__ && __API_URL__.length > 0 ? __API_URL__ : DEFAULT_API_PATH;
 
 declare const __API_HOST__: string;
 export const API_HOST = __API_HOST__;
@@ -27,7 +28,20 @@ declare const __API_PREFIX_PATH__: string;
 export const API_PREFIX_PATH = __API_PREFIX_PATH__;
 
 declare const __WS_API_URL__: string;
-export const WS_API_URL = __WS_API_URL__;
+const resolveWsUrl = (): string => {
+  if (__WS_API_URL__ && __WS_API_URL__.length > 0) {
+    return __WS_API_URL__;
+  }
+
+  if (typeof window !== 'undefined') {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    return `${protocol}//${window.location.host}${DEFAULT_API_PATH}`;
+  }
+
+  return `ws://localhost:8000${DEFAULT_API_PATH}`;
+};
+
+export const WS_API_URL = resolveWsUrl();
 
 declare const __APP_BASE_PATH__: string;
 export const APP_BASE_PATH = __APP_BASE_PATH__;

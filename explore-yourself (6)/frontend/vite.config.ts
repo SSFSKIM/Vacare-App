@@ -44,14 +44,19 @@ const getExtensionConfig = (name: string): string => {
 
 const buildVariables = () => {
 	const appId = process.env.DATABUTTON_PROJECT_ID;
+	const envApiUrl = process.env.VITE_API_URL?.trim();
+	const envWsUrl = process.env.VITE_WS_API_URL?.trim();
+
+	const apiUrl = envApiUrl && envApiUrl.length > 0 ? envApiUrl : "/routes";
+	const wsUrl = envWsUrl && envWsUrl.length > 0 ? envWsUrl : "";
 
 	const defines: Record<string, string> = {
 		__APP_ID__: JSON.stringify(appId),
 		__API_PATH__: JSON.stringify(""),
 		__API_HOST__: JSON.stringify(""),
 		__API_PREFIX_PATH__: JSON.stringify(""),
-		__API_URL__: JSON.stringify("http://localhost:8000"),
-		__WS_API_URL__: JSON.stringify("ws://localhost:8000"),
+		__API_URL__: JSON.stringify(apiUrl),
+		__WS_API_URL__: JSON.stringify(wsUrl),
 		__APP_BASE_PATH__: JSON.stringify("/"),
 		__APP_TITLE__: JSON.stringify("Databutton"),
 		__APP_FAVICON_LIGHT__: JSON.stringify("/favicon-light.svg"),
