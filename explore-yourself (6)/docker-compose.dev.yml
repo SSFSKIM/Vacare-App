@@ -95,7 +95,8 @@ services:
       - "5433:5432"  # Different port to avoid conflicts
     volumes:
       - postgres_dev_data:/var/lib/postgresql/data
-      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+      # Init SQL file not present; remove to avoid startup error
+      # - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - va-care-dev-network
 

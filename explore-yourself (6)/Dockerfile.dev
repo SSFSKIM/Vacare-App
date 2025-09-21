@@ -92,6 +92,10 @@ RUN corepack enable && corepack prepare yarn@4.0.2 --activate && yarn install
 WORKDIR /app
 COPY . .
 
+# Ensure frontend dependencies match copied sources
+WORKDIR /app/frontend
+RUN corepack enable && corepack prepare yarn@4.0.2 --activate && yarn install --immutable || yarn install
+
 # Create startup script
 RUN echo '#!/bin/bash\n\
 cd /app/frontend && yarn dev &\n\
