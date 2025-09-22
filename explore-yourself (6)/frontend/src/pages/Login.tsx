@@ -5,9 +5,38 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useFirebaseAssessmentStore, initializeFirebaseAssessment } from '../utils/firebase-assessment-store';
 import { firebaseAuth } from 'app';
+import { FirebaseError } from 'firebase/app';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
+
+const logFirebaseAuthError = (context: string, error: unknown) => {
+  if (!import.meta.env.PROD) {
+    return;
+  }
+
+  if (error instanceof FirebaseError) {
+    console.error(`[Firebase][${context}]`, { code: error.code, message: error.message });
+    return;
+  }
+
+  console.error(`[Firebase][${context}]`, error);
+};
+
+const resolveAuthErrorMessage = (error: unknown, fallback: string) => {
+  if (error instanceof FirebaseError) {
+    return error.message || fallback;
+  }
+
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    const message = (error as { message?: unknown }).message;
+    if (typeof message === 'string' && message.length > 0) {
+      return message;
+    }
+  }
+
+  return fallback;
+};
 
 export default function Login() {
   const navigate = useNavigate();
@@ -39,8 +68,9 @@ export default function Login() {
       await signInWithEmailAndPassword(firebaseAuth, email, password);
       // Reset data for the user is now handled automatically via auth state changes
       navigate('/');
-    } catch (err: any) {
-      setError(err.message || 'Failed to sign in. Please try again.');
+    } catch (error: unknown) {
+      logFirebaseAuthError('email-sign-in', error);
+      setError(resolveAuthErrorMessage(error, 'Failed to sign in. Please try again.'));
     } finally {
       setIsLoading(false);
     }
@@ -54,6 +84,18 @@ export default function Login() {
       setError('Passwords do not match');
       return;
     }
+
+    const activeUser = firebaseAuth.currentUser;
+    if (activeUser) {
+      setError('You are already signed in. Please sign out before creating a new account.');
+      const context = { uid: activeUser.uid, email: activeUser.email ?? undefined };
+      if (import.meta.env.PROD) {
+        console.warn('[Firebase][sign-up] Sign-up attempt blocked because a session is already active.', context);
+      } else {
+        console.warn('Sign-up attempt blocked because a session is already active.', context);
+      }
+      return;
+    }
     
     setIsLoading(true);
     
@@ -63,8 +105,9 @@ export default function Login() {
       // await updateProfile(result.user, { displayName });
       // Reset data for the new user is now handled automatically via auth state changes
       navigate('/');
-    } catch (err: any) {
-      setError(err.message || 'Failed to create account. Please try again.');
+    } catch (error: unknown) {
+      logFirebaseAuthError('email-sign-up', error);
+      setError(resolveAuthErrorMessage(error, 'Failed to create account. Please try again.'));
     } finally {
       setIsLoading(false);
     }
@@ -78,8 +121,9 @@ export default function Login() {
       await signInWithPopup(firebaseAuth, new GoogleAuthProvider());
       // Reset data for the user is now handled automatically via auth state changes
       navigate('/');
-    } catch (err: any) {
-      setError(err.message || 'Failed to sign in with Google. Please try again.');
+    } catch (error: unknown) {
+      logFirebaseAuthError('google-sign-in', error);
+      setError(resolveAuthErrorMessage(error, 'Failed to sign in with Google. Please try again.'));
     } finally {
       setIsLoading(false);
     }
