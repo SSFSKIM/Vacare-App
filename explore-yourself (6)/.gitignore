@@ -1,0 +1,3 @@
+# Environment files at repo root
+.env
+!.env.example
