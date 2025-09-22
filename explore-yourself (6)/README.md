@@ -27,3 +27,8 @@ make run-frontend
 The backend server runs on port 8000 and the frontend development server runs on port 5173. The frontend Vite server proxies API requests to the backend on port 8000.
 
 Visit <http://localhost:5173> to view the application.
+
+## Documentation
+
+- Product Requirements (PRD): [docs/PRD.md](docs/PRD.md)
+- Technical Requirements (TRD): [docs/TRD.md](docs/TRD.md)

@@ -292,3 +292,8 @@ rm -rf backend/__pycache__
 - **Firebase Docs**: https://firebase.google.com/docs
 - **Databutton Docs**: https://docs.databutton.com
 - **FastAPI Docs**: https://fastapi.tiangolo.com
+
+## Product & Technical Docs
+
+- PRD: [docs/PRD.md](explore-yourself%20(6)/docs/PRD.md)
+- TRD: [docs/TRD.md](explore-yourself%20(6)/docs/TRD.md)
