@@ -38,9 +38,15 @@ const constructClient = () => {
     baseApiParams,
     customFetch: (url, options) => {
       if (API_HOST && API_HOST !== "api.databutton.com") {
-        // Remove /routes/ segment from start of path if
-        // running API through custom domain
-        return fetch(url.replace("/api/routes/", "/api/"), options);
+        try {
+          const u = new URL(url);
+          // Handle both "/api/routes/" and "/api//routes/" and normalize any double slashes
+          u.pathname = u.pathname.replace(/^\/api\/+routes\//, "/api/").replace(/\/{2,}/g, "/");
+          return fetch(u.toString(), options);
+        } catch {
+          // Fallback: regex replace on the full URL string
+          return fetch(url.replace(/\/api\/+routes\//, "/api/"), options);
+        }
       }
 
       return fetch(url, options);
