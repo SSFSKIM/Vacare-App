@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { } from "react-router-dom";
 import { AuthProvider } from "../components/AuthProvider";
 import { NavigationBar } from "../components/NavigationBar";
 import { TestCard } from "../components/TestCard";
@@ -102,10 +102,9 @@ export default function App() {
 
   return (
     <AuthProvider>
-      <Routes>
-        <Route path="/login" element={<PageErrorBoundary><Login /></PageErrorBoundary>} />
-        <Route path="/" element={<PageErrorBoundary><Home /></PageErrorBoundary>} />
-      </Routes>
+      <PageErrorBoundary>
+        <Home />
+      </PageErrorBoundary>
     </AuthProvider>
   );
 }
