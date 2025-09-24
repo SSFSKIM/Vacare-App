@@ -1,12 +1,15 @@
 # syntax=docker/dockerfile:1
 
-FROM python:3.11-slim
+FROM python:3.13-slim AS runtime
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_NO_CACHE_DIR=1
 
 WORKDIR /app
 
+# Install build tooling required for scipy / numpy and other native deps
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
@@ -31,7 +34,10 @@ COPY ["explore-yourself (6)/backend/", "/app/"]
 
 RUN adduser --system --group appuser \
     && chown -R appuser:appuser /app
+
 USER appuser
+
+ENV PORT=8000
 
 EXPOSE 8000
 

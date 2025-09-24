@@ -1,2 +1,5 @@
 # macOS metadata files
 .DS_Store
+
+# Docker environment secrets
+docker/.env.production

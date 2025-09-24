@@ -32,3 +32,10 @@ Visit <http://localhost:5173> to view the application.
 
 - Product Requirements (PRD): [docs/PRD.md](docs/PRD.md)
 - Technical Requirements (TRD): [docs/TRD.md](docs/TRD.md)
+
+## Production with Docker
+
+1. Copy `docker/.env.production.example` to `docker/.env.production` and fill in the values (Firebase config, Databutton extensions, API keys).
+2. Build and start the stack with `docker compose --env-file docker/.env.production up --build -d` from the repository root.
+3. The backend is exposed on `http://localhost:8000` and proxied via the frontend container served on `http://localhost:8080` by default.
+4. Tail logs with `docker compose logs -f backend frontend` and stop the stack using `docker compose down` when you are done.
