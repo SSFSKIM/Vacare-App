@@ -5,30 +5,8 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from typing import Dict, Any, Optional
-import firebase_admin
-from firebase_admin import credentials, firestore
-import databutton as db
-import json
 
-# Initialize Firebase Admin SDK only if it hasn't been initialized yet.
-if not firebase_admin._apps:
-    try:
-        # Retrieve the service account key from Databutton secrets
-        key_json_string = db.secrets.get("FIREBASE_SERVICE_ACCOUNT_KEY")
-        key_dict = json.loads(key_json_string)
-        cred = credentials.Certificate(key_dict)
-        firebase_admin.initialize_app(cred)
-        print("Firebase Admin SDK initialized successfully.")
-    except Exception as e:
-        # Log the error for debugging. The API endpoints will fail if this part fails.
-        print(f"ERROR: Firebase Admin SDK initialization failed: {e}")
-
-# Get the Firestore client
-try:
-    db_client = firestore.client()
-except Exception as e:
-    db_client = None
-    print(f"ERROR: Could not get Firestore client: {e}")
+from app.services.firebase import FirebaseInitializationError, get_assessments_collection
 
 
 router = APIRouter()
@@ -48,11 +26,12 @@ async def get_user_assessments(user_id: str):
     This includes interest, ability, knowledge, skills, and career recommendations.
     The data is intended for use by an n8n workflow to generate a comprehensive report.
     """
-    if db_client is None:
-        raise HTTPException(status_code=500, detail="Firestore client not initialized")
-        
     try:
-        assessments_ref = db_client.collection('assessments').document(user_id)
+        assessments_ref = get_assessments_collection().document(user_id)
+    except FirebaseInitializationError as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+    try:
         doc = assessments_ref.get()
 
         if not doc.exists:
