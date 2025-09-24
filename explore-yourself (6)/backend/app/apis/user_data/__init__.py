@@ -24,7 +24,7 @@ async def get_user_assessments(user_id: str):
     """
     Retrieves all assessment results for a given user from Firestore.
     This includes interest, ability, knowledge, skills, and career recommendations.
-    The data is intended for use by an n8n workflow to generate a comprehensive report.
+    The aggregated data is used by the AI-powered report generation endpoints.
     """
     try:
         assessments_ref = get_assessments_collection().document(user_id)
