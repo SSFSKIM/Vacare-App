@@ -11,7 +11,7 @@ import { SkillResults } from 'components/SkillResults';
 import { InterestTab } from 'components/InterestTab';
 import { CareerRecommendations } from "components/CareerRecommendations";
 import { Button } from "@/components/ui/button";
-import { useUserGuardContext } from "app";
+import { auth, useUserGuardContext } from "app";
 import { toast } from "sonner";
 import brain from 'brain';
 import {
@@ -99,25 +99,24 @@ const handleAnalyzeCareers = useCallback(async () => {
     toast.info("Generating your career report... This may take a moment.");
 
     try {
-      // Direct brain API call for report generation if available
-      // Otherwise use existing n8n webhook approach
-      const webhookUrl = "https://hook.eu2.make.com/w7k6u4bxj1rtcrmqv0p31ixlrqabxcgd";
-      
       const requestBody = {
         userId: user.uid,
-        timestamp: new Date().toISOString(),
+        userEmail: user.email ?? undefined,
       };
 
-      const response = await fetch(webhookUrl, {
+      const response = await fetch("/routes/generate-comprehensive-report", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: await auth.getAuthHeaderValue(),
         },
+        credentials: "include",
         body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
       }
 
       const reportData = await response.json();
