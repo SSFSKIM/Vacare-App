@@ -11,9 +11,10 @@ import { SkillResults } from 'components/SkillResults';
 import { InterestTab } from 'components/InterestTab';
 import { CareerRecommendations } from "components/CareerRecommendations";
 import { Button } from "@/components/ui/button";
-import { auth, useUserGuardContext } from "app";
+import { useUserGuardContext } from "app";
 import { toast } from "sonner";
 import brain from 'brain';
+import { ContentType, type HttpResponse } from '@/brain/http-client';
 import {
   Dialog,
   DialogContent,
@@ -22,12 +23,18 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 
+interface GenerateReportResponse {
+  success: boolean
+  report?: Record<string, unknown>
+  summary?: Record<string, unknown>
+}
+
 export default function Results() {
   const { user } = useUserGuardContext();
   const { assessment, isLoading, error, setCareerRecommendations } =
     useFirebaseAssessmentStore();
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
-  const [report, setReport] = useState<any>(null);
+  const [report, setReport] = useState<GenerateReportResponse | null>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   // State for career analysis - replacing useApi
@@ -104,29 +111,38 @@ const handleAnalyzeCareers = useCallback(async () => {
         userEmail: user.email ?? undefined,
       };
 
-      const response = await fetch("/routes/generate-comprehensive-report", {
+      const response = await brain.request<GenerateReportResponse>({
+        path: "/routes/generate-comprehensive-report",
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: await auth.getAuthHeaderValue(),
-        },
-        credentials: "include",
-        body: JSON.stringify(requestBody),
+        body: requestBody,
+        type: ContentType.Json,
+        secure: true,
+        format: "json",
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
-      }
-
-      const reportData = await response.json();
-      setReport(reportData);
+      setReport(response.data);
       setIsReportModalOpen(true);
       toast.success("Report generated successfully!");
       
     } catch (error) {
       console.error("Failed to generate report:", error);
-      toast.error("Failed to generate report. Please try again.");
+      let errorMessage = "Failed to generate report. Please try again.";
+
+      if (error && typeof error === 'object' && 'status' in error) {
+        const httpError = error as HttpResponse<any, any>;
+        const detail =
+          typeof httpError.error === 'string'
+            ? httpError.error
+            : httpError.error?.detail ?? httpError.statusText;
+
+        errorMessage = detail
+          ? `Report service error (${httpError.status}): ${detail}`
+          : `Report service error (${httpError.status}).`;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
+      toast.error(errorMessage);
     } finally {
       setIsGeneratingReport(false);
     }
