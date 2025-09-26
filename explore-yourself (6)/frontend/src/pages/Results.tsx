@@ -70,24 +70,44 @@ const handleAnalyzeCareers = useCallback(async () => {
   setAnalysisError(null);
 
   try {
-    // 수정된 부분: Interest는 category를 name으로 사용
+    const sanitizeResults = <T extends { name?: string | null; score: number }>(
+      items: T[],
+      label: string
+    ) =>
+      items.reduce<Array<{ name: string; rating: number }>>((acc, item) => {
+        const hasName = typeof item.name === 'string' && item.name.trim().length > 0;
+        const hasScore = typeof item.score === 'number' && Number.isFinite(item.score);
+
+        if (!hasName || !hasScore) {
+          console.warn(`Skipping ${label} result missing name or score`, item);
+          return acc;
+        }
+
+        acc.push({ name: item.name!.trim(), rating: item.score });
+        return acc;
+      }, []);
+
+    const interestsPayload = interest.results.reduce<Array<{ name: string; rating: number }>>(
+      (acc, item) => {
+        const hasCategory = typeof item.category === 'string' && item.category.trim().length > 0;
+        const hasScore = typeof item.score === 'number' && Number.isFinite(item.score);
+
+        if (!hasCategory || !hasScore) {
+          console.warn('Skipping interest result missing category or score', item);
+          return acc;
+        }
+
+        acc.push({ name: item.category.trim(), rating: item.score });
+        return acc;
+      },
+      []
+    );
+
     const response = await brain.analyze_multi_category({
-      interests: interest.results.map((r) => ({
-        name: r.category,  // 이 부분이 핵심 - category를 name으로 사용
-        rating: r.score,
-      })),
-      abilities: ability.results.map((r) => ({
-        name: r.name || r.category,
-        rating: r.score,
-      })),
-      knowledge: knowledge.results.map((r) => ({
-        name: r.name || r.category,
-        rating: r.score,
-      })),
-      skills: skills.results.map((r) => ({
-        name: r.name || r.category,
-        rating: r.score,
-      })),
+      interests: interestsPayload,
+      abilities: sanitizeResults(ability.results, 'ability'),
+      knowledge: sanitizeResults(knowledge.results, 'knowledge'),
+      skills: sanitizeResults(skills.results, 'skill'),
     });
 
     const data = await response.json();

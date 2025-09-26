@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CareerRecommendations as CareerRecs } from "ui/src/types";
@@ -15,6 +15,10 @@ interface Props {
 export function CareerRecommendations({ recommendations, onAnalyze, isLoading }: Props) {
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [visibleCount, setVisibleCount] = useState(0);
+  const observerRef = useRef<HTMLDivElement | null>(null);
+
+  const ITEMS_PER_BATCH = 5;
 
   useEffect(() => {
     // Automatically trigger analysis if no recommendations are present
@@ -22,6 +26,15 @@ export function CareerRecommendations({ recommendations, onAnalyze, isLoading }:
       handleAnalysis();
     }
   }, [recommendations, isLoading, hasAnalyzed]);
+
+  useEffect(() => {
+    if (!recommendations?.matches) {
+      setVisibleCount(0);
+      return;
+    }
+
+    setVisibleCount(Math.min(ITEMS_PER_BATCH, recommendations.matches.length));
+  }, [recommendations?.matches]);
 
   const handleAnalysis = async () => {
     if (hasAnalyzed) return;
@@ -112,8 +125,55 @@ export function CareerRecommendations({ recommendations, onAnalyze, isLoading }:
   }
 
   // Sort matches by correlation score (highest first)
-  const sortedMatches = [...recommendations.matches].sort(
-    (a, b) => (b.correlation || 0) - (a.correlation || 0)
+  const sortedMatches = useMemo(
+    () =>
+      [...recommendations.matches].sort(
+        (a, b) => (b.correlation || 0) - (a.correlation || 0)
+      ),
+    [recommendations.matches]
+  );
+
+  const handleLoadMore = useCallback(() => {
+    setVisibleCount((current) => {
+      const nextCount = current + ITEMS_PER_BATCH;
+      return Math.min(nextCount, sortedMatches.length);
+    });
+  }, [sortedMatches.length]);
+
+  const hasMoreMatches = visibleCount < sortedMatches.length;
+
+  useEffect(() => {
+    if (!hasMoreMatches) {
+      return;
+    }
+
+    const sentinel = observerRef.current;
+    if (!sentinel) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries, obs) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            obs.unobserve(entry.target);
+            handleLoadMore();
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    observer.observe(sentinel);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [hasMoreMatches, handleLoadMore]);
+
+  const visibleMatches = useMemo(
+    () => sortedMatches.slice(0, visibleCount),
+    [sortedMatches, visibleCount]
   );
 
   const getCorrelationColor = (correlation: number) => {
@@ -148,7 +208,7 @@ export function CareerRecommendations({ recommendations, onAnalyze, isLoading }:
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
-        {sortedMatches.map((match, index) => (
+        {visibleMatches.map((match, index) => (
           <Card key={`${match.title}-${index}`} className="border border-muted">
             <CardContent className="p-4">
               <div className="flex items-start justify-between mb-3">
@@ -182,6 +242,16 @@ export function CareerRecommendations({ recommendations, onAnalyze, isLoading }:
             </CardContent>
           </Card>
         ))}
+
+        {hasMoreMatches && (
+          <div className="flex justify-center">
+            <Button onClick={handleLoadMore} variant="ghost" size="sm">
+              Load more matches
+            </Button>
+          </div>
+        )}
+
+        <div ref={observerRef} className="h-1" aria-hidden="true" />
         
         <div className="pt-4 border-t">
           <div className="flex items-center justify-between">

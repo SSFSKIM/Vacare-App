@@ -12,14 +12,9 @@ RUN apt-get update && apt-get install -y \
     && npm install -g yarn \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy package files for Yarn PnP
-COPY ["explore-yourself (6)/frontend/package.json", "explore-yourself (6)/frontend/yarn.lock", "explore-yourself (6)/frontend/.pnp.cjs", "explore-yourself (6)/frontend/.pnp.loader.mjs", "./"]
-COPY ["explore-yourself (6)/frontend/.yarn/", "/app/frontend/.yarn/"]
-RUN corepack enable && corepack prepare yarn@4.0.2 --activate && yarn install
-
-# Copy frontend source
+# Copy all frontend files at once (includes Yarn PnP files)
 COPY ["explore-yourself (6)/frontend/", "./"]
-RUN yarn build
+RUN corepack enable && yarn install --immutable && yarn build
 
 # Python backend stage
 FROM ubuntu:22.04 AS backend-base
@@ -33,8 +28,8 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     python3-venv \
     && rm -rf /var/lib/apt/lists/* \
-    && ln -s /usr/bin/python3 /usr/bin/python \
-    && ln -s /usr/bin/pip3 /usr/bin/pip
+    && ln -sf /usr/bin/python3 /usr/bin/python \
+    && ln -sf /usr/bin/pip3 /usr/bin/pip
 
 WORKDIR /app/backend
 
@@ -55,8 +50,8 @@ RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     && rm -rf /var/lib/apt/lists/* \
-    && ln -s /usr/bin/python3 /usr/bin/python \
-    && ln -s /usr/bin/pip3 /usr/bin/pip
+    && ln -sf /usr/bin/python3 /usr/bin/python \
+    && ln -sf /usr/bin/pip3 /usr/bin/pip
 
 WORKDIR /app
 
@@ -79,6 +74,7 @@ COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 # Environment variables
 ENV PYTHONPATH=/app/backend
 ENV NODE_ENV=production
+ENV OPENAI_API_KEY=***REMOVED-OPENAI-API-KEY***
 
 EXPOSE 80
 

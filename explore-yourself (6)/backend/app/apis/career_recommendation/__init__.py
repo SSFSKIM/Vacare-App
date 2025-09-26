@@ -396,6 +396,12 @@ def load_element_matrices(
         raise RuntimeError("Databutton storage is not available in this environment")
 
     df = db.storage.dataframes.get(dataframe_name)
+    if df is None or len(df) == 0:
+        logger.error("O*NET dataset '%s' unavailable or empty", dataframe_name)
+        raise HTTPException(
+            status_code=503,
+            detail=f"O*NET dataset '{dataframe_name}' is unavailable; try again later",
+        )
 
     level_df = df[df["Scale Name"] == level_scale]
     importance_df = df[df["Scale Name"] == importance_scale]

@@ -26,7 +26,7 @@ from app.services.firebase import (
 )
 
 # Constants -----------------------------------------------------------------
-OPENAI_MODEL = os.getenv("OPENAI_REPORT_MODEL", "gpt-5.0")
+OPENAI_MODEL = os.getenv("OPENAI_REPORT_MODEL", "gpt-4")
 PROMPT_VERSION = "2025-03-24"
 GENERATION_COOLDOWN_SECONDS = int(os.getenv("REPORT_GENERATION_COOLDOWN_SECONDS", "45"))
 OPENAI_TIMEOUT_SECONDS = int(os.getenv("OPENAI_REPORT_TIMEOUT_SECONDS", "120"))
@@ -260,26 +260,16 @@ async def _call_openai(messages: List[Dict[str, str]]) -> str:
 
     for attempt in range(1, OPENAI_MAX_RETRIES + 1):
         try:
-            response = await client.responses.create(
+            response = await client.chat.completions.create(
                 model=OPENAI_MODEL,
-                input=messages,
-                max_output_tokens=2048,
+                messages=messages,
+                max_tokens=2048,
                 temperature=0.4,
             )
-            if getattr(response, "output_text", None):
-                return response.output_text
-
-            if response.output:
-                text_chunks: List[str] = []
-                for item in response.output:
-                    content = getattr(item, "content", None)
-                    if not content:
-                        continue
-                    for part in content:
-                        if getattr(part, "type", None) == "output_text" and hasattr(part, "text"):
-                            text_chunks.append(part.text)
-                if text_chunks:
-                    return "".join(text_chunks)
+            if response.choices and len(response.choices) > 0:
+                choice = response.choices[0]
+                if choice.message and choice.message.content:
+                    return choice.message.content
 
             raise HTTPException(status_code=502, detail="Empty response from OpenAI")
         except (RateLimitError, APIConnectionError) as exc:
