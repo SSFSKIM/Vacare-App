@@ -8,13 +8,13 @@ services:
     ports:
       - "8080:80"
     environment:
-      - DATABUTTON_PROJECT_ID=${DATABUTTON_PROJECT_ID}
-      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
-      - FIREBASE_API_KEY=${FIREBASE_API_KEY}
-      - FIREBASE_AUTH_DOMAIN=${FIREBASE_AUTH_DOMAIN}
-      - FIREBASE_STORAGE_BUCKET=${FIREBASE_STORAGE_BUCKET}
-      - FIREBASE_MESSAGING_SENDER_ID=${FIREBASE_MESSAGING_SENDER_ID}
-      - FIREBASE_APP_ID=${FIREBASE_APP_ID}
+      - DATABUTTON_PROJECT_ID=e450d618-b3ca-4f0d-8025-e82ad27b100e
+      - FIREBASE_PROJECT_ID=vacare-1abb5
+      - FIREBASE_API_KEY=AIzaSyBtGtKZgMR_kuqyGcG2iHP7BH9WjAhnQeU
+      - FIREBASE_AUTH_DOMAIN=vacare-1abb5.firebaseapp.com
+      - FIREBASE_STORAGE_BUCKET=vacare-1abb5.firebasestorage.app
+      - FIREBASE_MESSAGING_SENDER_ID=881187333959
+      - FIREBASE_APP_ID=1:881187333959:web:e6def9c68cbf8d13f14e62
     volumes:
       - ./data:/app/data
     restart: unless-stopped
@@ -60,9 +60,9 @@ services:
   postgres:
     image: postgres:15-alpine
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: vacare
+      POSTGRES_USER: vacare
+      POSTGRES_PASSWORD: vacare_password
     ports:
       - "5432:5432"
     volumes:

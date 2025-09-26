@@ -1,49 +1,67 @@
 # Multi-stage build similar to Databutton's setup
-FROM node:18-alpine AS frontend-builder
+FROM ubuntu:22.04 AS frontend-builder
 
 WORKDIR /app/frontend
 
+# Install Node.js and Yarn
+RUN apt-get update && apt-get install -y \
+    curl \
+    gnupg \
+    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g yarn \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy package files for Yarn PnP
-COPY frontend/package.json frontend/yarn.lock frontend/.pnp.cjs frontend/.pnp.loader.mjs ./
-COPY frontend/.yarn /app/frontend/.yarn
+COPY ["explore-yourself (6)/frontend/package.json", "explore-yourself (6)/frontend/yarn.lock", "explore-yourself (6)/frontend/.pnp.cjs", "explore-yourself (6)/frontend/.pnp.loader.mjs", "./"]
+COPY ["explore-yourself (6)/frontend/.yarn/", "/app/frontend/.yarn/"]
 RUN corepack enable && corepack prepare yarn@4.0.2 --activate && yarn install
 
 # Copy frontend source
-COPY frontend/ ./
+COPY ["explore-yourself (6)/frontend/", "./"]
 RUN yarn build
 
 # Python backend stage
-FROM python:3.11-slim AS backend-base
+FROM ubuntu:22.04 AS backend-base
 
-# Install system dependencies
+# Install system dependencies and Python
 RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
     git \
-    && rm -rf /var/lib/apt/lists/*
+    python3 \
+    python3-pip \
+    python3-venv \
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -s /usr/bin/python3 /usr/bin/python \
+    && ln -s /usr/bin/pip3 /usr/bin/pip
 
 WORKDIR /app/backend
 
 # Install Python dependencies
-COPY backend/requirements.txt ./
+COPY ["explore-yourself (6)/backend/requirements.txt", "./"]
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy backend source
-COPY backend/ ./
+COPY ["explore-yourself (6)/backend/", "./"]
 
 # Final production stage
-FROM python:3.11-slim AS production
+FROM ubuntu:22.04 AS production
 
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y \
     nginx \
     supervisor \
-    && rm -rf /var/lib/apt/lists/*
+    python3 \
+    python3-pip \
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -s /usr/bin/python3 /usr/bin/python \
+    && ln -s /usr/bin/pip3 /usr/bin/pip
 
 WORKDIR /app
 
 # Copy Python dependencies from backend-base
-COPY --from=backend-base /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=backend-base /usr/local/lib/python3.10/dist-packages /usr/local/lib/python3.10/dist-packages
 COPY --from=backend-base /usr/local/bin /usr/local/bin
 
 # Copy built frontend

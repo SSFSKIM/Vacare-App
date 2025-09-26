@@ -1,47 +1,26 @@
-.PHONY: install install-backend install-frontend run-backend run-frontend build clean
+.PHONY: build up down logs dev prod clean
 
-# Default target - install all dependencies
-install: install-backend install-frontend
-
-# Install backend dependencies using uv
-install-backend:
-	cd backend && uv install
-
-# Install frontend dependencies using yarn
-install-frontend:
-	cd frontend && corepack enable && yarn install
-
-# Run backend server
-run-backend:
-	cd backend && uv run uvicorn main:app --reload --port 8000
-
-# Run frontend development server
-run-frontend:
-	cd frontend && yarn dev
-
-# Build frontend for production
-build:
-	cd frontend && yarn build
-
-# Clean build artifacts and dependencies
-clean:
-	rm -rf frontend/dist
-	rm -rf frontend/node_modules
-	rm -rf backend/.venv
-	rm -rf backend/__pycache__
-
-# Development environment with Docker
+# 개발 환경
 dev:
 	docker-compose -f docker-compose.dev.yml up --build
 
-# Production environment with Docker
+# 프로덕션 환경
 prod:
 	docker-compose up --build
 
-# Stop Docker containers
+# 백그라운드 실행
+up:
+	docker-compose up -d --build
+
+# 중지
 down:
 	docker-compose down
 
-# View Docker logs
+# 로그 확인
 logs:
 	docker-compose logs -f
+
+# 정리
+clean:
+	docker-compose down -v
+	docker system prune -f
