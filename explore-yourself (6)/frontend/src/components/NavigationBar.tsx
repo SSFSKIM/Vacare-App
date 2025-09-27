@@ -12,24 +12,29 @@ export function NavigationBar() {
   const { user: storeUser } = useFirebaseAssessmentStore();
 
   return (
-    <nav className="border-b">
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <div className="text-xl font-semibold" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+    <nav className="border-b bg-background">
+      <div className="container mx-auto px-4 py-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div
+          className="text-xl font-semibold cursor-pointer"
+          onClick={() => navigate('/')}
+        >
           Explore Yourself
         </div>
-        <div className="flex gap-4">
-          <Button variant="ghost" onClick={() => navigate('/')}>
-            Home
-          </Button>
-          <Button variant="ghost" onClick={() => navigate('/results')}>
-            View Results
-          </Button>
-          <div className="flex items-center gap-2 ml-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+          <div className="flex flex-col gap-2 sm:flex-row sm:gap-2">
+            <Button variant="ghost" onClick={() => navigate('/')} className="justify-start sm:justify-center">
+              Home
+            </Button>
+            <Button variant="ghost" onClick={() => navigate('/results')} className="justify-start sm:justify-center">
+              View Results
+            </Button>
+          </div>
+          <div className="flex items-center gap-2 sm:ml-4">
             <User className="h-4 w-4" />
-            <span className="text-sm font-medium">
+            <span className="text-sm font-medium truncate max-w-[160px] sm:max-w-none">
               {user ? (user.displayName || user.email || 'User') : 'Guest'}
             </span>
-            
+
             {user && (
               <Button
                 variant="ghost"
@@ -40,14 +45,14 @@ export function NavigationBar() {
                 <Settings className="h-4 w-4" />
               </Button>
             )}
-            
+
             <Button
               variant="ghost"
               size="sm"
               onClick={() => {
                 if (user) {
-                  // Sign out using Firebase
-                  firebaseAuth.signOut()
+                  firebaseAuth
+                    .signOut()
                     .then(() => {
                       toast.success('Signed out successfully');
                       navigate('/');
@@ -57,7 +62,6 @@ export function NavigationBar() {
                       toast.error('Error signing out');
                     });
                 } else {
-                  // Guest user - direct to login
                   navigate('/login');
                 }
               }}

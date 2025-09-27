@@ -12,20 +12,34 @@ interface Props {
   isLoading: boolean;
 }
 
-export function CareerRecommendations({ recommendations, onAnalyze, isLoading }: Props) {
+const ITEMS_PER_BATCH = 5;
+
+function CareerRecommendationsComponent({ recommendations, onAnalyze, isLoading }: Props) {
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(0);
   const observerRef = useRef<HTMLDivElement | null>(null);
 
-  const ITEMS_PER_BATCH = 5;
+  const handleAnalysis = useCallback(async () => {
+    if (hasAnalyzed) return;
+
+    setAnalysisError(null);
+    setHasAnalyzed(true);
+
+    try {
+      await onAnalyze();
+    } catch (error) {
+      console.error('Analysis failed:', error);
+      setAnalysisError(error instanceof Error ? error.message : 'Analysis failed');
+      setHasAnalyzed(false);
+    }
+  }, [hasAnalyzed, onAnalyze]);
 
   useEffect(() => {
-    // Automatically trigger analysis if no recommendations are present
     if (!recommendations && !isLoading && !hasAnalyzed) {
       handleAnalysis();
     }
-  }, [recommendations, isLoading, hasAnalyzed]);
+  }, [recommendations, isLoading, hasAnalyzed, handleAnalysis]);
 
   useEffect(() => {
     if (!recommendations?.matches) {
@@ -36,26 +50,12 @@ export function CareerRecommendations({ recommendations, onAnalyze, isLoading }:
     setVisibleCount(Math.min(ITEMS_PER_BATCH, recommendations.matches.length));
   }, [recommendations?.matches]);
 
-  const handleAnalysis = async () => {
-    if (hasAnalyzed) return;
-    
-    setAnalysisError(null);
-    setHasAnalyzed(true);
-    
-    try {
-      await onAnalyze();
-    } catch (error) {
-      console.error('Analysis failed:', error);
-      setAnalysisError(error instanceof Error ? error.message : 'Analysis failed');
-      setHasAnalyzed(false); // Allow retry
-    }
-  };
-
-  const handleRetry = () => {
+  const handleRetry = useCallback(() => {
     setHasAnalyzed(false);
     setAnalysisError(null);
-    handleAnalysis();
-  };
+    // Defer to next microtask so state updates apply before re-trigger
+    Promise.resolve().then(() => handleAnalysis());
+  }, [handleAnalysis]);
 
   if (isLoading) {
     return (
@@ -267,3 +267,6 @@ export function CareerRecommendations({ recommendations, onAnalyze, isLoading }:
     </Card>
   );
 }
+
+export const CareerRecommendations = React.memo(CareerRecommendationsComponent);
+CareerRecommendations.displayName = 'CareerRecommendations';

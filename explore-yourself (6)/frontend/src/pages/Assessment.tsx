@@ -224,7 +224,7 @@ export default function Assessment() {
             {pageQuestions.map((question) => (
               <Card key={question.id} className="p-4">
                 <div className="text-lg mb-4 text-center">{question.text}</div>
-                <div className="grid grid-cols-5 gap-2">
+                <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
                   {[1, 2, 3, 4, 5].map((rating) => (
                     <Button
                       key={rating}

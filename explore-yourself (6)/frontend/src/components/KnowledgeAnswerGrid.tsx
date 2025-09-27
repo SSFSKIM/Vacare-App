@@ -29,7 +29,7 @@ export const KnowledgeAnswerGrid: React.FC<Props> = ({ questionId, currentAnswer
   return (
     <div className="space-y-2">
       {/* First row */}
-      <div className="grid grid-cols-5 gap-2">
+      <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
         {finalFirstRow.map((value) => (
           <Button
             key={value}
@@ -47,7 +47,7 @@ export const KnowledgeAnswerGrid: React.FC<Props> = ({ questionId, currentAnswer
       </div>
       
       {/* Second row */}
-      <div className="grid grid-cols-5 gap-2">
+      <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
         {finalSecondRow.map((value) => (
           <Button
             key={value}

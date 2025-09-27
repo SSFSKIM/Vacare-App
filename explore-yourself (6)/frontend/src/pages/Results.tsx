@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { NavigationBar } from "../components/NavigationBar";
 import { useFirebaseAssessmentStore } from "../utils/firebase-assessment-store";
 import { LoadingSpinner } from "../components/LoadingSpinner";
@@ -48,9 +48,9 @@ export default function Results() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
 
-// Results.tsx에서 이 함수를 교체하세요
+  // Results.tsx에서 이 함수를 교체하세요
 
-const handleAnalyzeCareers = useCallback(async () => {
+  const handleAnalyzeCareers = useCallback(async () => {
   if (!assessment) return;
 
   const { interest, ability, knowledge, skills } = assessment;
@@ -121,7 +121,41 @@ const handleAnalyzeCareers = useCallback(async () => {
   } finally {
     setIsAnalyzing(false);
   }
-}, [assessment, setCareerRecommendations]);
+  }, [assessment, setCareerRecommendations]);
+
+  const interestTabData = useMemo(() => {
+    const rawResults = assessment?.interest?.results ?? [];
+    if (!rawResults || rawResults.length === 0) {
+      return [];
+    }
+
+    const codeMap: Record<string, 'R' | 'I' | 'A' | 'S' | 'E' | 'C'> = {
+      realistic: 'R',
+      investigative: 'I',
+      artistic: 'A',
+      social: 'S',
+      enterprising: 'E',
+      conventional: 'C',
+    };
+
+    return rawResults
+      .map((result) => {
+        const key = typeof result.category === 'string' ? result.category.toLowerCase() : '';
+        const code = codeMap[key];
+        if (!code) {
+          return null;
+        }
+
+        const scoreValue = typeof result.score === 'number' ? result.score : 0;
+        const normalizedScore = Number.isFinite(scoreValue) ? scoreValue / 20 : 0;
+
+        return {
+          name: code,
+          score: normalizedScore,
+        };
+      })
+      .filter((item): item is { name: 'R' | 'I' | 'A' | 'S' | 'E' | 'C'; score: number } => item !== null);
+  }, [assessment?.interest?.results]);
 
   const summaryFromReport = (report: ComprehensiveReport): ReportSummary => ({
     reportId: report.reportId,
@@ -322,9 +356,9 @@ const handleAnalyzeCareers = useCallback(async () => {
     <div className="min-h-screen bg-background">
       <NavigationBar />
       <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center mb-6">
           <h1 className="text-3xl font-bold">Your Assessment Results</h1>
-          <div className="flex gap-2">
+          <div className="flex gap-2 sm:justify-end">
             <Button
               variant="secondary"
               onClick={handleOpenReportModal}
@@ -349,7 +383,7 @@ const handleAnalyzeCareers = useCallback(async () => {
         </div>
 
         <Tabs defaultValue="interest" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="w-full overflow-x-auto flex gap-2 sm:grid sm:grid-cols-5">
             <TabsTrigger value="interest">Interest</TabsTrigger>
             <TabsTrigger value="ability">Ability</TabsTrigger>
             <TabsTrigger value="knowledge">Knowledge</TabsTrigger>
@@ -359,7 +393,7 @@ const handleAnalyzeCareers = useCallback(async () => {
 
           <TabsContent value="interest" className="space-y-4">
             <InterestResults results={assessment.interest.results} />
-            <InterestTab results={assessment.interest.results} />
+            <InterestTab data={interestTabData} />
           </TabsContent>
 
           <TabsContent value="ability" className="space-y-4">

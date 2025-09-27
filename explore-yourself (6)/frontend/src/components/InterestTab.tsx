@@ -68,7 +68,10 @@ export const InterestTab: React.FC<InterestTabProps> = ({ data }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {sortedData.map((item) => {
           const details = riasecDescriptions[item.name];
-          const scorePercentage = item.score * 20; // Assuming score is 0-5, converting to 0-100
+          const normalizedScore = typeof item.score === 'number' ? item.score : 0;
+          const scorePercentage = normalizedScore > 5
+            ? Math.min(normalizedScore, 100)
+            : normalizedScore * 20;
 
           return (
             <Card key={item.name}>

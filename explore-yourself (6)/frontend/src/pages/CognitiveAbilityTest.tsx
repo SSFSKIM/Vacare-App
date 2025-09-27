@@ -168,7 +168,7 @@ export default function CognitiveAbilityTest() {
 
                 <div className="space-y-2">
                   {/* First row: 10-50 */}
-                  <div className="grid grid-cols-5 gap-2">
+                  <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
                     {[10, 20, 30, 40, 50].map((value) => (
                       <Button
                         key={value}
@@ -186,7 +186,7 @@ export default function CognitiveAbilityTest() {
                   </div>
                   
                   {/* Second row: 60-100 */}
-                  <div className="grid grid-cols-5 gap-2">
+                  <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
                     {[60, 70, 80, 90, 100].map((value) => (
                       <Button
                         key={value}

@@ -16,7 +16,7 @@ function Home() {
       <NavigationBar />
       <main className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-12 px-2">
             <h1 className="text-4xl font-bold mb-6">
               Explore Yourself
             </h1>
@@ -26,7 +26,7 @@ function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
             <TestCard
               title="Interest Explorer"
               description="Explore your career interests using the RIASEC model to find occupations that match your preferences."

@@ -5,7 +5,7 @@ services:
   va-care-dev:
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
       target: development
     ports:
       - "3000:3000"  # Frontend dev server
@@ -33,7 +33,7 @@ services:
   frontend-dev:
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
       target: frontend-dev
     ports:
       - "3001:3000"
@@ -51,7 +51,7 @@ services:
   backend-dev:
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
       target: backend-dev
     ports:
       - "8001:8000"
