@@ -4,7 +4,6 @@ import { useFirebaseAssessmentStore } from "../utils/firebase-assessment-store";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { InterestResults } from "components/InterestResults";
 import { AbilityResults } from "components/AbilityResults";
 import { KnowledgeResults } from 'components/KnowledgeResults';
 import { SkillResults } from 'components/SkillResults';
@@ -392,7 +391,6 @@ export default function Results() {
           </TabsList>
 
           <TabsContent value="interest" className="space-y-4">
-            <InterestResults results={assessment.interest.results} />
             <InterestTab data={interestTabData} />
           </TabsContent>
 

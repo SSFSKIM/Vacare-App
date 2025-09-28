@@ -131,6 +131,53 @@ export default function AdminTuning() {
     }
   }, [getJson, appendLog])
 
+  const doFullPipeline = useCallback(async () => {
+    setBusy(true)
+    setLog('')
+    try {
+      // 1) Bootstrap synthetic dataset
+      const bootstrapBody = {
+        dataset_name: datasetName,
+        sample_occupations: 200,
+        positives_per_occupation: 1,
+        negatives_per_positive: 3,
+        topn_abilities: 6,
+        topn_skills: 6,
+        topn_knowledge: 6,
+        include_interests: true,
+        noise_std: 5
+      }
+      const boot = await postJson('/routes/career-recommendation/bootstrap-validation', bootstrapBody)
+      appendLog('1) Bootstrap Validation', boot)
+
+      // 2) Optimize weights on dataset
+      const weights = await postJson('/routes/career-recommendation/optimize-weights', { dataset_name: datasetName })
+      appendLog('2) Optimize Weights', weights)
+
+      // 3) Calibrate thresholds (importance / min requirement ratio)
+      const calibBody = {
+        dataset_name: datasetName,
+        importance_candidates: [60, 70, 80, 85, 90],
+        ratio_candidates: [0.5, 0.6, 0.7, 0.8, 0.85],
+        top_k: 20
+      }
+      const calib = await postJson('/routes/career-recommendation/calibrate', calibBody)
+      appendLog('3) Calibrate Thresholds', calib)
+
+      // 4) Calibrate score scaling (Platt)
+      const scoreCal = await postJson('/routes/career-recommendation/calibrate-scores', { dataset_name: datasetName, learning_rate: 0.01, max_iter: 500 })
+      appendLog('4) Calibrate Scores', scoreCal)
+
+      // 5) Fetch final state
+      const state = await getJson('/routes/career-recommendation/calibration')
+      appendLog('5) Final Calibration State', state)
+    } catch (e) {
+      appendLog('Full Pipeline Failed', String(e))
+    } finally {
+      setBusy(false)
+    }
+  }, [datasetName, postJson, getJson, appendLog])
+
   return (
     <div className='min-h-screen bg-background'>
       <NavigationBar />
@@ -157,6 +204,7 @@ export default function AdminTuning() {
             </div>
 
             <div className='flex flex-wrap gap-2'>
+              <Button disabled={busy} onClick={doFullPipeline} variant='secondary'>Run Full Calibration</Button>
               <Button disabled={busy} onClick={doCalibratePercentile}>Calibrate (Percentile)</Button>
               <Button disabled={busy} onClick={doCalibrateOptim} variant='outline'>Calibrate (Optimized)</Button>
               <Button disabled={busy} onClick={doOptimizeWeights} variant='outline'>Optimize Weights</Button>
@@ -177,4 +225,3 @@ export default function AdminTuning() {
     </div>
   )
 }
-
