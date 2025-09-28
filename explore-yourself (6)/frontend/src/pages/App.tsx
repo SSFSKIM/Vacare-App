@@ -1,16 +1,14 @@
-import React from "react";
-import { } from "react-router-dom";
-import { AuthProvider } from "../components/AuthProvider";
-import { NavigationBar } from "../components/NavigationBar";
-import { TestCard } from "../components/TestCard";
-import { Brain, Lightbulb, GraduationCap, Wrench } from "lucide-react";
-import Login from "./Login";
-import { PageErrorBoundary } from "components/ErrorBoundary";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import React from 'react'
+import { AuthProvider } from '../components/AuthProvider'
+import { NavigationBar } from '../components/NavigationBar'
+import { TestCard } from '../components/TestCard'
+import { Brain, Lightbulb, GraduationCap, Wrench } from 'lucide-react'
+import { PageErrorBoundary } from 'components/ErrorBoundary'
+import { useTranslation } from 'react-i18next'
 
 function Home() {
+  const { t } = useTranslation()
+
   return (
     <div className="min-h-screen bg-background">
       <NavigationBar />
@@ -18,41 +16,40 @@ function Home() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12 px-2">
             <h1 className="text-4xl font-bold mb-6">
-              Explore Yourself
+              {t('home.title')}
             </h1>
             <p className="mt-2 text-lg text-muted-foreground">
-              Explore your interests, abilities, and skills to find the perfect
-              career path.
+              {t('home.subtitle')}
             </p>
           </div>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
             <TestCard
-              title="Interest Explorer"
-              description="Explore your career interests using the RIASEC model to find occupations that match your preferences."
+              title={t('home.cards.interest.title')}
+              description={t('home.cards.interest.description')}
               icon={<Lightbulb />}
               testType="interest"
               available={true}
             />
             <TestCard
-              title="Ability Explorer"
-              description="explore on various capabilities to discover the area you'll fit well"
+              title={t('home.cards.ability.title')}
+              description={t('home.cards.ability.description')}
               icon={<Brain />}
               testType="ability"
               available={true}
               totalSections={4} // Total number of ability assessment sections
             />
             <TestCard
-              title="Knowledge Explorer"
-              description="explore your interest and natural attraction to various subjects and field of knowledge"
+              title={t('home.cards.knowledge.title')}
+              description={t('home.cards.knowledge.description')}
               icon={<GraduationCap />}
               testType="knowledge"
               available={true}
               totalSections={10} // Total number of knowledge assessment sections
             />
             <TestCard
-              title="Skills Explorer"
-              description="Explore the skills you're inspired to cultivate"
+              title={t('home.cards.skills.title')}
+              description={t('home.cards.skills.description')}
               icon={<Wrench />}
               testType="skills"
               available={true}
@@ -62,49 +59,15 @@ function Home() {
         </div>
       </main>
     </div>
-  );
+  )
 }
 
 export default function App() {
-  const navigate = useNavigate();
-
-  const handleStartTest = (testType: string) => {
-    if (testType === "interest") {
-      navigate(`/test/interest`);
-    } else {
-      navigate(`/${testType}selection`);
-    }
-  };
-
-  const assessmentCards = [
-    {
-      title: "Interest Assessment",
-      description: "Discover your passions and what truly motivates you.",
-      testType: "interest",
-    },
-    {
-      title: "Ability Assessment",
-      description: "Understand your cognitive and practical abilities.",
-      testType: "ability",
-    },
-    {
-      title: "Skill Assessment",
-      description:
-        "Identify your strongest skills and areas for development.",
-      testType: "skill",
-    },
-    {
-      title: "Knowledge Assessment",
-      description: "Test your knowledge in various academic and practical subjects.",
-      testType: "knowledge",
-    },
-  ];
-
   return (
     <AuthProvider>
       <PageErrorBoundary>
         <Home />
       </PageErrorBoundary>
     </AuthProvider>
-  );
+  )
 }

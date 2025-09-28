@@ -5,6 +5,7 @@ import { CareerRecommendations as CareerRecs } from "ui/src/types";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { Button } from "@/components/ui/button";
 import { Briefcase, TrendingUp, Award, Target } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   recommendations: CareerRecs | null;
@@ -15,6 +16,8 @@ interface Props {
 const ITEMS_PER_BATCH = 5;
 
 function CareerRecommendationsComponent({ recommendations, onAnalyze, isLoading }: Props) {
+  const { t } = useTranslation();
+  const defaultAnalysisError = t('careerRecommendations.error.generic');
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(0);
@@ -30,10 +33,40 @@ function CareerRecommendationsComponent({ recommendations, onAnalyze, isLoading 
       await onAnalyze();
     } catch (error) {
       console.error('Analysis failed:', error);
-      setAnalysisError(error instanceof Error ? error.message : 'Analysis failed');
+      setAnalysisError(error instanceof Error && error.message ? error.message : defaultAnalysisError);
       setHasAnalyzed(false);
     }
-  }, [hasAnalyzed, onAnalyze]);
+  }, [defaultAnalysisError, hasAnalyzed, onAnalyze]);
+
+  const handleRetry = useCallback(() => {
+    setHasAnalyzed(false);
+    setAnalysisError(null);
+    // Defer to next microtask so state updates apply before re-trigger
+    Promise.resolve().then(() => handleAnalysis());
+  }, [handleAnalysis]);
+
+  // Sort matches by correlation score (highest first)
+  const matches = recommendations?.matches ?? [];
+
+  const sortedMatches = useMemo(
+    () =>
+      [...matches].sort((a, b) => (b.correlation || 0) - (a.correlation || 0)),
+    [matches]
+  );
+
+  const handleLoadMore = useCallback(() => {
+    setVisibleCount((current) => {
+      const nextCount = current + ITEMS_PER_BATCH;
+      return Math.min(nextCount, sortedMatches.length);
+    });
+  }, [sortedMatches.length]);
+
+  const hasMoreMatches = visibleCount < sortedMatches.length;
+
+  const visibleMatches = useMemo(
+    () => sortedMatches.slice(0, visibleCount),
+    [sortedMatches, visibleCount]
+  );
 
   useEffect(() => {
     if (!recommendations && !isLoading && !hasAnalyzed) {
@@ -49,98 +82,6 @@ function CareerRecommendationsComponent({ recommendations, onAnalyze, isLoading 
 
     setVisibleCount(Math.min(ITEMS_PER_BATCH, recommendations.matches.length));
   }, [recommendations?.matches]);
-
-  const handleRetry = useCallback(() => {
-    setHasAnalyzed(false);
-    setAnalysisError(null);
-    // Defer to next microtask so state updates apply before re-trigger
-    Promise.resolve().then(() => handleAnalysis());
-  }, [handleAnalysis]);
-
-  if (isLoading) {
-    return (
-      <Card className="border-2 border-primary/20">
-        <CardHeader className="pb-4">
-          <div className="flex items-center gap-2">
-            <Briefcase className="h-6 w-6 text-primary" />
-            <CardTitle className="text-xl">Career Recommendations</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent className="flex flex-col items-center justify-center h-40 space-y-4">
-          <LoadingSpinner message="Analyzing your career matches..." />
-          <p className="text-sm text-muted-foreground text-center">
-            We're analyzing your assessment results to find the best career matches for you.
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (analysisError) {
-    return (
-      <Card className="border-2 border-destructive/20">
-        <CardHeader className="pb-4">
-          <div className="flex items-center gap-2">
-            <Briefcase className="h-6 w-6 text-destructive" />
-            <CardTitle className="text-xl">Career Recommendations</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="text-center">
-            <p className="text-destructive mb-4">
-              Failed to analyze career matches: {analysisError}
-            </p>
-            <Button onClick={handleRetry} variant="outline">
-              Try Again
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (!recommendations || !recommendations.matches || recommendations.matches.length === 0) {
-    return (
-      <Card className="border-2 border-muted">
-        <CardHeader className="pb-4">
-          <div className="flex items-center gap-2">
-            <Briefcase className="h-6 w-6 text-muted-foreground" />
-            <CardTitle className="text-xl">Career Recommendations</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="text-center">
-            <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground mb-4">
-              We couldn't find any career matches based on your current results. 
-              Complete more assessments to get personalized recommendations.
-            </p>
-            <Button onClick={handleRetry} variant="outline">
-              Analyze Again
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // Sort matches by correlation score (highest first)
-  const sortedMatches = useMemo(
-    () =>
-      [...recommendations.matches].sort(
-        (a, b) => (b.correlation || 0) - (a.correlation || 0)
-      ),
-    [recommendations.matches]
-  );
-
-  const handleLoadMore = useCallback(() => {
-    setVisibleCount((current) => {
-      const nextCount = current + ITEMS_PER_BATCH;
-      return Math.min(nextCount, sortedMatches.length);
-    });
-  }, [sortedMatches.length]);
-
-  const hasMoreMatches = visibleCount < sortedMatches.length;
 
   useEffect(() => {
     if (!hasMoreMatches) {
@@ -171,10 +112,71 @@ function CareerRecommendationsComponent({ recommendations, onAnalyze, isLoading 
     };
   }, [hasMoreMatches, handleLoadMore]);
 
-  const visibleMatches = useMemo(
-    () => sortedMatches.slice(0, visibleCount),
-    [sortedMatches, visibleCount]
-  );
+  if (isLoading) {
+    return (
+      <Card className="border-2 border-primary/20">
+        <CardHeader className="pb-4">
+          <div className="flex items-center gap-2">
+            <Briefcase className="h-6 w-6 text-primary" />
+            <CardTitle className="text-xl">{t('careerRecommendations.title')}</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="flex flex-col items-center justify-center h-40 space-y-4">
+          <LoadingSpinner message={t('careerRecommendations.loading.message')} />
+          <p className="text-sm text-muted-foreground text-center">
+            {t('careerRecommendations.loading.description')}
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (analysisError) {
+    return (
+      <Card className="border-2 border-destructive/20">
+        <CardHeader className="pb-4">
+          <div className="flex items-center gap-2">
+            <Briefcase className="h-6 w-6 text-destructive" />
+            <CardTitle className="text-xl">{t('careerRecommendations.title')}</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="text-center">
+            <p className="text-destructive mb-4">
+              {analysisError ?? defaultAnalysisError}
+            </p>
+            <Button onClick={handleRetry} variant="outline">
+              {t('careerRecommendations.actions.retry')}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!recommendations || sortedMatches.length === 0) {
+    return (
+      <Card className="border-2 border-muted">
+        <CardHeader className="pb-4">
+          <div className="flex items-center gap-2">
+            <Briefcase className="h-6 w-6 text-muted-foreground" />
+            <CardTitle className="text-xl">{t('careerRecommendations.title')}</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="text-center">
+            <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <p className="text-muted-foreground mb-4">
+              {t('careerRecommendations.empty.description')}
+            </p>
+            <Button onClick={handleRetry} variant="outline">
+              {t('careerRecommendations.actions.analyzeAgain')}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const getCorrelationColor = (correlation: number) => {
     if (correlation >= 0.8) return "bg-green-100 text-green-800 border-green-200";
@@ -184,10 +186,10 @@ function CareerRecommendationsComponent({ recommendations, onAnalyze, isLoading 
   };
 
   const getCorrelationLabel = (correlation: number) => {
-    if (correlation >= 0.8) return "Excellent Match";
-    if (correlation >= 0.6) return "Good Match";
-    if (correlation >= 0.4) return "Fair Match";
-    return "Potential Match";
+    if (correlation >= 0.8) return t('careerRecommendations.status.excellent');
+    if (correlation >= 0.6) return t('careerRecommendations.status.good');
+    if (correlation >= 0.4) return t('careerRecommendations.status.fair');
+    return t('careerRecommendations.status.potential');
   };
 
   return (
@@ -196,15 +198,15 @@ function CareerRecommendationsComponent({ recommendations, onAnalyze, isLoading 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Briefcase className="h-6 w-6 text-primary" />
-            <CardTitle className="text-xl">Career Recommendations</CardTitle>
+            <CardTitle className="text-xl">{t('careerRecommendations.title')}</CardTitle>
           </div>
           <Badge variant="secondary" className="flex items-center gap-1">
             <Award className="h-3 w-3" />
-            {sortedMatches.length} matches found
+            {t('careerRecommendations.badge', { count: sortedMatches.length })}
           </Badge>
         </div>
         <p className="text-sm text-muted-foreground">
-          Based on your assessment results, here are careers that match your interests, abilities, and skills.
+          {t('careerRecommendations.summary')}
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -236,8 +238,8 @@ function CareerRecommendationsComponent({ recommendations, onAnalyze, isLoading 
               
               {/* Additional match details could go here */}
               <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>Match #{index + 1}</span>
-                <span>Correlation: {((match.correlation || 0) * 100).toFixed(1)}%</span>
+                <span>{t('careerRecommendations.matchLabel', { index: index + 1 })}</span>
+                <span>{t('careerRecommendations.correlationLabel', { value: ((match.correlation || 0) * 100).toFixed(1) })}</span>
               </div>
             </CardContent>
           </Card>
@@ -246,7 +248,7 @@ function CareerRecommendationsComponent({ recommendations, onAnalyze, isLoading 
         {hasMoreMatches && (
           <div className="flex justify-center">
             <Button onClick={handleLoadMore} variant="ghost" size="sm">
-              Load more matches
+              {t('careerRecommendations.actions.loadMore')}
             </Button>
           </div>
         )}
@@ -256,10 +258,10 @@ function CareerRecommendationsComponent({ recommendations, onAnalyze, isLoading 
         <div className="pt-4 border-t">
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              Based on {recommendations.category || 'comprehensive'} analysis
+              {t('careerRecommendations.analysisBase', { category: t(`careerRecommendations.analysisCategory.${recommendations?.category ?? 'comprehensive'}`, { defaultValue: recommendations?.category ?? t('careerRecommendations.analysisCategory.comprehensive') }) })}
             </p>
             <Button onClick={handleRetry} variant="outline" size="sm">
-              Refresh Analysis
+              {t('careerRecommendations.actions.refresh')}
             </Button>
           </div>
         </div>

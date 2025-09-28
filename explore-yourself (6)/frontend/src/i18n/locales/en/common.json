@@ -1,0 +1,419 @@
+{
+  "navigation": {
+    "title": "Explore Yourself",
+    "home": "Home",
+    "viewResults": "View Results",
+    "languageSelectLabel": "Select language",
+    "languageSelectPlaceholder": "Select language",
+    "fallbackUser": "User",
+    "guest": "Guest",
+    "profile": "Profile",
+    "signOut": "Sign Out",
+    "logIn": "Log In",
+    "toast": {
+      "signedOut": "Signed out successfully",
+      "signOutError": "Error signing out"
+    }
+  },
+  "errors": {
+    "genericTitle": "An error occurred",
+    "tryAgain": "Try Again",
+    "goHome": "Go to Home"
+  },
+  "language": {
+    "english": "English",
+    "korean": "한국어"
+  },
+  "home": {
+    "title": "Explore Yourself",
+    "subtitle": "Explore your interests, abilities, and skills to find the perfect career path.",
+    "cards": {
+      "interest": {
+        "title": "Interest Explorer",
+        "description": "Explore your career interests using the RIASEC model to find occupations that match your preferences."
+      },
+      "ability": {
+        "title": "Ability Explorer",
+        "description": "Explore different capabilities to discover where you fit best."
+      },
+      "knowledge": {
+        "title": "Knowledge Explorer",
+        "description": "Explore your interests across subjects and knowledge domains."
+      },
+      "skills": {
+        "title": "Skills Explorer",
+        "description": "Explore the skills you're inspired to cultivate."
+      }
+    }
+  },
+  "common": {
+    "actions": {
+      "retakeAssessment": "Retake Assessment"
+    }
+  },
+  "abilityResults": {
+    "groupSummary": "Assessed abilities: {{count}} • Average {{average}}%",
+    "showMore": "Show more abilities",
+    "emptyTitle": "No Results",
+    "averageLabel": "Avg: {{value}}%",
+    "subsets": {
+      "general": "General Abilities",
+      "default": "{{name}} Abilities",
+      "cognitive-ability": "Cognitive Abilities",
+      "physical-ability": "Physical Abilities",
+      "psychomotor-ability": "Psychomotor Abilities",
+      "sensory-ability": "Sensory Abilities"
+    },
+    "overviewTitle": "Ability Overview",
+    "averageDescription": "Average score of {{average}}% across {{total}} assessed abilities.",
+    "topStrengths": "Top strengths",
+    "emptyTopStrengths": "Complete more assessments to see highlighted strengths."
+  },
+  "testCard": {
+    "completed": "Completed",
+    "sectionsCompleted": "{{completed}} of {{total}} sections completed",
+    "retakeTest": "Retake Test",
+    "viewResults": "View Results",
+    "startTest": "Start Test",
+    "comingSoon": "Coming Soon"
+  },
+  "assessment": {
+    "title": "Interest Explorer",
+    "subtitle": "How much would you enjoy these activities?",
+    "loading": "Loading assessment...",
+    "progress": {
+      "page": "Page {{current}} of {{total}}",
+      "complete": "{{percent}}% Complete"
+    },
+    "alerts": {
+      "pageIncomplete": "Please answer all questions on this page before continuing.",
+      "submitIncomplete": "Please answer all questions before submitting.",
+      "calculateFailed": "Failed to calculate results. Please try again.",
+      "navigationError": "An error occurred. Please try again."
+    },
+    "errors": {
+      "loadQuestions": "Failed to load questions. Please try again.",
+      "generic": "An error occurred. Please try again."
+    },
+    "emptyState": {
+      "title": "No Questions Available",
+      "description": "No questions are currently available for this assessment type.",
+      "button": "Return to Home"
+    },
+    "ratingLabels": {
+      "1": "Not at all",
+      "3": "Somewhat",
+      "5": "Very much"
+    },
+    "buttons": {
+      "previous": "Previous",
+      "next": "Next",
+      "submit": "Submit Assessment"
+    },
+    "calculating": "Calculating..."
+  },
+  "assessmentSelection": {
+    "ability": {
+      "title": "Ability Explorer",
+      "subtitle": "Select the category to begin. Start with what you want",
+      "cards": {
+        "cognitive": "Cognitive Abilities",
+        "physical": "Physical Abilities",
+        "psychomotor": "Psychomotor Abilities",
+        "sensory": "Sensory Abilities"
+      }
+    },
+    "knowledge": {
+      "title": "Knowledge Explorer",
+      "subtitle": "Select the category to begin. Start with what you want",
+      "cards": {
+        "artsHumanities": "Arts and Humanities",
+        "businessManagement": "Business and Management",
+        "communications": "Communications",
+        "educationTraining": "Education and Training",
+        "engineeringTechnology": "Engineering and Technology",
+        "healthServices": "Health Services",
+        "lawSafety": "Law and Public Safety",
+        "manufacturingProduction": "Manufacturing and Production",
+        "mathScience": "Mathematics and Science",
+        "transportation": "Transportation"
+      }
+    },
+    "skills": {
+      "title": "Skill Test",
+      "subtitleLine1": "Select a skill category to begin the assessment.",
+      "subtitleLine2": "You can start with the category that you want.",
+      "completedBadge": "Completed",
+      "categories": {
+        "basic": {
+          "title": "Basic Skills",
+          "description": "Fundamental capacities that facilitate learning or the more rapid acquisition of knowledge",
+          "subcategories": {
+            "content": {
+              "title": "Content Skills",
+              "description": "Background structures needed to work with and acquire more specific skills in a variety of different domains"
+            },
+            "process": {
+              "title": "Process Skills",
+              "description": "Procedures that contribute to the more rapid acquisition of knowledge and skill across a variety of domains"
+            }
+          }
+        },
+        "crossFunctional": {
+          "title": "Cross-functional Skills",
+          "description": "Developed capacities that facilitate performance of activities that occur across jobs",
+          "subcategories": {
+            "complexProblemSolving": {
+              "title": "Complex Problem Solving",
+              "description": "Developed capacities used to solve novel, ill-defined problems in complex, real-world settings"
+            },
+            "resourceManagement": {
+              "title": "Resource Management",
+              "description": "Developed capacities used to allocate resources efficiently"
+            },
+            "social": {
+              "title": "Social Skills",
+              "description": "Developed capacities used to work with people to achieve goals"
+            },
+            "systems": {
+              "title": "Systems Skills",
+              "description": "Developed capacities used to understand, monitor, and improve socio-technical systems"
+            },
+            "technical": {
+              "title": "Technical Skills",
+              "description": "Developed capacities used to design, set-up, operate, and correct malfunctions involving application of machines or technological systems"
+            }
+          }
+        }
+      }
+    }
+  },
+  "knowledgeTests": {
+    "common": {
+      "loading": "Loading questions...",
+      "loadError": "Failed to load questions. Please try again later.",
+      "unexpectedError": "An unexpected error occurred.",
+      "returnToSelection": "Return to Knowledge Selection",
+      "submitIncomplete": "Please answer all questions before submitting.",
+      "submitError": "Failed to submit answers. Please try again.",
+      "progress": "{{percent}}% complete",
+      "answered": "{{answered}} of {{total}} questions answered",
+      "clearProgress": "Clear Progress",
+      "clearConfirm": "Are you sure you want to clear your progress?",
+      "saving": "Saving...",
+      "submit": "Submit Answers",
+      "toastRated": "Rated: {{value}}",
+      "levelLabel": "Level {{level}}"
+    },
+    "artsHumanities": {
+      "title": "Arts and Humanities Knowledge Assessment",
+      "instructions": {
+        "line1": "Rate your interest in developing arts and humanities knowledge on a scale from 0 to 100.",
+        "line2": "Focus on how eager you would be to explore these areas further, not your current expertise."
+      }
+    },
+    "businessManagement": {
+      "title": "Business and Management Knowledge Assessment",
+      "instructions": {
+        "line1": "Rate your interest in developing business and management knowledge on a scale from 0 to 100.",
+        "line2": "Consider how motivated you are to grow in these topics, not your present skill level."
+      }
+    },
+    "communications": {
+      "title": "Communications Knowledge Assessment",
+      "instructions": {
+        "line1": "Rate your interest in developing communications knowledge on a scale from 0 to 100.",
+        "line2": "Focus on how eager you would be to learn more in these areas, not your current expertise."
+      }
+    },
+    "educationTraining": {
+      "title": "Education and Training Knowledge Assessment",
+      "instructions": {
+        "line1": "Rate your interest in developing education and training knowledge on a scale from 0 to 100.",
+        "line2": "Think about your motivation to deepen your understanding, not your existing knowledge level."
+      }
+    },
+    "engineeringTechnology": {
+      "title": "Engineering and Technology Knowledge Assessment",
+      "instructions": {
+        "line1": "Rate your interest in developing engineering and technology knowledge on a scale from 0 to 100.",
+        "line2": "Focus on your curiosity to expand into these areas, not your current proficiency."
+      }
+    },
+    "healthServices": {
+      "title": "Health Services Knowledge Assessment",
+      "instructions": {
+        "line1": "Rate your interest in developing health services knowledge on a scale from 0 to 100.",
+        "line2": "Reflect on how motivated you are to learn more, regardless of your current experience."
+      }
+    },
+    "lawSafety": {
+      "title": "Law and Public Safety Knowledge Assessment",
+      "instructions": {
+        "line1": "Rate your interest in developing law and public safety knowledge on a scale from 0 to 100.",
+        "line2": "Consider how eager you are to explore these topics, not your current expertise."
+      }
+    },
+    "manufacturingProduction": {
+      "title": "Manufacturing and Production Knowledge Assessment",
+      "instructions": {
+        "line1": "Rate your interest in developing manufacturing and production knowledge on a scale from 0 to 100.",
+        "line2": "Focus on your desire to expand in these areas, not your existing knowledge."
+      }
+    },
+    "mathScience": {
+      "title": "Mathematics and Science Knowledge Assessment",
+      "instructions": {
+        "line1": "Rate your interest in developing mathematics and science knowledge on a scale from 0 to 100.",
+        "line2": "Think about how excited you are to explore these subjects further, not your current mastery."
+      }
+    },
+    "transportation": {
+      "title": "Transportation Knowledge Assessment",
+      "instructions": {
+        "line1": "Rate your interest in developing transportation knowledge on a scale from 0 to 100.",
+        "line2": "Focus on how eager you would be to learn more in these areas, not your present experience."
+      }
+    }
+  },
+  "results": {
+    "loadingMessage": "Loading your assessment results...",
+    "error": {
+      "load": "Failed to load assessment results"
+    },
+    "empty": {
+      "title": "No Assessment Results",
+      "description": "You haven't completed any assessments yet."
+    },
+    "buttons": {
+      "startInterest": "Start Interest Assessment",
+      "viewReports": "View Reports",
+      "generateReport": "Generate Report",
+      "generating": "Generating..."
+    },
+    "toast": {
+      "loginRequired": "You must be logged in to generate a report.",
+      "generatingStart": "Generating your career report... This may take a moment.",
+      "generateSuccess": "Report generated successfully!",
+      "generateError": "Failed to generate report. Please try again.",
+      "selectReport": "Select a report to regenerate.",
+      "regeneratingStart": "Regenerating your career report...",
+      "regenerateSuccess": "Report regenerated successfully.",
+      "regenerateError": "Failed to regenerate report.",
+      "exportSuccess": "Report exported as {{format}}.",
+      "exportError": "Failed to export report.",
+      "viewLoginRequired": "You must be logged in to view reports.",
+      "analyzeError": "Failed to analyze career matches.",
+      "historyError": "Failed to load report history.",
+      "reportError": "Failed to load report."
+    },
+    "heading": "Your Assessment Results",
+    "tabs": {
+      "interest": "Interest",
+      "ability": "Ability",
+      "knowledge": "Knowledge",
+      "skills": "Skills",
+      "careers": "Careers"
+    },
+    "dialog": {
+      "title": "Your Career Report",
+      "description": "View AI-generated insights and recommendations based on your assessment results",
+      "loadingDetails": "Loading report details...",
+      "emptyState": "Generate a report to see AI-driven insights here."
+    },
+    "reportHistory": {
+      "title": "Report History",
+      "description": "Select a report to revisit previous insights.",
+      "loading": "Loading history...",
+      "empty": "No reports generated yet.",
+      "noAssessments": "No assessments"
+    },
+    "info": {
+      "reportId": "Report ID",
+      "dataQuality": "Data Quality",
+      "assessments": "Assessments",
+      "model": "Model",
+      "promptVersion": "Prompt Version"
+    },
+    "report": {
+      "overviewTitle": "Report Overview",
+      "generatedAt": "Generated on {{date}}",
+      "actions": {
+        "exporting": "Exporting...",
+        "exportPdf": "Export PDF",
+        "exportText": "Export Text",
+        "regenerating": "Regenerating...",
+        "regenerate": "Regenerate"
+      }
+    },
+    "sections": {
+      "executiveSummary": "Executive Summary",
+      "strengthsAnalysis": "Strengths Analysis",
+      "careerPathRecommendations": "Career Path Recommendations",
+      "interestGuide": "Interest Exploration Guide",
+      "nextSteps": "Next Steps",
+      "additionalResources": "Additional Resources",
+      "careerPath": {
+        "matchScore": "{{score}}% match"
+      }
+    },
+    "nextSteps": {
+      "immediate": "Immediate",
+      "shortTerm": "Short Term",
+      "longTerm": "Long Term",
+      "empty": "No recommendations provided."
+    }
+  },
+  "careerRecommendations": {
+    "title": "Career Recommendations",
+    "loading": {
+      "message": "Analyzing your career matches...",
+      "description": "We're analyzing your assessment results to find the best career matches for you."
+    },
+    "error": {
+      "generic": "Analysis failed.",
+      "description": "Failed to analyze career matches: {{error}}"
+    },
+    "actions": {
+      "retry": "Try Again",
+      "analyzeAgain": "Analyze Again",
+      "loadMore": "Load more matches",
+      "refresh": "Refresh Analysis"
+    },
+    "empty": {
+      "description": "We couldn't find any career matches based on your current results. Complete more assessments to get personalized recommendations."
+    },
+    "badge": "{{count}} matches found",
+    "summary": "Based on your assessment results, here are careers that match your interests, abilities, and skills.",
+    "matchLabel": "Match #{{index}}",
+    "correlationLabel": "Correlation: {{value}}%",
+    "status": {
+      "excellent": "Excellent Match",
+      "good": "Good Match",
+      "fair": "Fair Match",
+      "potential": "Potential Match"
+    },
+    "analysisBase": "Based on {{category}} analysis",
+    "analysisCategory": {
+      "comprehensive": "comprehensive"
+    }
+  },
+  "adminTuning": {
+    "title": "Admin: Recommendation Tuning",
+    "loginPrompt": "Please sign in to use these tools.",
+    "datasetCard": {
+      "title": "Dataset & Actions",
+      "datasetLabel": "Validation Dataset Name",
+      "bootstrap": "Bootstrap Validation",
+      "fetchState": "Fetch State",
+      "fullPipeline": "Run Full Calibration",
+      "calibratePercentile": "Calibrate (Percentile)",
+      "calibrateOptimized": "Calibrate (Optimized)",
+      "optimizeWeights": "Optimize Weights",
+      "calibrateScores": "Calibrate Scores"
+    },
+    "logs": {
+      "title": "Logs"
+    }
+  }
+}

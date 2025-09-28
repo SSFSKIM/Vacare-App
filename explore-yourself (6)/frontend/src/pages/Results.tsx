@@ -29,8 +29,10 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { useTranslation } from "react-i18next";
 
 export default function Results() {
+  const { t } = useTranslation();
   const { user } = useUserGuardContext();
   const { assessment, isLoading, error, setCareerRecommendations } =
     useFirebaseAssessmentStore();
@@ -110,16 +112,17 @@ export default function Results() {
     });
     const data = await response.json();
     setCareerRecommendations(data);
-    
+
   } catch (err) {
     console.error("Failed to analyze career matches:", err);
-    const errorMessage = err instanceof Error ? err.message : 'Failed to analyze career matches';
+    const fallbackMessage = t('results.toast.analyzeError');
+    const errorMessage = err instanceof Error && err.message ? err.message : fallbackMessage;
     setAnalysisError(errorMessage);
     toast.error(errorMessage);
   } finally {
     setIsAnalyzing(false);
   }
-  }, [assessment, setCareerRecommendations]);
+  }, [assessment, setCareerRecommendations, t]);
 
   const interestTabData = useMemo(() => {
     const rawResults = assessment?.interest?.results ?? [];
@@ -188,13 +191,14 @@ export default function Results() {
       }
     } catch (err) {
       console.error('Failed to load report history:', err);
-      const message = err instanceof Error ? err.message : 'Failed to load report history';
+      const fallbackMessage = t('results.toast.historyError');
+      const message = err instanceof Error && err.message ? err.message : fallbackMessage;
       toast.error(message);
     } finally {
       setIsHistoryLoading(false);
       setIsReportLoading(false);
     }
-  }, [selectedReport, user]);
+  }, [selectedReport, t, user]);
 
   const handleSelectReport = useCallback(async (reportId: string) => {
     if (!user) return;
@@ -204,12 +208,13 @@ export default function Results() {
       setSelectedReport(report);
     } catch (err) {
       console.error('Failed to load report:', err);
-      const message = err instanceof Error ? err.message : 'Failed to load report';
+      const fallbackMessage = t('results.toast.reportError');
+      const message = err instanceof Error && err.message ? err.message : fallbackMessage;
       toast.error(message);
     } finally {
       setIsReportLoading(false);
     }
-  }, [user]);
+  }, [t, user]);
 
   useEffect(() => {
     if (user) {
@@ -221,22 +226,23 @@ export default function Results() {
 
   const handleGenerateReport = async () => {
     if (!user) {
-      toast.error("You must be logged in to generate a report.");
+      toast.error(t('results.toast.loginRequired'));
       return;
     }
 
     setIsGeneratingReport(true);
-    toast.info("Generating your career report... This may take a moment.");
+    toast.info(t('results.toast.generatingStart'));
 
     try {
       const generatedReport = await generateCareerReport(user.uid);
       upsertReportSummary(generatedReport);
       setSelectedReport(generatedReport);
       setIsReportModalOpen(true);
-      toast.success("Report generated successfully!");
+      toast.success(t('results.toast.generateSuccess'));
     } catch (error) {
       console.error("Failed to generate report:", error);
-      const errorMessage = error instanceof Error ? error.message : "Failed to generate report. Please try again.";
+      const fallbackMessage = t('results.toast.generateError');
+      const errorMessage = error instanceof Error && error.message ? error.message : fallbackMessage;
       toast.error(errorMessage);
     } finally {
       setIsGeneratingReport(false);
@@ -245,26 +251,27 @@ export default function Results() {
 
   const handleRegenerateReport = useCallback(async () => {
     if (!selectedReport) {
-      toast.error('Select a report to regenerate.');
+      toast.error(t('results.toast.selectReport'));
       return;
     }
 
     setIsRegeneratingReport(true);
-    toast.info('Regenerating your career report...');
+    toast.info(t('results.toast.regeneratingStart'));
 
     try {
       const updatedReport = await regenerateCareerReport(selectedReport.reportId);
       upsertReportSummary(updatedReport);
       setSelectedReport(updatedReport);
-      toast.success('Report regenerated successfully.');
+      toast.success(t('results.toast.regenerateSuccess'));
     } catch (err) {
       console.error('Failed to regenerate report:', err);
-      const message = err instanceof Error ? err.message : 'Failed to regenerate report';
+      const fallbackMessage = t('results.toast.regenerateError');
+      const message = err instanceof Error && err.message ? err.message : fallbackMessage;
       toast.error(message);
     } finally {
       setIsRegeneratingReport(false);
     }
-  }, [selectedReport, upsertReportSummary]);
+  }, [selectedReport, t, upsertReportSummary]);
 
   const handleExportReport = useCallback(async (format: 'pdf' | 'text') => {
     if (!selectedReport) return;
@@ -281,19 +288,20 @@ export default function Results() {
       link.click();
       link.remove();
       URL.revokeObjectURL(url);
-      toast.success(`Report exported as ${extension.toUpperCase()}.`);
+      toast.success(t('results.toast.exportSuccess', { format: extension.toUpperCase() }));
     } catch (err) {
       console.error('Failed to export report:', err);
-      const message = err instanceof Error ? err.message : 'Failed to export report';
+      const fallbackMessage = t('results.toast.exportError');
+      const message = err instanceof Error && err.message ? err.message : fallbackMessage;
       toast.error(message);
     } finally {
       setExportingFormat(null);
     }
-  }, [selectedReport]);
+  }, [selectedReport, t]);
 
   const handleOpenReportModal = useCallback(() => {
     if (!user) {
-      toast.error('You must be logged in to view reports.');
+      toast.error(t('results.toast.viewLoginRequired'));
       return;
     }
 
@@ -304,14 +312,14 @@ export default function Results() {
     }
 
     setIsReportModalOpen(true);
-  }, [loadReportHistory, reportHistory.length, user]);
+  }, [loadReportHistory, reportHistory.length, t, user]);
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
         <NavigationBar />
         <div className="container mx-auto px-4 py-8">
-          <LoadingSpinner message="Loading your assessment results..." />
+          <LoadingSpinner message={t('results.loadingMessage')} />
         </div>
       </div>
     );
@@ -323,7 +331,7 @@ export default function Results() {
         <NavigationBar />
         <div className="container mx-auto px-4 py-8">
           <ErrorMessage 
-            message="Failed to load assessment results" 
+            message={t('results.error.load')} 
             onRetry={() => window.location.reload()} 
           />
         </div>
@@ -337,12 +345,12 @@ export default function Results() {
         <NavigationBar />
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4">No Assessment Results</h1>
+            <h1 className="text-2xl font-bold mb-4">{t('results.empty.title')}</h1>
             <p className="text-muted-foreground mb-4">
-              You haven't completed any assessments yet.
+              {t('results.empty.description')}
             </p>
             <Button onClick={() => (window.location.href = "/assessment?type=interest")}>
-              Start Interest Assessment
+              {t('results.buttons.startInterest')}
             </Button>
           </div>
         </div>
@@ -355,13 +363,13 @@ export default function Results() {
       <NavigationBar />
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center mb-6">
-          <h1 className="text-3xl font-bold">Your Assessment Results</h1>
+          <h1 className="text-3xl font-bold">{t('results.heading')}</h1>
           <div className="flex gap-2 sm:justify-end">
             <Button
               variant="secondary"
               onClick={handleOpenReportModal}
             >
-              View Reports
+              {t('results.buttons.viewReports')}
             </Button>
             <Button
               onClick={handleGenerateReport}
@@ -371,10 +379,10 @@ export default function Results() {
               {isGeneratingReport ? (
                 <>
                   <LoadingSpinner className="w-4 h-4 mr-2" />
-                  Generating...
+                  {t('results.buttons.generating')}
                 </>
               ) : (
-                "Generate Report"
+                {t('results.buttons.generateReport')}
               )}
             </Button>
           </div>
@@ -382,11 +390,11 @@ export default function Results() {
 
         <Tabs defaultValue="interest" className="w-full">
           <TabsList className="w-full overflow-x-auto flex gap-2 sm:grid sm:grid-cols-5">
-            <TabsTrigger value="interest">Interest</TabsTrigger>
-            <TabsTrigger value="ability">Ability</TabsTrigger>
-            <TabsTrigger value="knowledge">Knowledge</TabsTrigger>
-            <TabsTrigger value="skills">Skills</TabsTrigger>
-            <TabsTrigger value="careers">Careers</TabsTrigger>
+            <TabsTrigger value="interest">{t('results.tabs.interest')}</TabsTrigger>
+            <TabsTrigger value="ability">{t('results.tabs.ability')}</TabsTrigger>
+            <TabsTrigger value="knowledge">{t('results.tabs.knowledge')}</TabsTrigger>
+            <TabsTrigger value="skills">{t('results.tabs.skills')}</TabsTrigger>
+            <TabsTrigger value="careers">{t('results.tabs.careers')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="interest" className="space-y-4">
@@ -424,9 +432,9 @@ export default function Results() {
         <Dialog open={isReportModalOpen} onOpenChange={setIsReportModalOpen}>
           <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Your Career Report</DialogTitle>
+              <DialogTitle>{t('results.dialog.title')}</DialogTitle>
               <DialogDescription>
-                View AI-generated insights and recommendations based on your assessment results
+                {t('results.dialog.description')}
               </DialogDescription>
             </DialogHeader>
             <div className="mt-4 grid gap-4 md:grid-cols-[260px_1fr]">
@@ -439,7 +447,7 @@ export default function Results() {
               <div className="space-y-4">
                 {isReportLoading && (
                   <div className="flex justify-center py-12">
-                    <LoadingSpinner message="Loading report details..." />
+                    <LoadingSpinner message={t('results.dialog.loadingDetails')} />
                   </div>
                 )}
 
@@ -455,7 +463,7 @@ export default function Results() {
 
                 {!isReportLoading && !selectedReport && !isHistoryLoading && (
                   <div className="rounded-md border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-                    Generate a report to see AI-driven insights here.
+                    {t('results.dialog.emptyState')}
                   </div>
                 )}
               </div>
@@ -478,19 +486,20 @@ function ReportHistoryList({
   onSelect: (reportId: string) => void
   isLoading: boolean
 }) {
+  const { t } = useTranslation();
   return (
     <aside className="flex flex-col gap-4 rounded-md border border-border bg-muted/20 p-4">
       <div>
-        <h2 className="text-sm font-semibold">Report History</h2>
+        <h2 className="text-sm font-semibold">{t('results.reportHistory.title')}</h2>
         <p className="text-xs text-muted-foreground">
-          Select a report to revisit previous insights.
+          {t('results.reportHistory.description')}
         </p>
       </div>
 
       {isLoading ? (
-        <LoadingSpinner message="Loading history..." className="mx-auto" />
+        <LoadingSpinner message={t('results.reportHistory.loading')} className="mx-auto" />
       ) : reports.length === 0 ? (
-        <p className="text-xs text-muted-foreground">No reports generated yet.</p>
+        <p className="text-xs text-muted-foreground">{t('results.reportHistory.empty')}</p>
       ) : (
         <ul className="space-y-2 text-sm">
           {reports.map((item) => {
@@ -512,7 +521,7 @@ function ReportHistoryList({
                   <p className="text-xs text-muted-foreground">
                     {item.completedAssessments.length > 0
                       ? item.completedAssessments.join(', ')
-                      : 'No assessments'}
+                      : t('results.reportHistory.noAssessments')}
                   </p>
                 </button>
               </li>
@@ -537,15 +546,16 @@ function DetailedReportView({
   exportingFormat: 'pdf' | 'text' | null
   isRegenerating: boolean
 }) {
+  const { t } = useTranslation();
   const sections = report.sections;
 
   return (
     <div className="space-y-6 text-sm">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 className="text-base font-semibold">Report Overview</h2>
+          <h2 className="text-base font-semibold">{t('results.report.overviewTitle')}</h2>
           <p className="text-xs text-muted-foreground">
-            Generated on {new Date(report.generatedAt).toLocaleString()}
+            {t('results.report.generatedAt', { date: new Date(report.generatedAt).toLocaleString() })}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -554,31 +564,31 @@ function DetailedReportView({
             onClick={() => onExport('pdf')}
             disabled={exportingFormat !== null}
           >
-            {exportingFormat === 'pdf' ? 'Exporting...' : 'Export PDF'}
+            {exportingFormat === 'pdf' ? t('results.report.actions.exporting') : t('results.report.actions.exportPdf')}
           </Button>
           <Button
             variant="secondary"
             onClick={() => onExport('text')}
             disabled={exportingFormat !== null}
           >
-            {exportingFormat === 'text' ? 'Exporting...' : 'Export Text'}
+            {exportingFormat === 'text' ? t('results.report.actions.exporting') : t('results.report.actions.exportText')}
           </Button>
           <Button onClick={onRegenerate} disabled={isRegenerating}>
-            {isRegenerating ? 'Regenerating...' : 'Regenerate'}
+            {isRegenerating ? t('results.report.actions.regenerating') : t('results.report.actions.regenerate')}
           </Button>
         </div>
       </div>
 
       <div className="grid gap-2 rounded-md border border-border bg-muted/30 p-3 sm:grid-cols-2">
-        <InfoRow label="Report ID" value={report.reportId} />
-        <InfoRow label="Data Quality" value={report.dataQuality} />
-        <InfoRow label="Assessments" value={report.completedAssessments.join(', ') || '—'} />
-        <InfoRow label="Model" value={report.model} />
-        <InfoRow label="Prompt Version" value={report.promptVersion} />
+        <InfoRow label={t('results.info.reportId')} value={report.reportId} />
+        <InfoRow label={t('results.info.dataQuality')} value={report.dataQuality} />
+        <InfoRow label={t('results.info.assessments')} value={report.completedAssessments.join(', ') || '—'} />
+        <InfoRow label={t('results.info.model')} value={report.model} />
+        <InfoRow label={t('results.info.promptVersion')} value={report.promptVersion} />
       </div>
 
       <section>
-        <h2 className="text-base font-semibold">Executive Summary</h2>
+        <h2 className="text-base font-semibold">{t('results.sections.executiveSummary')}</h2>
         <div className="mt-2 rounded-md border border-border bg-muted/30 p-4 leading-relaxed">
           {sections.executiveSummary}
         </div>
@@ -586,7 +596,7 @@ function DetailedReportView({
 
       {sections.strengthsAnalysis.length > 0 && (
         <section>
-          <h2 className="text-base font-semibold">Strengths Analysis</h2>
+          <h2 className="text-base font-semibold">{t('results.sections.strengthsAnalysis')}</h2>
           <ul className="mt-2 space-y-3">
             {sections.strengthsAnalysis.map((item) => (
               <li key={`${item.title}-${item.category ?? 'general'}`} className="rounded-md border border-border bg-background p-3">
@@ -604,13 +614,13 @@ function DetailedReportView({
 
       {sections.careerPathRecommendations.length > 0 && (
         <section>
-          <h2 className="text-base font-semibold">Career Path Recommendations</h2>
+          <h2 className="text-base font-semibold">{t('results.sections.careerPathRecommendations')}</h2>
           <div className="mt-2 space-y-3">
             {sections.careerPathRecommendations.map((rec) => (
               <div key={rec.title} className="rounded-md border border-border bg-background p-3">
                 <p className="font-semibold">
                   {rec.title}
-                  {rec.matchScore !== undefined && rec.matchScore !== null ? ` • ${rec.matchScore}% match` : ''}
+                  {rec.matchScore !== undefined && rec.matchScore !== null ? ` • ${t('results.sections.careerPath.matchScore', { score: rec.matchScore })}` : ''}
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">{rec.rationale}</p>
                 {rec.developmentActions.length > 0 && (
@@ -628,7 +638,7 @@ function DetailedReportView({
 
       {sections.interestExplorationGuide.length > 0 && (
         <section>
-          <h2 className="text-base font-semibold">Interest Exploration Guide</h2>
+          <h2 className="text-base font-semibold">{t('results.sections.interestGuide')}</h2>
           <div className="mt-2 space-y-3">
             {sections.interestExplorationGuide.map((guide) => (
               <div key={guide.area} className="rounded-md border border-border bg-background p-3">
@@ -648,17 +658,17 @@ function DetailedReportView({
       )}
 
       <section>
-        <h2 className="text-base font-semibold">Next Steps</h2>
+        <h2 className="text-base font-semibold">{t('results.sections.nextSteps')}</h2>
         <div className="mt-2 grid gap-3 rounded-md border border-border bg-background p-3 md:grid-cols-3">
-          <NextStepColumn title="Immediate" items={sections.nextSteps.immediate} />
-          <NextStepColumn title="Short Term" items={sections.nextSteps.shortTerm} />
-          <NextStepColumn title="Long Term" items={sections.nextSteps.longTerm} />
+          <NextStepColumn title={t('results.nextSteps.immediate')} items={sections.nextSteps.immediate} />
+          <NextStepColumn title={t('results.nextSteps.shortTerm')} items={sections.nextSteps.shortTerm} />
+          <NextStepColumn title={t('results.nextSteps.longTerm')} items={sections.nextSteps.longTerm} />
         </div>
       </section>
 
       {sections.additionalResources.length > 0 && (
         <section>
-          <h2 className="text-base font-semibold">Additional Resources</h2>
+          <h2 className="text-base font-semibold">{t('results.sections.additionalResources')}</h2>
           <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-muted-foreground">
             {sections.additionalResources.map((resource, index) => (
               <li key={`${resource}-${index}`}>{resource}</li>
@@ -682,11 +692,12 @@ function InfoRow({ label, value }: { label: string; value?: string | number }) {
 }
 
 function NextStepColumn({ title, items }: { title: string; items: string[] }) {
+  const { t } = useTranslation();
   return (
     <div>
       <p className="text-sm font-semibold">{title}</p>
       {items.length === 0 ? (
-        <p className="text-xs text-muted-foreground">No recommendations provided.</p>
+        <p className="text-xs text-muted-foreground">{t('results.nextSteps.empty')}</p>
       ) : (
         <ul className="mt-1 list-disc space-y-1 pl-4 text-xs">
           {items.map((item, index) => (

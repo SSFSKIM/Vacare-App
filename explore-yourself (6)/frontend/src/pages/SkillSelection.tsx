@@ -1,15 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { NavigationBar } from "../components/NavigationBar";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle2 } from "lucide-react";
 import { initializeFirebaseAssessment, useFirebaseAssessmentStore } from "../utils/firebase-assessment-store";
+import { useTranslation } from "react-i18next";
 
 export default function SkillSelection() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const { assessment, isLoading, error } = useFirebaseAssessmentStore();
+  const { assessment, isLoading } = useFirebaseAssessmentStore();
   const [completedTests, setCompletedTests] = useState<any[]>([]);
+  const { t } = useTranslation();
   
   // Initialize Firebase assessment store
   useEffect(() => {
@@ -19,90 +20,104 @@ export default function SkillSelection() {
   // Extract completed skill tests from Firebase store
   useEffect(() => {
     if (!isLoading && assessment) {
-      setLoading(false);
       const skillResults = assessment.skills.results || [];
       setCompletedTests(skillResults);
     }
   }, [isLoading, assessment]);
 
-  const skillCategories = [
-    {
-      title: "Basic Skills",
-      description: "Fundamental capacities that facilitate learning or the more rapid acquisition of knowledge",
-      subcategories: [
-        {
-          name: "Content Skills",
-          route: "/content-skills-test",
-          description: "Background structures needed to work with and acquire more specific skills in a variety of different domains"
-        },
-        {
-          name: "Process Skills",
-          route: "/process-skills-test",
-          description: "Procedures that contribute to the more rapid acquisition of knowledge and skill across a variety of domains"
-        }
-      ]
-    },
-    {
-      title: "Cross-functional Skills",
-      description: "Developed capacities that facilitate performance of activities that occur across jobs",
-      subcategories: [
-        {
-          name: "Complex Problem Solving",
-          route: "/complex-problem-solving-skills-test",
-          description: "Developed capacities used to solve novel, ill-defined problems in complex, real-world settings"
-        },
-        {
-          name: "Resource Management",
-          route: "/resource-management-skills-test",
-          description: "Developed capacities used to allocate resources efficiently"
-        },
-        {
-          name: "Social Skills",
-          route: "/social-skills-test",
-          description: "Developed capacities used to work with people to achieve goals"
-        },
-        {
-          name: "Systems Skills",
-          route: "/systems-skills-test",
-          description: "Developed capacities used to understand, monitor, and improve socio-technical systems"
-        },
-        {
-          name: "Technical Skills",
-          route: "/technical-skills-test",
-          description: "Developed capacities used to design, set-up, operate, and correct malfunctions involving application of machines or technological systems"
-        }
-      ]
-    }
-  ];
+  const skillCategories = useMemo(
+    () => [
+      {
+        key: 'basic',
+        title: t('assessmentSelection.skills.categories.basic.title'),
+        description: t('assessmentSelection.skills.categories.basic.description'),
+        subcategories: [
+          {
+            key: 'content',
+            name: t('assessmentSelection.skills.categories.basic.subcategories.content.title'),
+            description: t('assessmentSelection.skills.categories.basic.subcategories.content.description'),
+            route: '/content-skills-test',
+            subsetKey: 'content'
+          },
+          {
+            key: 'process',
+            name: t('assessmentSelection.skills.categories.basic.subcategories.process.title'),
+            description: t('assessmentSelection.skills.categories.basic.subcategories.process.description'),
+            route: '/process-skills-test',
+            subsetKey: 'process'
+          }
+        ]
+      },
+      {
+        key: 'crossFunctional',
+        title: t('assessmentSelection.skills.categories.crossFunctional.title'),
+        description: t('assessmentSelection.skills.categories.crossFunctional.description'),
+        subcategories: [
+          {
+            key: 'complexProblemSolving',
+            name: t('assessmentSelection.skills.categories.crossFunctional.subcategories.complexProblemSolving.title'),
+            description: t('assessmentSelection.skills.categories.crossFunctional.subcategories.complexProblemSolving.description'),
+            route: '/complex-problem-solving-skills-test',
+            subsetKey: 'complex problem solving'
+          },
+          {
+            key: 'resourceManagement',
+            name: t('assessmentSelection.skills.categories.crossFunctional.subcategories.resourceManagement.title'),
+            description: t('assessmentSelection.skills.categories.crossFunctional.subcategories.resourceManagement.description'),
+            route: '/resource-management-skills-test',
+            subsetKey: 'resource management'
+          },
+          {
+            key: 'social',
+            name: t('assessmentSelection.skills.categories.crossFunctional.subcategories.social.title'),
+            description: t('assessmentSelection.skills.categories.crossFunctional.subcategories.social.description'),
+            route: '/social-skills-test',
+            subsetKey: 'social'
+          },
+          {
+            key: 'systems',
+            name: t('assessmentSelection.skills.categories.crossFunctional.subcategories.systems.title'),
+            description: t('assessmentSelection.skills.categories.crossFunctional.subcategories.systems.description'),
+            route: '/systems-skills-test',
+            subsetKey: 'systems'
+          },
+          {
+            key: 'technical',
+            name: t('assessmentSelection.skills.categories.crossFunctional.subcategories.technical.title'),
+            description: t('assessmentSelection.skills.categories.crossFunctional.subcategories.technical.description'),
+            route: '/technical-skills-test',
+            subsetKey: 'technical'
+          }
+        ]
+      }
+    ],
+    [t]
+  );
 
   return (
     <div className="min-h-screen bg-background">
       <NavigationBar />
       <main className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold mb-8 text-center">Skill Test</h1>
+          <h1 className="text-4xl font-bold mb-8 text-center">{t('assessmentSelection.skills.title')}</h1>
           <p className="text-lg text-muted-foreground mb-8 text-center">
-            Select a skill category to begin the assessment.
+            {t('assessmentSelection.skills.subtitleLine1')}
             <br />
-            You can start with the category that you want.
+            {t('assessmentSelection.skills.subtitleLine2')}
           </p>
 
           <div className="space-y-8">
             {skillCategories.map((category) => (
-              <div key={category.title}>
+              <div key={category.key}>
                 <h2 className="text-2xl font-semibold mb-4">{category.title}</h2>
                 <p className="text-muted-foreground mb-4">{category.description}</p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {category.subcategories.map((subcategory) => (
                     <Card
-                      key={subcategory.name}
+                      key={subcategory.key}
                       className={`p-6 hover:bg-accent cursor-pointer transition-colors relative ${completedTests.some((result: any) => {
-                      let expectedSubset = subcategory.name.toLowerCase();
-                      if (["content skills", "process skills", "social skills", "systems skills", "technical skills"].includes(expectedSubset)) {
-                        expectedSubset = expectedSubset.replace(" skills", "");
-                      }
-                      return result.subset?.toLowerCase() === expectedSubset;
+                      return result.subset?.toLowerCase() === subcategory.subsetKey;
                     }) ? 'bg-accent border-l-4 border-primary' : ''}`}
                       onClick={() => navigate(subcategory.route)}
                     >
@@ -111,15 +126,11 @@ export default function SkillSelection() {
                           <div className="flex items-center gap-2 mb-2">
                             <h3 className="text-xl font-semibold">{subcategory.name}</h3>
                             {completedTests.some((result: any) => {
-                              let expectedSubset = subcategory.name.toLowerCase();
-                              if (["content skills", "process skills", "social skills", "systems skills", "technical skills"].includes(expectedSubset)) {
-                                expectedSubset = expectedSubset.replace(" skills", "");
-                              }
-                              return result.subset?.toLowerCase() === expectedSubset;
+                              return result.subset?.toLowerCase() === subcategory.subsetKey;
                             }) && (
                               <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
                                 <CheckCircle2 className="h-3 w-3 mr-1" />
-                                Completed
+                                {t('assessmentSelection.skills.completedBadge')}
                               </span>
                             )}
                           </div>

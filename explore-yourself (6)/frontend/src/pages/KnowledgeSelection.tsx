@@ -3,12 +3,15 @@ import { NavigationBar } from "../components/NavigationBar";
 import { TestCard } from "../components/TestCard";
 import { Palette, Building2, Radio, GraduationCap, Wrench, Stethoscope, Scale, Factory, Calculator, Car } from "lucide-react";
 import { initializeFirebaseAssessment } from "../utils/firebase-assessment-store";
+import { useTranslation } from "react-i18next";
 
 export default function KnowledgeSelection() {
   // Initialize Firebase assessment store
   useEffect(() => {
     initializeFirebaseAssessment();
   }, []);
+
+  const { t } = useTranslation();
 
   return (
     <div className="min-h-screen bg-background">
@@ -17,70 +20,70 @@ export default function KnowledgeSelection() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold mb-6">
-              Knowledge Explorer
+              {t('assessmentSelection.knowledge.title')}
             </h1>
             <p className="text-xl text-muted-foreground">
-              Select the category to begin. Start with what you want
+              {t('assessmentSelection.knowledge.subtitle')}
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-6">
             <TestCard
-              title="Arts and Humanities"
+              title={t('assessmentSelection.knowledge.cards.artsHumanities')}
               icon={<Palette />}
               testType="arts-humanities-knowledge"
               available={true}
             />
             <TestCard
-              title="Business and Management"
+              title={t('assessmentSelection.knowledge.cards.businessManagement')}
               icon={<Building2 />}
               testType="business-management-knowledge"
               available={true}
             />
             <TestCard
-              title="Communications"
+              title={t('assessmentSelection.knowledge.cards.communications')}
               icon={<Radio />}
               testType="communications-knowledge"
               available={true}
             />
             <TestCard
-              title="Education and Training"
+              title={t('assessmentSelection.knowledge.cards.educationTraining')}
               icon={<GraduationCap />}
               testType="education-training-knowledge"
               available={true}
             />
             <TestCard
-              title="Engineering and Technology"
+              title={t('assessmentSelection.knowledge.cards.engineeringTechnology')}
               icon={<Wrench />}
               testType="engineering-technology-knowledge"
               available={true}
             />
             <TestCard
-              title="Health Services"
+              title={t('assessmentSelection.knowledge.cards.healthServices')}
               icon={<Stethoscope />}
               testType="health-services-knowledge"
               available={true}
             />
             <TestCard
-              title="Law and Public Safety"
+              title={t('assessmentSelection.knowledge.cards.lawSafety')}
               icon={<Scale />}
               testType="law-safety-knowledge"
               available={true}
             />
             <TestCard
-              title="Manufacturing and Production"
+              title={t('assessmentSelection.knowledge.cards.manufacturingProduction')}
               icon={<Factory />}
               testType="manufacturing-production-knowledge"
               available={true}
             />
             <TestCard
-              title="Mathematics and Science"
+              title={t('assessmentSelection.knowledge.cards.mathScience')}
               icon={<Calculator />}
               testType="math-science-knowledge"
               available={true}
             />
             <TestCard
-              title="Transportation"
+              title={t('assessmentSelection.knowledge.cards.transportation')}
               icon={<Car />}
               testType="transportation-knowledge"
               available={true}

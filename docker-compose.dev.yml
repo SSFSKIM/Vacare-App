@@ -19,8 +19,8 @@ services:
       - FIREBASE_API_KEY=${FIREBASE_API_KEY}
       - FIREBASE_AUTH_DOMAIN=${FIREBASE_AUTH_DOMAIN}
     volumes:
-      - ./frontend:/app/frontend
-      - ./backend:/app/backend
+      - "./explore-yourself (6)/frontend:/app/frontend"
+      - "./explore-yourself (6)/backend:/app/backend"
       - /app/backend/__pycache__    # Prevent overwriting cache
     restart: unless-stopped
     networks:
@@ -41,7 +41,7 @@ services:
       - NODE_ENV=development
       - REACT_APP_API_URL=http://localhost:8001
     volumes:
-      - ./frontend:/app/frontend
+      - "./explore-yourself (6)/frontend:/app/frontend"
     networks:
       - va-care-dev-network
     profiles:
@@ -61,7 +61,7 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - REDIS_URL=${REDIS_URL}
     volumes:
-      - ./backend:/app/backend
+      - "./explore-yourself (6)/backend:/app/backend"
       - /app/backend/__pycache__
     networks:
       - va-care-dev-network

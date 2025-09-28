@@ -1,16 +1,17 @@
-import React from "react";
+import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface ErrorMessageProps {
-  message: string;
-  onRetry?: () => void;
-  showDetails?: boolean;
+  message: string
+  onRetry?: () => void
 }
 
 export function ErrorMessage({
   message,
   onRetry,
-  showDetails,
 }: ErrorMessageProps) {
+  const { t } = useTranslation()
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6 border border-red-200">
@@ -32,7 +33,7 @@ export function ErrorMessage({
           </div>
           <div className="ml-3">
             <h3 className="text-lg font-medium text-gray-900">
-              An error occurred
+              {t('errors.genericTitle')}
             </h3>
           </div>
         </div>
@@ -47,17 +48,17 @@ export function ErrorMessage({
               onClick={onRetry}
               className="flex-1 bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors"
             >
-              Try Again
+              {t('errors.tryAgain')}
             </button>
             <button
               onClick={() => (window.location.href = "/")}
               className="flex-1 bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700 transition-colors"
             >
-              Go to Home
+              {t('errors.goHome')}
             </button>
           </div>
         )}
       </div>
     </div>
-  );
+  )
 }

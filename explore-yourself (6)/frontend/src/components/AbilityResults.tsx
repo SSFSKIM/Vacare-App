@@ -1,12 +1,13 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { AbilitySubsetResult } from 'ui/src/types';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import React, { useCallback, useMemo, useState } from 'react'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
+import { AbilitySubsetResult } from 'ui/src/types'
+import { useNavigate } from 'react-router-dom'
+import { Button } from '@/components/ui/button'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+import { useTranslation } from 'react-i18next'
 
-const DEFAULT_VISIBLE_RESULTS = 10;
+const DEFAULT_VISIBLE_RESULTS = 10
 
 interface Props {
   results: AbilitySubsetResult[];
@@ -19,22 +20,23 @@ interface SubsetPanelProps {
 }
 
 const AbilitySubsetPanel = React.memo(({ subsetKey, displayName, results }: SubsetPanelProps) => {
-  const [visibleCount, setVisibleCount] = useState(DEFAULT_VISIBLE_RESULTS);
+  const { t } = useTranslation()
+  const [visibleCount, setVisibleCount] = useState(DEFAULT_VISIBLE_RESULTS)
 
   const handleLoadMore = useCallback(() => {
-    setVisibleCount((current) => Math.min(current + DEFAULT_VISIBLE_RESULTS, results.length));
-  }, [results.length]);
+    setVisibleCount((current) => Math.min(current + DEFAULT_VISIBLE_RESULTS, results.length))
+  }, [results.length])
 
   const visibleResults = useMemo(
     () => results.slice(0, visibleCount),
     [results, visibleCount]
-  );
+  )
 
-  const hasMore = visibleCount < results.length;
+  const hasMore = visibleCount < results.length
   const averageScore = Math.round(
     results.reduce((sum, r) => sum + r.score, 0) /
       Math.max(results.length, 1)
-  );
+  )
 
   return (
     <AccordionItem value={subsetKey} className="overflow-hidden rounded-lg border">
@@ -42,7 +44,7 @@ const AbilitySubsetPanel = React.memo(({ subsetKey, displayName, results }: Subs
         <div className="flex flex-col items-start">
           <span className="text-base font-semibold">{displayName}</span>
           <span className="text-xs text-muted-foreground">
-            {results.length} abilities • Average {averageScore}%
+            {t('abilityResults.groupSummary', { count: results.length, average: averageScore })}
           </span>
         </div>
       </AccordionTrigger>
@@ -61,62 +63,66 @@ const AbilitySubsetPanel = React.memo(({ subsetKey, displayName, results }: Subs
         {hasMore && (
           <div className="px-4 pb-4">
             <Button onClick={handleLoadMore} variant="ghost" size="sm">
-              Show more abilities
+              {t('abilityResults.showMore')}
             </Button>
           </div>
         )}
       </AccordionContent>
     </AccordionItem>
-  );
-});
+  )
+})
 
-AbilitySubsetPanel.displayName = 'AbilitySubsetPanel';
+AbilitySubsetPanel.displayName = 'AbilitySubsetPanel'
 
 function AbilityResultsComponent({ results }: Props) {
+  const { t } = useTranslation()
+
   if (!results || results.length === 0) {
     return (
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle className="text-lg">No Results</CardTitle>
-            <span className="text-sm font-medium text-muted-foreground">Avg: 0%</span>
+            <CardTitle className="text-lg">{t('abilityResults.emptyTitle')}</CardTitle>
+            <span className="text-sm font-medium text-muted-foreground">
+              {t('abilityResults.averageLabel', { value: 0 })}
+            </span>
           </div>
           <Progress value={0} className="h-2 mt-2" />
         </CardHeader>
         <CardContent className="space-y-4 pt-0">
           <div>
             <div className="flex justify-between items-center mb-1">
-              <h4 className="text-sm font-medium">No Results</h4>
+              <h4 className="text-sm font-medium">{t('abilityResults.emptyTitle')}</h4>
               <span className="text-sm font-semibold">0%</span>
             </div>
             <Progress value={0} className="h-1.5" />
           </div>
         </CardContent>
       </Card>
-    );
+    )
   }
 
   const groupedResults = useMemo(() => {
     return results.reduce((acc, result) => {
-      const key = result.subset || 'general';
+      const key = result.subset || 'general'
       if (!acc[key]) {
-        acc[key] = [];
+        acc[key] = []
       }
-      acc[key].push(result);
-      return acc;
-    }, {} as Record<string, AbilitySubsetResult[]>);
-  }, [results]);
+      acc[key].push(result)
+      return acc
+    }, {} as Record<string, AbilitySubsetResult[]>)
+  }, [results])
 
   const sortedResults = useMemo(
     () => [...results].sort((a, b) => b.score - a.score),
     [results]
-  );
+  )
 
-  const topResults = sortedResults.slice(0, 3);
+  const topResults = sortedResults.slice(0, 3)
   const overallAverage = Math.round(
     sortedResults.reduce((sum, item) => sum + item.score, 0) /
       Math.max(sortedResults.length, 1)
-  );
+  )
 
   const formatSubsetName = useCallback(
     (subset: string) =>
@@ -128,15 +134,19 @@ function AbilityResultsComponent({ results }: Props) {
 
   const buildDisplayName = useCallback(
     (subset: string) => {
-      const formatted = formatSubsetName(subset);
-      return formatted.toLowerCase().includes('ability')
-        ? formatted
-        : `${formatted} Abilities`;
-    },
-    [formatSubsetName]
-  );
+      const key = (subset || 'general').toLowerCase()
+      const fallback = key === 'general'
+        ? t('abilityResults.subsets.general')
+        : t('abilityResults.subsets.default', { name: formatSubsetName(subset) })
 
-  const navigate = useNavigate();
+      return t(`abilityResults.subsets.${key}`, {
+        defaultValue: fallback
+      })
+    },
+    [formatSubsetName, t]
+  )
+
+  const navigate = useNavigate()
 
   return (
     <div className="space-y-6">
@@ -144,10 +154,12 @@ function AbilityResultsComponent({ results }: Props) {
         <CardHeader className="pb-4">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
-              <CardTitle className="text-lg">Ability Overview</CardTitle>
+              <CardTitle className="text-lg">{t('abilityResults.overviewTitle')}</CardTitle>
               <p className="text-sm text-muted-foreground">
-                Average score of <span className="font-medium text-foreground">{overallAverage}%</span>{' '}
-                across {results.length} assessed abilities.
+                {t('abilityResults.averageDescription', {
+                  average: overallAverage,
+                  total: results.length
+                })}
               </p>
             </div>
             <Button
@@ -155,14 +167,14 @@ function AbilityResultsComponent({ results }: Props) {
               size="sm"
               onClick={() => navigate('/abilityselection')}
             >
-              Retake Assessment
+              {t('common.actions.retakeAssessment')}
             </Button>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-              Top strengths
+              {t('abilityResults.topStrengths')}
             </h3>
             <div className="mt-3 grid gap-3 md:grid-cols-3">
               {topResults.map((result) => (
@@ -176,7 +188,7 @@ function AbilityResultsComponent({ results }: Props) {
               ))}
               {topResults.length === 0 && (
                 <p className="text-sm text-muted-foreground">
-                  Complete more assessments to see highlighted strengths.
+                  {t('abilityResults.emptyTopStrengths')}
                 </p>
               )}
             </div>
@@ -187,10 +199,10 @@ function AbilityResultsComponent({ results }: Props) {
       <Accordion type="multiple" className="space-y-4">
         {Object.entries(groupedResults).map(([subset, subsetResults]) => {
           if (!subsetResults || subsetResults.length === 0) {
-            return null;
+            return null
           }
 
-          const displayName = buildDisplayName(subset);
+          const displayName = buildDisplayName(subset)
 
           return (
             <AbilitySubsetPanel
@@ -199,13 +211,12 @@ function AbilityResultsComponent({ results }: Props) {
               displayName={displayName}
               results={subsetResults}
             />
-          );
+          )
         })}
       </Accordion>
     </div>
-  );
+  )
 }
 
-export const AbilityResults = React.memo(AbilityResultsComponent);
-AbilityResults.displayName = 'AbilityResults';
-
+export const AbilityResults = React.memo(AbilityResultsComponent)
+AbilityResults.displayName = 'AbilityResults'

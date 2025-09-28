@@ -1,0 +1,419 @@
+{
+  "navigation": {
+    "title": "나를 탐색하기",
+    "home": "홈",
+    "viewResults": "결과 보기",
+    "languageSelectLabel": "언어 선택",
+    "languageSelectPlaceholder": "언어 선택",
+    "fallbackUser": "사용자",
+    "guest": "게스트",
+    "profile": "프로필",
+    "signOut": "로그아웃",
+    "logIn": "로그인",
+    "toast": {
+      "signedOut": "성공적으로 로그아웃되었습니다",
+      "signOutError": "로그아웃 중 오류가 발생했습니다"
+    }
+  },
+  "knowledgeTests": {
+    "common": {
+      "loading": "문항을 불러오는 중...",
+      "loadError": "문항을 불러오지 못했습니다. 다시 시도해 주세요.",
+      "unexpectedError": "예기치 못한 오류가 발생했습니다.",
+      "returnToSelection": "지식 카테고리 선택으로 돌아가기",
+      "submitIncomplete": "모든 문항에 응답한 후 제출해 주세요.",
+      "submitError": "답안을 제출하지 못했습니다. 다시 시도해 주세요.",
+      "progress": "{{percent}}% 완료",
+      "answered": "{{total}}문항 중 {{answered}}문항 응답",
+      "clearProgress": "진행상황 초기화",
+      "clearConfirm": "정말 진행상황을 모두 초기화하시겠어요?",
+      "saving": "저장 중...",
+      "submit": "답안 제출",
+      "toastRated": "{{value}}점으로 평가했습니다",
+      "levelLabel": "레벨 {{level}}"
+    },
+    "artsHumanities": {
+      "title": "예술 · 인문 지식 평가",
+      "instructions": {
+        "line1": "0부터 100까지의 척도로 예술과 인문 지식을 얼마나 발전시키고 싶은지 평가해 주세요.",
+        "line2": "현재 실력보다는 이 분야를 더 탐구해 보고 싶은 마음가짐을 기준으로 생각해 주세요."
+      }
+    },
+    "businessManagement": {
+      "title": "비즈니스 · 경영 지식 평가",
+      "instructions": {
+        "line1": "0부터 100까지의 척도로 비즈니스와 경영 지식을 얼마나 키우고 싶은지 평가해 주세요.",
+        "line2": "현재 수준이 아니라 앞으로 성장하고 싶은 의지를 기준으로 생각해 주세요."
+      }
+    },
+    "communications": {
+      "title": "커뮤니케이션 지식 평가",
+      "instructions": {
+        "line1": "0부터 100까지의 척도로 커뮤니케이션 지식을 얼마나 확장하고 싶은지 평가해 주세요.",
+        "line2": "현재 역량이 아니라 이 분야를 더 배우고 싶은 열의를 기준으로 생각해 주세요."
+      }
+    },
+    "educationTraining": {
+      "title": "교육 · 훈련 지식 평가",
+      "instructions": {
+        "line1": "0부터 100까지의 척도로 교육과 훈련 지식을 얼마나 키우고 싶은지 평가해 주세요.",
+        "line2": "지금 알고 있는 내용을 기준으로 하기보다 더 배우고 싶은 동기를 떠올려 보세요."
+      }
+    },
+    "engineeringTechnology": {
+      "title": "공학 · 기술 지식 평가",
+      "instructions": {
+        "line1": "0부터 100까지의 척도로 공학과 기술 지식을 얼마나 발전시키고 싶은지 평가해 주세요.",
+        "line2": "현재 역량이 아니라 앞으로 이 분야를 탐구하고 싶은 호기심을 기준으로 생각해 주세요."
+      }
+    },
+    "healthServices": {
+      "title": "보건 서비스 지식 평가",
+      "instructions": {
+        "line1": "0부터 100까지의 척도로 보건 서비스 지식을 얼마나 확장하고 싶은지 평가해 주세요.",
+        "line2": "지금의 경험보다 앞으로 더 배우고 싶은 의지를 기준으로 생각해 주세요."
+      }
+    },
+    "lawSafety": {
+      "title": "법률 · 공공안전 지식 평가",
+      "instructions": {
+        "line1": "0부터 100까지의 척도로 법률과 공공안전 지식을 얼마나 키우고 싶은지 평가해 주세요.",
+        "line2": "현재 전문성보다 이 분야를 더 탐구하고 싶은 마음을 기준으로 생각해 주세요."
+      }
+    },
+    "manufacturingProduction": {
+      "title": "제조 · 생산 지식 평가",
+      "instructions": {
+        "line1": "0부터 100까지의 척도로 제조와 생산 지식을 얼마나 발전시키고 싶은지 평가해 주세요.",
+        "line2": "현재 지식 수준이 아니라 앞으로 학습하고 싶은 열의를 기준으로 생각해 주세요."
+      }
+    },
+    "mathScience": {
+      "title": "수학 · 과학 지식 평가",
+      "instructions": {
+        "line1": "0부터 100까지의 척도로 수학과 과학 지식을 얼마나 확장하고 싶은지 평가해 주세요.",
+        "line2": "지금의 숙련도가 아니라 이 과목들을 더 깊이 배우고 싶은 열정을 기준으로 생각해 주세요."
+      }
+    },
+    "transportation": {
+      "title": "운송 지식 평가",
+      "instructions": {
+        "line1": "0부터 100까지의 척도로 운송 분야 지식을 얼마나 키우고 싶은지 평가해 주세요.",
+        "line2": "현재 경험치보다 앞으로 배우고 싶은 의지를 기준으로 생각해 주세요."
+      }
+    }
+  },
+  "errors": {
+    "genericTitle": "오류가 발생했습니다",
+    "tryAgain": "다시 시도",
+    "goHome": "홈으로 이동"
+  },
+  "language": {
+    "english": "영어",
+    "korean": "한국어"
+  },
+  "home": {
+    "title": "나를 탐색하기",
+    "subtitle": "흥미, 능력, 기술을 탐색하여 나에게 맞는 진로를 찾아보세요.",
+    "cards": {
+      "interest": {
+        "title": "흥미 탐색",
+        "description": "RIASEC 모델을 활용하여 나의 흥미에 맞는 직업을 찾아보세요."
+      },
+      "ability": {
+        "title": "능력 탐색",
+        "description": "다양한 능력을 점검해 자신에게 잘 맞는 영역을 확인하세요."
+      },
+      "knowledge": {
+        "title": "지식 탐색",
+        "description": "관심 있는 학문과 지식 분야를 폭넓게 살펴보세요."
+      },
+      "skills": {
+        "title": "기술 탐색",
+        "description": "발전시키고 싶은 기술을 발견하고 계획을 세워보세요."
+      }
+    }
+  },
+  "common": {
+    "actions": {
+      "retakeAssessment": "평가 다시하기"
+    }
+  },
+  "abilityResults": {
+    "groupSummary": "평가된 능력 {{count}}개 • 평균 {{average}}%",
+    "showMore": "더 많은 능력 보기",
+    "emptyTitle": "결과 없음",
+    "averageLabel": "평균: {{value}}%",
+    "subsets": {
+      "general": "전체 능력",
+      "default": "{{name}} 능력",
+      "cognitive-ability": "인지 능력",
+      "physical-ability": "신체 능력",
+      "psychomotor-ability": "심리운동 능력",
+      "sensory-ability": "감각 능력"
+    },
+    "overviewTitle": "능력 요약",
+    "averageDescription": "{{total}}개의 능력에 대한 평균 점수는 {{average}}%입니다.",
+    "topStrengths": "주요 강점",
+    "emptyTopStrengths": "강점을 확인하려면 더 많은 평가를 완료하세요."
+  },
+  "testCard": {
+    "completed": "완료됨",
+    "sectionsCompleted": "총 {{total}}개 중 {{completed}}개 완료",
+    "retakeTest": "테스트 다시하기",
+    "viewResults": "결과 보기",
+    "startTest": "테스트 시작",
+    "comingSoon": "준비 중"
+  },
+  "assessment": {
+    "title": "흥미 탐색",
+    "subtitle": "이 활동들을 얼마나 즐길 것 같나요?",
+    "loading": "평가를 불러오는 중...",
+    "progress": {
+      "page": "{{total}}페이지 중 {{current}}페이지",
+      "complete": "{{percent}}% 완료"
+    },
+    "alerts": {
+      "pageIncomplete": "이 페이지의 모든 문항에 응답한 후 진행해 주세요.",
+      "submitIncomplete": "제출하기 전에 모든 문항에 응답해 주세요.",
+      "calculateFailed": "결과를 계산하지 못했습니다. 다시 시도해 주세요.",
+      "navigationError": "문제가 발생했습니다. 다시 시도해 주세요."
+    },
+    "errors": {
+      "loadQuestions": "문항을 불러오지 못했습니다. 다시 시도해 주세요.",
+      "generic": "문제가 발생했습니다. 다시 시도해 주세요."
+    },
+    "emptyState": {
+      "title": "사용 가능한 문항이 없습니다",
+      "description": "현재 이 평가 유형에 대한 문항이 준비되어 있지 않습니다.",
+      "button": "홈으로 돌아가기"
+    },
+    "ratingLabels": {
+      "1": "전혀 아니다",
+      "3": "보통이다",
+      "5": "매우 그렇다"
+    },
+    "buttons": {
+      "previous": "이전",
+      "next": "다음",
+      "submit": "평가 제출"
+    },
+    "calculating": "결과 계산 중..."
+  },
+  "assessmentSelection": {
+    "ability": {
+      "title": "능력 탐색",
+      "subtitle": "원하는 영역부터 선택해 시작해 보세요",
+      "cards": {
+        "cognitive": "인지 능력",
+        "physical": "신체 능력",
+        "psychomotor": "심리운동 능력",
+        "sensory": "감각 능력"
+      }
+    },
+    "knowledge": {
+      "title": "지식 탐색",
+      "subtitle": "관심 있는 분야를 선택해 시작해 보세요",
+      "cards": {
+        "artsHumanities": "예술 · 인문",
+        "businessManagement": "비즈니스 · 경영",
+        "communications": "커뮤니케이션",
+        "educationTraining": "교육 · 훈련",
+        "engineeringTechnology": "공학 · 기술",
+        "healthServices": "보건 서비스",
+        "lawSafety": "법률 · 공공안전",
+        "manufacturingProduction": "제조 · 생산",
+        "mathScience": "수학 · 과학",
+        "transportation": "운송"
+      }
+    },
+    "skills": {
+      "title": "기술 평가",
+      "subtitleLine1": "평가를 시작할 기술 영역을 선택하세요.",
+      "subtitleLine2": "원하는 영역부터 시작할 수 있어요.",
+      "completedBadge": "완료됨",
+      "categories": {
+        "basic": {
+          "title": "기초 기술",
+          "description": "학습과 지식 습득을 촉진하는 기본 역량",
+          "subcategories": {
+            "content": {
+              "title": "콘텐츠 기술",
+              "description": "다양한 분야에서 더 구체적인 기술을 습득하고 활용하기 위해 필요한 배경 구조"
+            },
+            "process": {
+              "title": "프로세스 기술",
+              "description": "여러 분야에서 지식과 기술을 더 빠르게 습득하도록 돕는 절차적 역량"
+            }
+          }
+        },
+        "crossFunctional": {
+          "title": "범용 기술",
+          "description": "직무 전반에 걸친 업무 수행을 돕는 발전된 역량",
+          "subcategories": {
+            "complexProblemSolving": {
+              "title": "복잡한 문제 해결",
+              "description": "복잡하고 현실적인 상황에서 새로운 문제를 해결하는 능력"
+            },
+            "resourceManagement": {
+              "title": "자원 관리",
+              "description": "자원을 효율적으로 배분하고 활용하는 능력"
+            },
+            "social": {
+              "title": "사회적 기술",
+              "description": "사람들과 협력해 목표를 달성하는 능력"
+            },
+            "systems": {
+              "title": "시스템 기술",
+              "description": "사회기술 시스템을 이해하고 모니터링하며 개선하는 능력"
+            },
+            "technical": {
+              "title": "기술적 역량",
+              "description": "기계나 기술 시스템을 설계, 구축, 운용하고 문제를 해결하는 능력"
+            }
+          }
+        }
+      }
+    }
+  },
+  "results": {
+    "loadingMessage": "평가 결과를 불러오는 중...",
+    "error": {
+      "load": "평가 결과를 불러오지 못했습니다"
+    },
+    "empty": {
+      "title": "평가 결과가 없습니다",
+      "description": "아직 완료한 평가가 없습니다."
+    },
+    "buttons": {
+      "startInterest": "흥미 평가 시작하기",
+      "viewReports": "보고서 보기",
+      "generateReport": "보고서 생성",
+      "generating": "생성 중..."
+    },
+    "toast": {
+      "loginRequired": "보고서를 생성하려면 로그인해야 합니다.",
+      "generatingStart": "진로 보고서를 생성하고 있습니다. 잠시만 기다려 주세요.",
+      "generateSuccess": "보고서가 성공적으로 생성되었습니다!",
+      "generateError": "보고서를 생성하지 못했습니다. 다시 시도해 주세요.",
+      "selectReport": "재생성할 보고서를 선택해 주세요.",
+      "regeneratingStart": "진로 보고서를 다시 생성하고 있습니다...",
+      "regenerateSuccess": "보고서를 다시 생성했습니다.",
+      "regenerateError": "보고서를 다시 생성하지 못했습니다.",
+      "exportSuccess": "보고서를 {{format}} 형식으로 내보냈습니다.",
+      "exportError": "보고서를 내보내지 못했습니다.",
+      "viewLoginRequired": "보고서를 보려면 로그인해야 합니다.",
+      "analyzeError": "진로 추천 분석에 실패했습니다.",
+      "historyError": "보고서 기록을 불러오지 못했습니다.",
+      "reportError": "보고서를 불러오지 못했습니다."
+    },
+    "heading": "나의 평가 결과",
+    "tabs": {
+      "interest": "흥미",
+      "ability": "능력",
+      "knowledge": "지식",
+      "skills": "기술",
+      "careers": "진로"
+    },
+    "dialog": {
+      "title": "나의 진로 보고서",
+      "description": "평가 결과를 기반으로 생성된 AI 인사이트와 추천을 확인하세요",
+      "loadingDetails": "보고서 내용을 불러오는 중...",
+      "emptyState": "보고서를 생성하면 이곳에서 AI 인사이트를 확인할 수 있습니다."
+    },
+    "reportHistory": {
+      "title": "보고서 기록",
+      "description": "이전 인사이트를 확인하려면 보고서를 선택하세요.",
+      "loading": "기록을 불러오는 중...",
+      "empty": "생성된 보고서가 없습니다.",
+      "noAssessments": "평가 기록 없음"
+    },
+    "info": {
+      "reportId": "보고서 ID",
+      "dataQuality": "데이터 품질",
+      "assessments": "포함된 평가",
+      "model": "모델",
+      "promptVersion": "프롬프트 버전"
+    },
+    "report": {
+      "overviewTitle": "보고서 요약",
+      "generatedAt": "{{date}} 생성",
+      "actions": {
+        "exporting": "내보내는 중...",
+        "exportPdf": "PDF 내보내기",
+        "exportText": "텍스트 내보내기",
+        "regenerating": "다시 생성 중...",
+        "regenerate": "다시 생성"
+      }
+    },
+    "sections": {
+      "executiveSummary": "핵심 요약",
+      "strengthsAnalysis": "강점 분석",
+      "careerPathRecommendations": "진로 추천",
+      "interestGuide": "흥미 탐색 가이드",
+      "nextSteps": "다음 단계",
+      "additionalResources": "추가 자료",
+      "careerPath": {
+        "matchScore": "{{score}}% 일치"
+      }
+    },
+    "nextSteps": {
+      "immediate": "즉시",
+      "shortTerm": "단기",
+      "longTerm": "장기",
+      "empty": "추천 사항이 없습니다."
+    }
+  },
+  "careerRecommendations": {
+    "title": "진로 추천",
+    "loading": {
+      "message": "진로 추천을 분석하는 중입니다...",
+      "description": "평가 결과를 분석하여 가장 잘 맞는 진로를 찾아드리고 있어요."
+    },
+    "error": {
+      "generic": "분석에 실패했습니다.",
+      "description": "진로 추천 분석에 실패했습니다: {{error}}"
+    },
+    "actions": {
+      "retry": "다시 시도",
+      "analyzeAgain": "다시 분석",
+      "loadMore": "더 많은 추천 보기",
+      "refresh": "분석 새로 고침"
+    },
+    "empty": {
+      "description": "현재 결과로는 추천할 진로를 찾지 못했습니다. 더 많은 평가를 완료하면 맞춤 추천을 받을 수 있어요."
+    },
+    "badge": "{{count}}개의 추천",
+    "summary": "평가 결과를 기반으로 흥미·능력·기술에 잘 맞는 진로를 추천해 드립니다.",
+    "matchLabel": "{{index}}번 추천",
+    "correlationLabel": "일치도: {{value}}%",
+    "status": {
+      "excellent": "매우 적합",
+      "good": "적합",
+      "fair": "보통",
+      "potential": "가능성 있음"
+    },
+    "analysisBase": "{{category}} 분석을 기반으로 함",
+    "analysisCategory": {
+      "comprehensive": "종합"
+    }
+  },
+  "adminTuning": {
+    "title": "관리자: 추천 튜닝",
+    "loginPrompt": "이 도구를 사용하려면 로그인하세요.",
+    "datasetCard": {
+      "title": "데이터셋 및 작업",
+      "datasetLabel": "검증 데이터셋 이름",
+      "bootstrap": "부트스트랩 생성",
+      "fetchState": "상태 가져오기",
+      "fullPipeline": "전체 캘리브레이션 실행",
+      "calibratePercentile": "백분위 보정",
+      "calibrateOptimized": "최적화 보정",
+      "optimizeWeights": "가중치 최적화",
+      "calibrateScores": "점수 보정"
+    },
+    "logs": {
+      "title": "로그"
+    }
+  }
+}

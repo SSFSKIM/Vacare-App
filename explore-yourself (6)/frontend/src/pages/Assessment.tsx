@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -9,6 +9,8 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ErrorMessage } from '../components/ErrorMessage';
 import brain from 'brain';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 
 export default function Assessment() {
   // Initialize Firebase assessment store
@@ -19,6 +21,7 @@ export default function Assessment() {
   const navigate = useNavigate();
   const [searchParams] = useState(() => new URLSearchParams(window.location.search));
   const testType = searchParams.get('type') || 'interest';
+  const { t } = useTranslation();
   
   // 직접 state 관리 - useApi 제거
   const [questions, setQuestions] = useState<any[]>([]);
@@ -77,14 +80,14 @@ export default function Assessment() {
         }
       } catch (error) {
         console.error('Error loading questions:', error);
-        setQuestionsError('Failed to load questions. Please try again.');
+        setQuestionsError(t('assessment.errors.loadQuestions'));
       } finally {
         setQuestionsLoading(false);
       }
     };
 
     loadQuestions();
-  }, []);
+  }, [t]);
 
   const handleRating = async (questionId: string, rating: number) => {
     try {
@@ -110,7 +113,7 @@ export default function Assessment() {
     const pageAnswered = pageQuestions.every(q => answers.some(a => a.questionId === q.id));
     
     if (!pageAnswered) {
-      alert('Please answer all questions on this page before continuing.');
+      toast.warning(t('assessment.alerts.pageIncomplete'));
       return;
     }
     
@@ -134,19 +137,28 @@ export default function Assessment() {
             navigate('/results');
           } catch (error) {
             console.error('Error calculating results:', error);
-            alert('Failed to calculate results. Please try again.');
+            toast.error(t('assessment.alerts.calculateFailed'));
           } finally {
             setResultsLoading(false);
           }
         } else {
-          alert('Please answer all questions before submitting.');
+          toast.warning(t('assessment.alerts.submitIncomplete'));
         }
       }
     } catch (error) {
       console.error('Error in navigation:', error);
-      alert('An error occurred. Please try again.');
+      toast.error(t('assessment.alerts.navigationError'));
     }
   };
+
+  const ratingLabels = useMemo(
+    () => ({
+      1: t('assessment.ratingLabels.1'),
+      3: t('assessment.ratingLabels.3'),
+      5: t('assessment.ratingLabels.5')
+    }),
+    [t]
+  );
 
   const isLoading = questionsLoading || storeLoading;
 
@@ -156,7 +168,7 @@ export default function Assessment() {
         <NavigationBar />
         <main className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center min-h-96">
-            <LoadingSpinner message="Loading assessment..." />
+            <LoadingSpinner message={t('assessment.loading')} />
           </div>
         </main>
       </div>
@@ -169,7 +181,7 @@ export default function Assessment() {
         <NavigationBar />
         <main className="container mx-auto px-4 py-8">
           <ErrorMessage
-            message={questionsError || (storeError?.message || 'An error occurred')}
+            message={questionsError || storeError?.message || t('assessment.errors.generic')}
             onRetry={() => window.location.reload()}
           />
         </main>
@@ -183,12 +195,12 @@ export default function Assessment() {
         <NavigationBar />
         <main className="container mx-auto px-4 py-8">
           <div className="text-center">
-            <h2 className="text-2xl font-bold mb-4">No Questions Available</h2>
+            <h2 className="text-2xl font-bold mb-4">{t('assessment.emptyState.title')}</h2>
             <p className="text-muted-foreground mb-4">
-              No questions are currently available for this assessment type.
+              {t('assessment.emptyState.description')}
             </p>
             <Button onClick={() => navigate('/')}>
-              Return to Home
+              {t('assessment.emptyState.button')}
             </Button>
           </div>
         </main>
@@ -207,17 +219,17 @@ export default function Assessment() {
         <div className="max-w-4xl mx-auto">
           <div className="mb-6">
             <h1 className="text-4xl font-bold mb-6 text-center">
-              Interest Explorer
+              {t('assessment.title')}
             </h1>
             <div className="flex justify-between text-sm text-muted-foreground mb-2">
-              <span>Page {currentPage + 1} of {totalPages}</span>
-              <span>{Math.round(progress)}% Complete</span>
+              <span>{t('assessment.progress.page', { current: currentPage + 1, total: totalPages })}</span>
+              <span>{t('assessment.progress.complete', { percent: Math.round(progress) })}</span>
             </div>
             <Progress value={progress} className="h-2" />
           </div>
           
           <h2 className="text-2xl font-semibold mb-8 text-center">
-            How much would you enjoy these activities?
+            {t('assessment.subtitle')}
           </h2>
           
           <div className="space-y-6">
@@ -235,9 +247,7 @@ export default function Assessment() {
                     >
                       <span>{rating}</span>
                       <span className="text-xs">
-                        {rating === 1 ? 'Not at all' : 
-                         rating === 3 ? 'Somewhat' : 
-                         rating === 5 ? 'Very much' : ''}
+                        {ratingLabels[rating as 1 | 3 | 5] || ''}
                       </span>
                     </Button>
                   ))}
@@ -253,7 +263,7 @@ export default function Assessment() {
               disabled={currentPage === 0}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Previous
+              {t('assessment.buttons.previous')}
             </Button>
             
             <Button
@@ -263,13 +273,13 @@ export default function Assessment() {
               {resultsLoading ? (
                 <>
                   <LoadingSpinner message="" />
-                  Calculating...
+                  {t('assessment.calculating')}
                 </>
               ) : currentPage === totalPages - 1 ? (
-                'Submit Assessment'
+                t('assessment.buttons.submit')
               ) : (
                 <>
-                  Next
+                  {t('assessment.buttons.next')}
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </>
               )}

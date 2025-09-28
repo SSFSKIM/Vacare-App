@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useUserGuardContext } from 'app'
+import { useTranslation } from 'react-i18next'
 
 type Json = Record<string, any>
 
@@ -14,6 +15,7 @@ const pretty = (v: any) => {
 }
 
 export default function AdminTuning() {
+  const { t } = useTranslation()
   const { user } = useUserGuardContext()
   const [busy, setBusy] = useState(false)
   const [log, setLog] = useState<string>('')
@@ -182,40 +184,40 @@ export default function AdminTuning() {
     <div className='min-h-screen bg-background'>
       <NavigationBar />
       <div className='container mx-auto px-4 py-6 space-y-6'>
-        <h1 className='text-2xl font-bold'>Admin: Recommendation Tuning</h1>
+        <h1 className='text-2xl font-bold'>{t('adminTuning.title')}</h1>
         {!user && (
-          <div className='text-sm text-muted-foreground'>로그인 후 사용하세요.</div>
+          <div className='text-sm text-muted-foreground'>{t('adminTuning.loginPrompt')}</div>
         )}
 
         <Card>
           <CardHeader>
-            <CardTitle>Dataset & Actions</CardTitle>
+            <CardTitle>{t('adminTuning.datasetCard.title')}</CardTitle>
           </CardHeader>
           <CardContent className='space-y-3'>
             <div className='grid grid-cols-1 sm:grid-cols-3 gap-3 items-end'>
               <div>
-                <Label htmlFor='ds'>Validation Dataset Name</Label>
+                <Label htmlFor='ds'>{t('adminTuning.datasetCard.datasetLabel')}</Label>
                 <Input id='ds' value={datasetName} onChange={e => setDatasetName(e.target.value)} />
               </div>
               <div className='flex gap-2'>
-                <Button disabled={busy} onClick={doBootstrap} variant='outline'>Bootstrap Validation</Button>
-                <Button disabled={busy} onClick={doFetchState} variant='secondary'>Fetch State</Button>
+                <Button disabled={busy} onClick={doBootstrap} variant='outline'>{t('adminTuning.datasetCard.bootstrap')}</Button>
+                <Button disabled={busy} onClick={doFetchState} variant='secondary'>{t('adminTuning.datasetCard.fetchState')}</Button>
               </div>
             </div>
 
             <div className='flex flex-wrap gap-2'>
-              <Button disabled={busy} onClick={doFullPipeline} variant='secondary'>Run Full Calibration</Button>
-              <Button disabled={busy} onClick={doCalibratePercentile}>Calibrate (Percentile)</Button>
-              <Button disabled={busy} onClick={doCalibrateOptim} variant='outline'>Calibrate (Optimized)</Button>
-              <Button disabled={busy} onClick={doOptimizeWeights} variant='outline'>Optimize Weights</Button>
-              <Button disabled={busy} onClick={doCalibrateScores} variant='outline'>Calibrate Scores</Button>
+              <Button disabled={busy} onClick={doFullPipeline} variant='secondary'>{t('adminTuning.datasetCard.fullPipeline')}</Button>
+              <Button disabled={busy} onClick={doCalibratePercentile}>{t('adminTuning.datasetCard.calibratePercentile')}</Button>
+              <Button disabled={busy} onClick={doCalibrateOptim} variant='outline'>{t('adminTuning.datasetCard.calibrateOptimized')}</Button>
+              <Button disabled={busy} onClick={doOptimizeWeights} variant='outline'>{t('adminTuning.datasetCard.optimizeWeights')}</Button>
+              <Button disabled={busy} onClick={doCalibrateScores} variant='outline'>{t('adminTuning.datasetCard.calibrateScores')}</Button>
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Logs</CardTitle>
+            <CardTitle>{t('adminTuning.logs.title')}</CardTitle>
           </CardHeader>
           <CardContent>
             <Textarea readOnly value={log} className='h-80 font-mono text-xs' />

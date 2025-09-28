@@ -79,3 +79,51 @@ ENV OPENAI_API_KEY=***REMOVED-OPENAI-API-KEY***
 EXPOSE 80
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+
+# -----------------------------
+# Development targets
+# -----------------------------
+
+# Frontend development stage (vite dev server)
+FROM node:18-bullseye AS frontend-dev
+WORKDIR /app/frontend
+# Enable corepack/yarn and install deps at build time for faster startup.
+RUN corepack enable
+COPY ["explore-yourself (6)/frontend/package.json", "explore-yourself (6)/frontend/yarn.lock", "./"]
+RUN yarn install
+# Source is volume-mounted in compose; default command runs dev server.
+EXPOSE 3000
+CMD ["bash", "-lc", "corepack enable && yarn install --silent || true && yarn dev --host 0.0.0.0 --port 3000"]
+
+# Backend development stage (uvicorn reload)
+FROM python:3.10-slim AS backend-dev
+WORKDIR /app/backend
+ENV PYTHONUNBUFFERED=1
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential && rm -rf /var/lib/apt/lists/*
+COPY ["explore-yourself (6)/backend/requirements.txt", "./requirements.txt"]
+RUN pip install --no-cache-dir -r requirements.txt
+# Source is volume-mounted in compose; default command runs uvicorn with reload.
+EXPOSE 8000
+CMD ["bash", "-lc", "pip install -r requirements.txt || true && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"]
+
+# Combined development stage (frontend + backend in one container)
+FROM python:3.10-slim AS development
+WORKDIR /app
+ENV PYTHONUNBUFFERED=1
+RUN apt-get update && apt-get install -y --no-install-recommends curl gnupg build-essential && rm -rf /var/lib/apt/lists/* \
+    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get update && apt-get install -y --no-install-recommends nodejs git && rm -rf /var/lib/apt/lists/* \
+    && npm install -g yarn
+# Prepare backend deps globally
+COPY ["explore-yourself (6)/backend/requirements.txt", "/app/backend/requirements.txt"]
+RUN pip install --no-cache-dir -r /app/backend/requirements.txt
+# Prepare frontend deps
+WORKDIR /app/frontend
+RUN corepack enable || true
+COPY ["explore-yourself (6)/frontend/package.json", "explore-yourself (6)/frontend/yarn.lock", "/app/frontend/"]
+RUN yarn install
+# Ports: 3000 (frontend), 8000 (backend)
+EXPOSE 3000 8000
+# Volumes will mount ./frontend to /app/frontend and ./backend to /app/backend in compose.dev
+# Start both dev servers; backend in background, frontend in foreground
+CMD ["bash", "-lc", "(cd /app/backend && uvicorn main:app --host 0.0.0.0 --port 8000 --reload) & (cd /app/frontend && yarn install --silent || true && yarn dev --host 0.0.0.0 --port 3000)"]
