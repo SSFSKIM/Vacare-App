@@ -108,7 +108,6 @@ export default function Results() {
       knowledge: sanitizeResults(knowledge.results, 'knowledge'),
       skills: sanitizeResults(skills.results, 'skill'),
     });
-
     const data = await response.json();
     setCareerRecommendations(data);
     
