@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
-import { AbilitySubsetResult } from 'ui/src/types'
+import type { AbilitySubsetResult } from '@/types'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'

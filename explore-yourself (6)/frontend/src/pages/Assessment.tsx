@@ -89,7 +89,7 @@ export default function Assessment() {
     loadQuestions();
   }, [t]);
 
-  const handleRating = async (questionId: string, rating: number) => {
+  const handleRating = async (questionId: number, rating: number) => {
     try {
       await setInterestAnswer({ questionId, rating });
     } catch (error) {
@@ -130,9 +130,14 @@ export default function Assessment() {
             // 직접 brain API 호출로 결과 계산
             const response = await brain.calculate_results({ answers });
             const results = await response.json();
+            const normalizedResults = Array.isArray(results)
+              ? results
+              : Array.isArray(results?.results)
+                ? results.results
+                : [];
             
             // Firebase store에 결과 저장
-            await setInterestResults(results.results || results);
+            await setInterestResults(normalizedResults);
             
             navigate('/results');
           } catch (error) {

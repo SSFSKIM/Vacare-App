@@ -10,6 +10,7 @@ import { KnowledgeAnswerGrid } from '../../components/KnowledgeAnswerGrid'
 import { useInitializeFirebaseStore, useKnowledgeTestStore } from '../../utils/test-migration-helper'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
+import type { KnowledgeQuestion, KnowledgeTestResult } from '@/types'
 
 interface KnowledgeTestConfig {
   storageKey: string
@@ -21,12 +22,13 @@ interface KnowledgeTestConfig {
   showRatingToast?: boolean
 }
 
-interface Question {
-  id: number
-  name: string
-  description: string
-  levels: [string, string, string]
-  examples: [string, string, string]
+interface KnowledgeApiResult {
+  results?: Array<{
+    name: string
+    score: number
+    description?: string
+    category?: string
+  }>
 }
 
 export function createKnowledgeTestPage(config: KnowledgeTestConfig) {
@@ -47,7 +49,7 @@ export function createKnowledgeTestPage(config: KnowledgeTestConfig) {
       const saved = localStorage.getItem(storageKey)
       return saved ? JSON.parse(saved) : {}
     })
-    const [questions, setQuestions] = useState<Question[]>([])
+  const [questions, setQuestions] = useState<KnowledgeQuestion[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
@@ -73,10 +75,10 @@ export function createKnowledgeTestPage(config: KnowledgeTestConfig) {
         try {
           const response = await brain.get_knowledge_questions()
           const data = await response.json()
-          const filtered = (Array.isArray(data) ? data : []).filter((q: Question) =>
+          const filtered = (Array.isArray(data) ? data : []).filter((q: KnowledgeQuestion) =>
             filterNames.includes(q.name)
           )
-          setQuestions(filtered)
+          setQuestions(filtered as KnowledgeQuestion[])
         } catch (err) {
           console.error('Failed to load knowledge questions', err)
           setError(t('knowledgeTests.common.loadError'))
@@ -120,12 +122,15 @@ export function createKnowledgeTestPage(config: KnowledgeTestConfig) {
             rating,
           })),
         })
-        const responseData = await response.json()
+        const responseData = await response.json() as KnowledgeApiResult
 
-        const resultsWithSubset = {
-          ...responseData,
-          results: responseData.results.map((r: any) => ({
-            ...r,
+        const resultsWithSubset: KnowledgeTestResult = {
+          subset: subsetKey,
+          results: (responseData.results ?? []).map((r) => ({
+            name: r.name,
+            score: r.score,
+            description: r.description,
+            category: r.category,
             subset: subsetKey,
           })),
         }

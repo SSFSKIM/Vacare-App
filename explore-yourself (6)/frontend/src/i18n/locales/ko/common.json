@@ -101,6 +101,13 @@
         "line1": "0부터 100까지의 척도로 운송 분야 지식을 얼마나 키우고 싶은지 평가해 주세요.",
         "line2": "현재 경험치보다 앞으로 배우고 싶은 의지를 기준으로 생각해 주세요."
       }
+    },
+    "generic": {
+      "title": "지식 평가",
+      "instructions": {
+        "line1": "각 지식 영역을 10부터 100 사이로 평가해 주세요.",
+        "line2": "이 분야를 더 탐구하고 싶은 열정을 기준으로 생각해 주세요."
+      }
     }
   },
   "errors": {
@@ -209,6 +216,12 @@
         "physical": "신체 능력",
         "psychomotor": "심리운동 능력",
         "sensory": "감각 능력"
+      },
+      "descriptions": {
+        "cognitive": "추리·분석 등 사고 능력을 중점적으로 살펴봐요.",
+        "physical": "근력, 지구력, 협응력 등 신체 능력을 평가해요.",
+        "psychomotor": "정확한 움직임과 타이밍 등 심리운동 능력을 살펴봐요.",
+        "sensory": "시각·청각 등 감각 기반 능력을 확인해요."
       }
     },
     "knowledge": {
@@ -225,6 +238,18 @@
         "manufacturingProduction": "제조 · 생산",
         "mathScience": "수학 · 과학",
         "transportation": "운송"
+      },
+      "descriptions": {
+        "artsHumanities": "언어, 역사, 문화, 창작 분야에 대한 관심을 탐색해요.",
+        "businessManagement": "리더십, 운영, 조직 전략 분야에 대한 흥미를 살펴봐요.",
+        "communications": "미디어, 방송, 정보 전달 분야에 대한 흥미를 확인해요.",
+        "educationTraining": "교육, 코칭, 학습 지원 분야의 관심도를 살펴봐요.",
+        "engineeringTechnology": "설계, 건설, 기술 혁신 분야에 대한 관심을 확인해요.",
+        "healthServices": "의료, 건강 관리, 웰니스 분야의 흥미를 탐색해요.",
+        "lawSafety": "법률, 행정, 공공 안전 분야에 대한 관심을 살펴봐요.",
+        "manufacturingProduction": "생산 공정과 품질 관리 지식을 탐색해요.",
+        "mathScience": "수학과 과학, 연구 분야에 대한 흥미를 확인해요.",
+        "transportation": "물류, 항법, 운송 시스템 분야의 관심을 살펴봐요."
       }
     },
     "skills": {
@@ -414,6 +439,132 @@
     },
     "logs": {
       "title": "로그"
+    }
+  },
+  "abilityTests": {
+    "common": {
+      "loading": "문항을 불러오는 중...",
+      "loadError": "문항을 불러오지 못했습니다. 다시 시도해 주세요.",
+      "unexpectedError": "예기치 못한 오류가 발생했습니다.",
+      "progress": "{{percent}}% 완료",
+      "answered": "총 {{total}}문항 중 {{answered}}문항 응답",
+      "toastRated": "{{value}}점으로 평가했습니다",
+      "submitIncomplete": "모든 문항에 응답한 후 제출해 주세요.",
+      "submitError": "답안을 제출하지 못했습니다. 다시 시도해 주세요.",
+      "saveError": "결과를 저장하지 못했습니다. 다시 시도해 주세요.",
+      "ratingLabels": {
+        "10": "낮음",
+        "30": "보통",
+        "50": "높음",
+        "70": "매우 높음",
+        "100": "탁월함"
+      },
+      "levelLabel": "레벨 {{level}}",
+      "submit": "답안 제출"
+    },
+    "cognitive": {
+      "title": "인지 능력 평가",
+      "instructions": {
+        "line1": "각 인지 능력을 10부터 100 사이로 평가해 주세요.",
+        "line2": "현재 수준이 아니라 앞으로 얼마나 향상시키고 싶은지를 기준으로 생각해 주세요."
+      },
+      "success": "인지 능력 평가 결과가 저장되었습니다!"
+    },
+    "physical": {
+      "title": "신체 능력 평가",
+      "instructions": {
+        "line1": "각 신체 능력을 10부터 100 사이로 평가해 주세요.",
+        "line2": "현재 실력보다 향상시키고 싶은 의지를 기준으로 생각해 주세요."
+      },
+      "success": "신체 능력 평가 결과가 저장되었습니다!"
+    },
+    "psychomotor": {
+      "title": "심리운동 능력 평가",
+      "instructions": {
+        "line1": "각 심리운동 능력을 10부터 100 사이로 평가해 주세요.",
+        "line2": "현재 수준이 아니라 앞으로 얼마나 발전시키고 싶은지를 기준으로 생각해 주세요."
+      },
+      "success": "심리운동 능력 평가 결과가 저장되었습니다!"
+    },
+    "sensory": {
+      "title": "감각 능력 평가",
+      "instructions": {
+        "line1": "각 감각 능력을 10부터 100 사이로 평가해 주세요.",
+        "line2": "현재 수준이 아니라 향상시키고 싶은 열의를 기준으로 생각해 주세요."
+      },
+      "success": "감각 능력 평가 결과가 저장되었습니다!"
+    }
+  },
+  "skillTests": {
+    "common": {
+      "loading": "문항을 불러오는 중...",
+      "loadError": "문항을 불러오지 못했습니다. 다시 시도해 주세요.",
+      "unexpectedError": "예기치 못한 오류가 발생했습니다.",
+      "submitIncomplete": "모든 문항에 응답한 후 제출해 주세요.",
+      "submitError": "답안을 제출하지 못했습니다. 다시 시도해 주세요.",
+      "toastRated": "{{value}}점으로 평가했습니다",
+      "progress": "{{percent}}% 완료",
+      "answered": "총 {{total}}문항 중 {{answered}}문항 응답",
+      "levelLabel": "레벨 {{level}}",
+      "submit": "답안 제출",
+      "clearProgress": "진행상황 초기화",
+      "clearConfirm": "정말 진행상황을 모두 초기화하시겠어요?",
+      "saving": "저장 중..."
+    },
+    "content": {
+      "title": "콘텐츠 기술 평가",
+      "instructions": {
+        "line1": "각 콘텐츠 기술을 10부터 100 사이로 평가해 주세요.",
+        "line2": "현재 역량이 아니라 앞으로 얼마나 발전시키고 싶은지를 기준으로 생각해 주세요."
+      }
+    },
+    "process": {
+      "title": "프로세스 기술 평가",
+      "instructions": {
+        "line1": "각 프로세스 기술을 10부터 100 사이로 평가해 주세요.",
+        "line2": "현재 실력보다 향후 성장시키고 싶은 의지를 기준으로 생각해 주세요."
+      }
+    },
+    "complexProblemSolving": {
+      "title": "복잡한 문제 해결 기술 평가",
+      "instructions": {
+        "line1": "복잡한 문제 해결 기술을 10부터 100 사이로 평가해 주세요.",
+        "line2": "현재 능력보다 이러한 기술을 개선하고 싶은 동기를 기준으로 생각해 주세요."
+      }
+    },
+    "resourceManagement": {
+      "title": "자원 관리 기술 평가",
+      "instructions": {
+        "line1": "자원 관리 기술을 10부터 100 사이로 평가해 주세요.",
+        "line2": "현재 수준보다 이 역량을 키우고 싶은 열의를 기준으로 생각해 주세요."
+      }
+    },
+    "social": {
+      "title": "사회적 기술 평가",
+      "instructions": {
+        "line1": "사회적 기술을 10부터 100 사이로 평가해 주세요.",
+        "line2": "현재 능력보다 앞으로 얼마나 향상시키고 싶은지를 기준으로 생각해 주세요."
+      }
+    },
+    "systems": {
+      "title": "시스템 기술 평가",
+      "instructions": {
+        "line1": "시스템 기술을 10부터 100 사이로 평가해 주세요.",
+        "line2": "현재 능력보다 향후 개선하고 싶은 열의를 기준으로 생각해 주세요."
+      }
+    },
+    "technical": {
+      "title": "기술적 역량 평가",
+      "instructions": {
+        "line1": "기술적 역량을 10부터 100 사이로 평가해 주세요.",
+        "line2": "현재 실력보다 해당 영역을 발전시키고 싶은 열정을 기준으로 생각해 주세요."
+      }
+    }
+  },
+  "profile": {
+    "toast": {
+      "saveSuccess": "프로필이 저장되었습니다!",
+      "saveError": "프로필을 저장하지 못했습니다."
     }
   }
 }

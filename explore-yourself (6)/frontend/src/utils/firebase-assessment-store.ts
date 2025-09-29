@@ -1,10 +1,9 @@
 
-
 // Enhanced firebase-assessment-store.ts with improved data protection
 
 import { create } from "zustand";
 import { firebaseAuth } from "app";
-import { User } from "firebase/auth";
+import type { User } from "firebase/auth";
 import {
   subscribeToAssessment,
   initializeAssessment,
@@ -19,7 +18,7 @@ import {
   updateCareerRecommendations,
   getAssessment, // Direct Firestore read
 } from "./firestore";
-import {
+import type {
   Answer,
   AbilityAnswer,
   AssessmentData,
@@ -28,7 +27,7 @@ import {
   AbilitySubsetResult,
   SkillSubsetResult,
   CareerRecommendations,
-} from "../types";
+} from "@/types";
 
 // Enhanced store interface with data protection
 interface FirebaseAssessmentStore {
@@ -68,7 +67,7 @@ interface FirebaseAssessmentStore {
   setSkillAnswer: (answer: Answer) => Promise<void>;
   setSkillResults: (results: SkillSubsetResult[], subset: string) => Promise<void>;
   resetSkillAssessment: () => Promise<void>;
-  setCareerRecommendations: (recommendations: CareerRecommendations) => Promise<void>;
+  setCareerRecommendations: (recommendations: CareerRecommendations | null) => Promise<void>;
   resetAllAssessments: () => Promise<void>;
 }
 

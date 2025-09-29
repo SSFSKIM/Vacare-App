@@ -121,6 +121,12 @@
         "physical": "Physical Abilities",
         "psychomotor": "Psychomotor Abilities",
         "sensory": "Sensory Abilities"
+      },
+      "descriptions": {
+        "cognitive": "Focus on reasoning, analysis, and mental agility.",
+        "physical": "Evaluate strength, endurance, and coordination abilities.",
+        "psychomotor": "Explore precision, timing, and movement-based abilities.",
+        "sensory": "Assess perception-based abilities such as vision and hearing."
       }
     },
     "knowledge": {
@@ -137,6 +143,18 @@
         "manufacturingProduction": "Manufacturing and Production",
         "mathScience": "Mathematics and Science",
         "transportation": "Transportation"
+      },
+      "descriptions": {
+        "artsHumanities": "Explore language, history, culture, and creative expression.",
+        "businessManagement": "Focus on leadership, operations, and organizational strategy.",
+        "communications": "Assess media, broadcasting, and information-sharing interests.",
+        "educationTraining": "Look at teaching, coaching, and learning support interests.",
+        "engineeringTechnology": "Explore design, construction, and technical innovation topics.",
+        "healthServices": "Understand healthcare, wellness, and medical knowledge areas.",
+        "lawSafety": "Consider law, governance, and public safety domains.",
+        "manufacturingProduction": "Explore production processes and quality control knowledge.",
+        "mathScience": "Focus on scientific inquiry, mathematics, and research interests.",
+        "transportation": "Assess interest in logistics, navigation, and transportation systems."
       }
     },
     "skills": {
@@ -273,6 +291,13 @@
       "instructions": {
         "line1": "Rate your interest in developing transportation knowledge on a scale from 0 to 100.",
         "line2": "Focus on how eager you would be to learn more in these areas, not your present experience."
+      }
+    },
+    "generic": {
+      "title": "Knowledge Assessment",
+      "instructions": {
+        "line1": "Rate your interest in developing each knowledge area on a scale from 10 to 100.",
+        "line2": "Consider how passionate you would be to explore these areas further."
       }
     }
   },
@@ -414,6 +439,132 @@
     },
     "logs": {
       "title": "Logs"
+    }
+  },
+  "abilityTests": {
+    "common": {
+      "loading": "Loading questions...",
+      "loadError": "Failed to load questions. Please try again later.",
+      "unexpectedError": "An unexpected error occurred.",
+      "progress": "{{percent}}% complete",
+      "answered": "{{answered}} of {{total}} questions answered",
+      "toastRated": "Rated: {{value}}",
+      "submitIncomplete": "Please answer all questions before submitting.",
+      "submitError": "Failed to submit answers. Please try again.",
+      "saveError": "Failed to save results. Please try again.",
+      "ratingLabels": {
+        "10": "Low",
+        "30": "Medium",
+        "50": "High",
+        "70": "Very High",
+        "100": "Exceptional"
+      },
+      "levelLabel": "Level {{level}}",
+      "submit": "Submit Answers"
+    },
+    "cognitive": {
+      "title": "Cognitive Abilities Assessment",
+      "instructions": {
+        "line1": "Rate your interest in developing each cognitive ability on a scale from 10 to 100.",
+        "line2": "Focus on how motivated you would be to improve these abilities, not your current level."
+      },
+      "success": "Cognitive abilities results saved successfully!"
+    },
+    "physical": {
+      "title": "Physical Abilities Assessment",
+      "instructions": {
+        "line1": "Rate your interest in developing each physical ability on a scale from 10 to 100.",
+        "line2": "Focus on how eager you would be to improve these abilities, not your current proficiency."
+      },
+      "success": "Physical abilities results saved successfully!"
+    },
+    "psychomotor": {
+      "title": "Psychomotor Abilities Assessment",
+      "instructions": {
+        "line1": "Rate your interest in developing each psychomotor ability on a scale from 10 to 100.",
+        "line2": "Focus on how motivated you would be to enhance these abilities, not your current proficiency."
+      },
+      "success": "Psychomotor abilities results saved successfully!"
+    },
+    "sensory": {
+      "title": "Sensory Abilities Assessment",
+      "instructions": {
+        "line1": "Rate your interest in developing each sensory ability on a scale from 10 to 100.",
+        "line2": "Focus on how enthusiastic you would be to enhance these abilities, not your current proficiency."
+      },
+      "success": "Sensory abilities results saved successfully!"
+    }
+  },
+  "skillTests": {
+    "common": {
+      "loading": "Loading questions...",
+      "loadError": "Failed to load questions. Please try again later.",
+      "unexpectedError": "An unexpected error occurred.",
+      "submitIncomplete": "Please answer all questions before submitting.",
+      "submitError": "Failed to submit answers. Please try again.",
+      "toastRated": "Rated: {{value}}",
+      "progress": "{{percent}}% complete",
+      "answered": "{{answered}} of {{total}} questions answered",
+      "levelLabel": "Level {{level}}",
+      "submit": "Submit Answers",
+      "clearProgress": "Clear Progress",
+      "clearConfirm": "Are you sure you want to clear your progress?",
+      "saving": "Saving..."
+    },
+    "content": {
+      "title": "Content Skills Assessment",
+      "instructions": {
+        "line1": "Rate your interest in developing each content skill on a scale from 10 to 100.",
+        "line2": "Focus on how motivated you would be to improve these skills, not your current proficiency."
+      }
+    },
+    "process": {
+      "title": "Process Skills Assessment",
+      "instructions": {
+        "line1": "Rate your interest in developing each process skill on a scale from 10 to 100.",
+        "line2": "Focus on how motivated you would be to cultivate these skills in the future, not your current proficiency."
+      }
+    },
+    "complexProblemSolving": {
+      "title": "Complex Problem Solving Skills Assessment",
+      "instructions": {
+        "line1": "Rate your interest in developing complex problem solving skills on a scale from 10 to 100.",
+        "line2": "Consider how motivated you would be to improve these skills rather than your current ability."
+      }
+    },
+    "resourceManagement": {
+      "title": "Resource Management Skills Assessment",
+      "instructions": {
+        "line1": "Rate your interest in developing resource management skills on a scale from 10 to 100.",
+        "line2": "Focus on how eager you would be to cultivate these skills, rather than your current proficiency."
+      }
+    },
+    "social": {
+      "title": "Social Skills Assessment",
+      "instructions": {
+        "line1": "Rate your interest in developing social skills on a scale from 10 to 100.",
+        "line2": "Focus on how eager you would be to improve these skills in the future, not your current level."
+      }
+    },
+    "systems": {
+      "title": "Systems Skills Assessment",
+      "instructions": {
+        "line1": "Rate your interest in developing systems skills on a scale from 10 to 100.",
+        "line2": "Focus on how eager you would be to improve these skills in the future, not your current ability."
+      }
+    },
+    "technical": {
+      "title": "Technical Skills Assessment",
+      "instructions": {
+        "line1": "Rate your interest in developing technical skills on a scale from 10 to 100.",
+        "line2": "Focus on how passionate you would be to improve in these areas, not your current ability."
+      }
+    }
+  },
+  "profile": {
+    "toast": {
+      "saveSuccess": "Profile saved successfully!",
+      "saveError": "Failed to save profile."
     }
   }
 }

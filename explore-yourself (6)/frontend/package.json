@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "node -e \"console.log('lint skipped: ESLint config not present.')\"",
+    "lint": "tsc --noEmit",
     "preview": "vite preview"
   },
   "dependencies": {

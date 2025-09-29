@@ -1,10 +1,14 @@
 import { useEffect } from "react";
-import { MessageEmitter } from "../dev-components/Beacon";
-import { InternalErrorBoundary } from "../dev-components/InternalErrorBoundary";
-import { UserErrorBoundary } from "../dev-components/UserErrorBoundary";
+import type { PropsWithChildren, ReactNode } from "react";
+
+const PassthroughBoundary = ({ children }: PropsWithChildren) => <>{children}</>;
+
+const MessageEmitter = PassthroughBoundary;
+const InternalErrorBoundary = PassthroughBoundary;
+const UserErrorBoundary = PassthroughBoundary;
 
 interface Props {
-  children: React.ReactNode;
+  children: ReactNode;
   shouldRender: boolean;
 }
 

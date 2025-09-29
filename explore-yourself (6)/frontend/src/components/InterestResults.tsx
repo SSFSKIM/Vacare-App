@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { InterestResult } from "ui/src/types";
+import type { AssessmentResult } from "@/types";
 
 const riasecDescriptions: Record<string, { title: string; description: string }> =
   {
@@ -37,7 +37,7 @@ const riasecDescriptions: Record<string, { title: string; description: string }>
     },
   };
 
-export const InterestResults = ({ results = [] }: { results: InterestResult[] }) => {
+export const InterestResults = ({ results = [] }: { results: AssessmentResult[] }) => {
   // Find the highest score to determine the top interest
   const topInterest = results.reduce(
     (max, current) => (current.score > max.score ? current : max),

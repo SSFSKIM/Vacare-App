@@ -9,11 +9,10 @@ import {
   onSnapshot,
   query,
   where,
-  DocumentData,
-  QueryDocumentSnapshot,
 } from "firebase/firestore";
-import { User } from "firebase/auth";
-import {
+import type { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
+import type { User } from "firebase/auth";
+import type {
   Answer,
   AbilityAnswer,
   AssessmentResult,
@@ -24,7 +23,7 @@ import {
   UserProfile,
   ProfileData,
   AssessmentData,
-} from "../types";
+} from "@/types";
 
 // Initialize Firestore
 const db = getFirestore(firebaseApp);
@@ -314,7 +313,7 @@ export const updateSkillResults = async (
 
 export const updateCareerRecommendations = async (
   userId: string,
-  recommendations: CareerRecommendations
+  recommendations: CareerRecommendations | null
 ): Promise<void> => {
   try {
     const assessmentRef = doc(assessmentsCollection, userId);

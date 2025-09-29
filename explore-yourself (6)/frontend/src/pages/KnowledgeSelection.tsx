@@ -30,60 +30,70 @@ export default function KnowledgeSelection() {
           <div className="grid grid-cols-2 gap-6">
             <TestCard
               title={t('assessmentSelection.knowledge.cards.artsHumanities')}
+              description={t('assessmentSelection.knowledge.descriptions.artsHumanities')}
               icon={<Palette />}
               testType="arts-humanities-knowledge"
               available={true}
             />
             <TestCard
               title={t('assessmentSelection.knowledge.cards.businessManagement')}
+              description={t('assessmentSelection.knowledge.descriptions.businessManagement')}
               icon={<Building2 />}
               testType="business-management-knowledge"
               available={true}
             />
             <TestCard
               title={t('assessmentSelection.knowledge.cards.communications')}
+              description={t('assessmentSelection.knowledge.descriptions.communications')}
               icon={<Radio />}
               testType="communications-knowledge"
               available={true}
             />
             <TestCard
               title={t('assessmentSelection.knowledge.cards.educationTraining')}
+              description={t('assessmentSelection.knowledge.descriptions.educationTraining')}
               icon={<GraduationCap />}
               testType="education-training-knowledge"
               available={true}
             />
             <TestCard
               title={t('assessmentSelection.knowledge.cards.engineeringTechnology')}
+              description={t('assessmentSelection.knowledge.descriptions.engineeringTechnology')}
               icon={<Wrench />}
               testType="engineering-technology-knowledge"
               available={true}
             />
             <TestCard
               title={t('assessmentSelection.knowledge.cards.healthServices')}
+              description={t('assessmentSelection.knowledge.descriptions.healthServices')}
               icon={<Stethoscope />}
               testType="health-services-knowledge"
               available={true}
             />
             <TestCard
               title={t('assessmentSelection.knowledge.cards.lawSafety')}
+              description={t('assessmentSelection.knowledge.descriptions.lawSafety')}
               icon={<Scale />}
               testType="law-safety-knowledge"
               available={true}
             />
             <TestCard
               title={t('assessmentSelection.knowledge.cards.manufacturingProduction')}
+              description={t('assessmentSelection.knowledge.descriptions.manufacturingProduction')}
               icon={<Factory />}
               testType="manufacturing-production-knowledge"
               available={true}
             />
             <TestCard
               title={t('assessmentSelection.knowledge.cards.mathScience')}
+              description={t('assessmentSelection.knowledge.descriptions.mathScience')}
               icon={<Calculator />}
               testType="math-science-knowledge"
               available={true}
             />
             <TestCard
               title={t('assessmentSelection.knowledge.cards.transportation')}
+              description={t('assessmentSelection.knowledge.descriptions.transportation')}
               icon={<Car />}
               testType="transportation-knowledge"
               available={true}

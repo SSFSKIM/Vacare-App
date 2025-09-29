@@ -382,7 +382,7 @@ export default function Results() {
                   {t('results.buttons.generating')}
                 </>
               ) : (
-                {t('results.buttons.generateReport')}
+                t('results.buttons.generateReport')
               )}
             </Button>
           </div>

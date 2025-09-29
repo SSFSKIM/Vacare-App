@@ -30,24 +30,28 @@ export default function AbilitySelection() {
           <div className="grid grid-cols-2 gap-6">
             <TestCard
               title={t('assessmentSelection.ability.cards.cognitive')}
+              description={t('assessmentSelection.ability.descriptions.cognitive')}
               icon={<Brain />}
               testType="cognitive-ability"
               available={true}
             />
             <TestCard
               title={t('assessmentSelection.ability.cards.physical')}
+              description={t('assessmentSelection.ability.descriptions.physical')}
               icon={<Activity />}
               testType="physical-ability"
               available={true}
             />
             <TestCard
               title={t('assessmentSelection.ability.cards.psychomotor')}
+              description={t('assessmentSelection.ability.descriptions.psychomotor')}
               icon={<Gauge />}
               testType="psychomotor-ability"
               available={true}
             />
             <TestCard
               title={t('assessmentSelection.ability.cards.sensory')}
+              description={t('assessmentSelection.ability.descriptions.sensory')}
               icon={<Eye />}
               testType="sensory-ability"
               available={true}

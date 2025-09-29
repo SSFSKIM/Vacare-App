@@ -1,25 +1,16 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import React, { useCallback, useMemo, useState } from 'react'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
+import { useNavigate } from 'react-router-dom'
+import { Button } from '@/components/ui/button'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+import type { SkillSubsetResult } from '@/types'
 
-const DEFAULT_VISIBLE_RESULTS = 10;
-
-interface SkillResult {
-  subset: string;
-  name: string;
-  category: string;
-  score: number;
-  description: string;
-}
+const DEFAULT_VISIBLE_RESULTS = 10
 
 interface SkillResultsProps {
-  results: SkillResult[];
+  results?: SkillSubsetResult[]
 }
-
-interface SkillSubsetResult extends SkillResult {}
 
 interface SubsetPanelProps {
   subsetKey: string;

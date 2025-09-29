@@ -2,7 +2,14 @@ import React, { useState, useEffect } from "react";
 import { useUserGuardContext } from "app";
 import { useNavigate } from "react-router-dom";
 import { useFirebaseAssessmentStore } from "utils/firebase-assessment-store";
-import { saveProfileData, ProfileData } from "utils/firestore";
+import { saveProfileData } from "utils/firestore";
+import type {
+  ProfileData,
+  AssessmentResult,
+  AbilitySubsetResult,
+  KnowledgeSubsetResult,
+  SkillSubsetResult,
+} from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -217,30 +224,67 @@ export default function Profile() {
   );
 }
 
-const AssessmentResultDisplay = ({ title, results }) => {
-  const getTopResults = (results) => {
-    if (!results || results.length === 0) return [];
-    // Handle different result structures (some might have 'name', others 'subset')
-    const sorted = [...results]
-      .sort((a, b) => b.score - a.score);
-    
-    // If results have subsets, group them
-    if(sorted[0]?.subset) {
-      const subsetResults = sorted.reduce((acc, curr) => {
-        if(!acc[curr.subset]) {
-          acc[curr.subset] = [];
+type DisplayableResult =
+  | AssessmentResult
+  | AbilitySubsetResult
+  | KnowledgeSubsetResult
+  | SkillSubsetResult;
+
+interface AssessmentResultDisplayProps {
+  title: string;
+  results?: DisplayableResult[];
+}
+
+const AssessmentResultDisplay = ({ title, results }: AssessmentResultDisplayProps) => {
+  const hasSubset = (result: DisplayableResult): result is (
+    AbilitySubsetResult | KnowledgeSubsetResult | SkillSubsetResult
+  ) => 'subset' in result && typeof result.subset === 'string';
+
+  const getDisplayName = (result: DisplayableResult) => {
+    if (result.name) {
+      return result.name;
+    }
+
+    if ('category' in result && result.category) {
+      return result.category;
+    }
+
+    if (hasSubset(result) && result.subset) {
+      return result.subset;
+    }
+
+    return 'Unknown';
+  };
+
+  const getTopResults = (items?: DisplayableResult[]) => {
+    if (!items || items.length === 0) return [] as Array<{ name: string; score: number }>;
+
+    const sorted = [...items].sort((a, b) => b.score - a.score);
+
+    if (sorted[0] && hasSubset(sorted[0])) {
+      const subsetResults = sorted.reduce<Record<string, DisplayableResult[]>>((acc, curr) => {
+        const key = hasSubset(curr) && curr.subset ? curr.subset : 'general';
+        if (!acc[key]) {
+          acc[key] = [];
         }
-        acc[curr.subset].push(curr);
+        acc[key].push(curr);
         return acc;
       }, {});
-      
-      return Object.entries(subsetResults).map(([subset, items]) => ({
-        name: subset,
-        score: items.reduce((sum, item) => sum + item.score, 0) / items.length
-      })).slice(0, 3);
+
+      return Object.entries(subsetResults)
+        .map(([subset, subsetItems]) => ({
+          name: subset,
+          score:
+            subsetItems.reduce((sum, item) => sum + item.score, 0) /
+            Math.max(subsetItems.length, 1),
+        }))
+        .slice(0, 3);
     }
-    
-    return sorted.slice(0, 3);
+
+    return sorted.slice(0, 3).map((item) => ({
+      name: getDisplayName(item),
+      score: item.score,
+    }));
   };
 
   const topResults = getTopResults(results);

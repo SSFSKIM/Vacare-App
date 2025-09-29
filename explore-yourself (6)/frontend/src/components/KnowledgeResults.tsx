@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { KnowledgeSubsetResult } from 'ui/src/types';
+import type { KnowledgeSubsetResult } from '@/types'
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -198,4 +198,3 @@ function KnowledgeResultsComponent({ results }: Props) {
 
 export const KnowledgeResults = React.memo(KnowledgeResultsComponent);
 KnowledgeResults.displayName = 'KnowledgeResults';
-

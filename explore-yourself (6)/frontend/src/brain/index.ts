@@ -33,23 +33,46 @@ const constructClient = () => {
   const baseUrl = constructBaseUrl();
   const baseApiParams = constructBaseApiParams();
 
+  const sanitizePathname = (pathname: string) =>
+    pathname
+      .replace(/\/api\/+routes\//, "/api/")
+      .replace(/\/{2,}/g, "/");
+
+  const normalizeTarget = (input: RequestInfo | URL): string | null => {
+    if (typeof input === "string" || input instanceof URL) {
+      try {
+        const url = typeof input === "string"
+          ? new URL(input, window.location.origin)
+          : new URL(input.toString());
+
+        const normalizedPath = sanitizePathname(url.pathname);
+        if (normalizedPath !== url.pathname) {
+          url.pathname = normalizedPath;
+          return url.toString();
+        }
+      } catch {
+        const fallback = sanitizePathname(typeof input === "string" ? input : input.toString());
+        if (fallback !== (typeof input === "string" ? input : input.toString())) {
+          return fallback;
+        }
+      }
+    }
+
+    return null;
+  };
+
   return new Brain({
     baseUrl,
     baseApiParams,
-    customFetch: (url, options) => {
+    customFetch: (input, init) => {
       if (API_HOST && API_HOST !== "api.databutton.com") {
-        try {
-          const u = new URL(url);
-          // Handle both "/api/routes/" and "/api//routes/" and normalize any double slashes
-          u.pathname = u.pathname.replace(/^\/api\/+routes\//, "/api/").replace(/\/{2,}/g, "/");
-          return fetch(u.toString(), options);
-        } catch {
-          // Fallback: regex replace on the full URL string
-          return fetch(url.replace(/\/api\/+routes\//, "/api/"), options);
+        const normalized = normalizeTarget(input);
+        if (normalized) {
+          return fetch(normalized, init);
         }
       }
 
-      return fetch(url, options);
+      return fetch(input, init);
     },
     securityWorker: async () => {
       return {

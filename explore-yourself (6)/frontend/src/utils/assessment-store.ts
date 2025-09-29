@@ -1,40 +1,36 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Answer, AbilityAnswer, CareerMatch } from 'brain/data-contracts';
+import type {
+  Answer,
+  AbilityAnswer,
+  AssessmentResult,
+  AbilitySubsetResult,
+  KnowledgeSubsetResult,
+  SkillSubsetResult,
+  CareerRecommendations,
+  AssessmentResultsSummary,
+} from '@/types';
 
-interface AssessmentResult {
-  name: string;
-  score: number;
-  level: string;
-  description?: string;
-}
+type Results = AssessmentResultsSummary;
 
-interface KnowledgeSubsetResult extends Omit<AssessmentResult, 'level'> {
-  level?: string;
-  subset: string;
-}
+type SubsetResults<T> = T[] | { results?: T[] | null } | null | undefined;
 
-interface CareerRecommendations {
-  matches: CareerMatch[];
-  category: string;
-}
+const extractSubsetResults = <T extends { subset: string }>(
+  payload: SubsetResults<T>,
+  subset: string
+): T[] => {
+  if (Array.isArray(payload)) {
+    return payload.map((item) => ({ ...item, subset: item.subset ?? subset }))
+  }
 
-interface AbilitySubsetResult extends Omit<AssessmentResult, 'level'> {
-  level?: string;
-  subset: string;
-}
+  if (payload && typeof payload === 'object' && 'results' in payload) {
+    const maybeResults = (payload as { results?: T[] | null }).results
+    if (Array.isArray(maybeResults)) {
+      return maybeResults.map((item) => ({ ...item, subset: item.subset ?? subset }))
+    }
+  }
 
-interface SkillSubsetResult extends Omit<AssessmentResult, 'level'> {
-  level?: string;
-  subset: string;
-}
-
-interface Results {
-  interest: AssessmentResult[];
-  ability: AbilitySubsetResult[];
-  knowledge: KnowledgeSubsetResult[];
-  skills: SkillSubsetResult[];
-  careerRecommendations: CareerRecommendations | null;
+  return []
 }
 
 interface AssessmentStore {
@@ -44,11 +40,11 @@ interface AssessmentStore {
 
   // Results
   results: Results;
-  setInterestResults: (results: any) => void;
-  setAbilityResults: (results: any, subset: string) => void;
-  setKnowledgeResults: (results: any, subset: string) => void;
-  setSkillResults: (results: any, subset: string) => void;
-  setCareerRecommendations: (recommendations: CareerRecommendations) => void;
+  setInterestResults: (results: AssessmentResult[] | null | undefined) => void;
+  setAbilityResults: (results: SubsetResults<AbilitySubsetResult>, subset: string) => void;
+  setKnowledgeResults: (results: SubsetResults<KnowledgeSubsetResult>, subset: string) => void;
+  setSkillResults: (results: SubsetResults<SkillSubsetResult>, subset: string) => void;
+  setCareerRecommendations: (recommendations: CareerRecommendations | null) => void;
   resetResults: () => void;
   resetAllResults: () => void;
 
@@ -95,54 +91,40 @@ export const useAssessmentStore = create(
       setInterestResults: (results) => set((state) => ({
         results: {
           ...state.results,
-          interest: results || []
+          interest: results ?? []
         }
       })),
       setAbilityResults: (results, subset) => set((state) => ({
         results: {
           ...state.results,
           ability: [
-            ...state.results.ability.filter(r => r.subset !== subset),
-            ...(results.results || []).map((r: any) => ({ ...r, subset }))
+            ...state.results.ability.filter((r) => r.subset !== subset),
+            ...extractSubsetResults(results, subset)
           ]
-        }
-      })),
-      // Deprecated - remove after migration
-      _setAbilityResults: (results) => set((state) => ({
-        results: {
-          ...state.results,
-          ability: results.results || []
         }
       })),
       setKnowledgeResults: (results, subset) => set((state) => ({
         results: {
           ...state.results,
           knowledge: [
-            ...state.results.knowledge.filter(r => r.subset !== subset),
-            ...(results.results || []).map((r: any) => ({ ...r, subset }))
+            ...state.results.knowledge.filter((r) => r.subset !== subset),
+            ...extractSubsetResults(results, subset)
           ]
         }
       })),
       setCareerRecommendations: (recommendations) => set((state) => ({
         results: {
           ...state.results,
-          careerRecommendations: recommendations
+          careerRecommendations: recommendations ?? null
         }
       })),
       setSkillResults: (results, subset) => set((state) => ({
         results: {
           ...state.results,
           skills: [
-            ...state.results.skills.filter(r => r.subset !== subset),
-            ...(results.results || []).map((r: any) => ({ ...r, subset }))
+            ...state.results.skills.filter((r) => r.subset !== subset),
+            ...extractSubsetResults(results, subset)
           ]
-        }
-      })),
-      // Deprecated - remove after migration
-      _setSkillResults: (results) => set((state) => ({
-        results: {
-          ...state.results,
-          skills: results.results || []
         }
       })),
       resetResults: () => set((state) => ({
@@ -227,7 +209,7 @@ export const useAssessmentStore = create(
         abilityAnswers: state.abilityAnswers,
         knowledgeAnswers: state.knowledgeAnswers,
         skillAnswers: state.skillAnswers
-      })
+      }) as unknown as AssessmentStore
     }
   )
 );
