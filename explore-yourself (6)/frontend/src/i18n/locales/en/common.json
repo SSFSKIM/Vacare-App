@@ -338,7 +338,8 @@
       "ability": "Ability",
       "knowledge": "Knowledge",
       "skills": "Skills",
-      "careers": "Careers"
+      "careers": "Careers",
+      "clusterProfile": "Cluster Profile"
     },
     "dialog": {
       "title": "Your Career Report",
@@ -387,6 +388,40 @@
       "shortTerm": "Short Term",
       "longTerm": "Long Term",
       "empty": "No recommendations provided."
+    },
+    "clusterProfile": {
+      "title": "Career Cluster Profile",
+      "description": "We analyzed how your top career matches align with nationwide career clusters.",
+      "meta": {
+        "sample": "Top {{count}} careers analyzed"
+      },
+      "labels": {
+        "unknown": "Unspecified",
+        "others": "Others"
+      },
+      "legend": {
+        "matches": "{{count}} matches"
+      },
+      "empty": {
+        "title": "No cluster profile available yet",
+        "description": "Generate your career recommendations to see how they align with career clusters."
+      },
+      "charts": {
+        "cluster": {
+          "title": "Cluster Distribution",
+          "empty": "We couldn't map your top careers to any clusters yet."
+        },
+        "subCluster": {
+          "title": "Sub-Cluster Distribution",
+          "empty": "We couldn't map your top careers to any sub-clusters yet."
+        },
+        "emptyFallback": "We couldn't calculate a cluster profile from the current results. Try running the analysis again."
+      },
+      "unmatched": {
+        "title": "Occupations not yet mapped",
+        "description": "We couldn't find these occupations in our cluster dataset:",
+        "none": "All matched occupations were mapped to clusters."
+      }
     }
   },
   "careerRecommendations": {

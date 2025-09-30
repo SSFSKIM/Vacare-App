@@ -15,7 +15,7 @@ services:
       - FIREBASE_STORAGE_BUCKET=vacare-1abb5.firebasestorage.app
       - FIREBASE_MESSAGING_SENDER_ID=881187333959
       - FIREBASE_APP_ID=1:881187333959:web:e6def9c68cbf8d13f14e62
-      - OPENAI_API_KEY=***REMOVED-OPENAI-API-KEY***
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
       - OPENAI_REPORT_MODEL=gpt-4-turbo
     volumes:
       - ./data:/app/data

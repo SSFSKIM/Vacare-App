@@ -67,7 +67,7 @@ export default function AdminTuning() {
   const doCalibratePercentile = useCallback(async () => {
     setBusy(true)
     try {
-      const body = { importance_percentile: 75, level_percentile: 65, top_k: 20 }
+      const body = { importance_percentile: 75, level_percentile: 65, top_k: 40 }
       const data = await postJson('/routes/career-recommendation/calibrate', body)
       appendLog('Calibrate (Percentile) OK', data)
     } catch (e) {
@@ -84,7 +84,7 @@ export default function AdminTuning() {
         dataset_name: datasetName,
         importance_candidates: [60, 70, 80, 85, 90],
         ratio_candidates: [0.6, 0.7, 0.8, 0.85, 0.9],
-        top_k: 20
+        top_k: 40
       }
       const data = await postJson('/routes/career-recommendation/calibrate', body)
       appendLog('Calibrate (Optimized) OK', data)
@@ -161,7 +161,7 @@ export default function AdminTuning() {
         dataset_name: datasetName,
         importance_candidates: [60, 70, 80, 85, 90],
         ratio_candidates: [0.5, 0.6, 0.7, 0.8, 0.85],
-        top_k: 20
+        top_k: 40
       }
       const calib = await postJson('/routes/career-recommendation/calibrate', calibBody)
       appendLog('3) Calibrate Thresholds', calib)

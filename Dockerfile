@@ -74,7 +74,6 @@ COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 # Environment variables
 ENV PYTHONPATH=/app/backend
 ENV NODE_ENV=production
-ENV OPENAI_API_KEY=***REMOVED-OPENAI-API-KEY***
 
 EXPOSE 80
 

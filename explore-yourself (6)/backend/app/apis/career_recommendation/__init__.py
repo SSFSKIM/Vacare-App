@@ -80,6 +80,7 @@ RIASEC_ORDER = ['Realistic', 'Investigative', 'Artistic', 'Social', 'Enterprisin
 IACHAN_WEIGHTS = [3, 2, 1]
 IACHAN_WEIGHTED_TOTAL = sum(IACHAN_WEIGHTS)
 HEXAGON_CONGRUENCE_BLEND = 0.6  # weight for Iachan vs continuous distance
+DEFAULT_TOP_MATCHES = 40
 
 # Cache for Mahalanobis inverse covariance matrices per dataset and element subset
 COVARIANCE_CACHE: Dict[str, Dict[Tuple[str, ...], Optional[np.ndarray]]] = {}
@@ -201,7 +202,7 @@ def _calibrate_thresholds(
 
 def _calibrate_critical_requirements(
     base_rules: List[Dict[str, Any]],
-    top_k: int = 20,
+    top_k: int = 40,
     importance_threshold: Optional[float] = None,
     level_ratio: Optional[float] = None
 ) -> List[Dict[str, Any]]:
@@ -271,7 +272,7 @@ CRITICAL_REQUIREMENTS = _calibrate_critical_requirements(
 def _run_calibration(
     importance_percentile: float = 75.0,
     level_percentile: float = 65.0,
-    top_k: int = 20,
+    top_k: int = 40,
 ) -> Tuple[float, float, List[Dict[str, Any]]]:
     """Run calibration and return thresholds and calibrated rules."""
     imp_thr, min_ratio = _calibrate_thresholds(
@@ -1364,7 +1365,7 @@ def calibrate_scores_from_dataset(
 class CalibrationRequest(BaseModel):
     importance_percentile: Optional[float] = 75.0
     level_percentile: Optional[float] = 65.0
-    top_k: Optional[int] = 20
+    top_k: Optional[int] = 40
     dataset_name: Optional[str] = None
     importance_candidates: Optional[List[float]] = None
     ratio_candidates: Optional[List[float]] = None
@@ -1472,7 +1473,7 @@ async def calibrate(req: CalibrationRequest) -> CalibrationResponse:
         raise HTTPException(status_code=503, detail="Databutton storage unavailable in this environment")
     global IMPORTANCE_CRITICAL_THRESHOLD, MIN_REQUIREMENT_RATIO, CRITICAL_REQUIREMENTS
 
-    top_k = int(req.top_k or 20)
+    top_k = int(req.top_k or 40)
     dataset_used = False
 
     if req.dataset_name:
@@ -1717,7 +1718,7 @@ def analyze_multi_category(user_scores: UserScores) -> RecommendationResponse:
     
     # Create match objects
     matches = []
-    for occupation, (score, contributions) in sorted_occupations[:20]:
+    for occupation, (score, contributions) in sorted_occupations[:DEFAULT_TOP_MATCHES]:
         # Generate description based on top contributing categories
         top_categories = sorted(
             contributions, 
@@ -1782,7 +1783,7 @@ def _calculate_skill_correlations(user_skills: List[SkillScore]) -> List[Occupat
     sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
     
     matches = []
-    for occupation, score in sorted_scores[:20]:
+    for occupation, score in sorted_scores[:DEFAULT_TOP_MATCHES]:
         raw_score = float(score)
         calibrated_score = apply_score_calibration(raw_score)
         matches.append(OccupationMatch(
@@ -1808,7 +1809,7 @@ def _calculate_ability_correlations(user_abilities: List[AbilityScore]) -> List[
     sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
     
     matches = []
-    for occupation, score in sorted_scores[:20]:
+    for occupation, score in sorted_scores[:DEFAULT_TOP_MATCHES]:
         raw_score = float(score)
         calibrated_score = apply_score_calibration(raw_score)
         matches.append(OccupationMatch(
@@ -1834,7 +1835,7 @@ def _calculate_knowledge_correlations(user_knowledge: List[KnowledgeScore]) -> L
     sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
     
     matches = []
-    for occupation, score in sorted_scores[:20]:
+    for occupation, score in sorted_scores[:DEFAULT_TOP_MATCHES]:
         raw_score = float(score)
         calibrated_score = apply_score_calibration(raw_score)
         matches.append(OccupationMatch(
@@ -1854,7 +1855,7 @@ def _get_interest_recommendations(user_interests: List[InterestScore]) -> List[O
     sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
     
     matches = []
-    for occupation, score in sorted_scores[:20]:
+    for occupation, score in sorted_scores[:DEFAULT_TOP_MATCHES]:
         raw_score = float(score)
         calibrated_score = apply_score_calibration(raw_score)
         matches.append(OccupationMatch(

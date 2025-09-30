@@ -338,7 +338,8 @@
       "ability": "능력",
       "knowledge": "지식",
       "skills": "기술",
-      "careers": "진로"
+      "careers": "진로",
+      "clusterProfile": "클러스터 프로필"
     },
     "dialog": {
       "title": "나의 진로 보고서",
@@ -387,6 +388,40 @@
       "shortTerm": "단기",
       "longTerm": "장기",
       "empty": "추천 사항이 없습니다."
+    },
+    "clusterProfile": {
+      "title": "진로 클러스터 프로필",
+      "description": "상위 진로 추천이 국가 직업 클러스터와 어떻게 연결되는지 분석했습니다.",
+      "meta": {
+        "sample": "상위 {{count}}개 진로 분석"
+      },
+      "labels": {
+        "unknown": "미지정",
+        "others": "기타"
+      },
+      "legend": {
+        "matches": "{{count}}개 추천"
+      },
+      "empty": {
+        "title": "아직 클러스터 프로필이 없습니다",
+        "description": "진로 추천을 생성하면 클러스터 정렬 결과를 확인할 수 있어요."
+      },
+      "charts": {
+        "cluster": {
+          "title": "클러스터 분포",
+          "empty": "상위 진로를 클러스터에 매핑하지 못했습니다."
+        },
+        "subCluster": {
+          "title": "서브 클러스터 분포",
+          "empty": "상위 진로를 서브 클러스터에 매핑하지 못했습니다."
+        },
+        "emptyFallback": "현재 결과로는 클러스터 프로필을 계산할 수 없습니다. 분석을 다시 실행해 주세요."
+      },
+      "unmatched": {
+        "title": "아직 매핑되지 않은 직업",
+        "description": "클러스터 데이터셋에서 찾지 못한 직업입니다:",
+        "none": "모든 추천 직업이 클러스터에 매핑되었습니다."
+      }
     }
   },
   "careerRecommendations": {

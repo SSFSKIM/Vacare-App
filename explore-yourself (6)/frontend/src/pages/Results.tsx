@@ -9,6 +9,7 @@ import { KnowledgeResults } from 'components/KnowledgeResults';
 import { SkillResults } from 'components/SkillResults';
 import { InterestTab } from 'components/InterestTab';
 import { CareerRecommendations } from "components/CareerRecommendations";
+import { ClusterProfileTab } from 'components/ClusterProfileTab';
 import { Button } from "@/components/ui/button";
 import { useUserGuardContext } from "app";
 import { toast } from "sonner";
@@ -389,11 +390,12 @@ export default function Results() {
         </div>
 
         <Tabs defaultValue="interest" className="w-full">
-          <TabsList className="w-full overflow-x-auto flex gap-2 sm:grid sm:grid-cols-5">
+          <TabsList className="w-full overflow-x-auto flex gap-2 sm:grid sm:grid-cols-6">
             <TabsTrigger value="interest">{t('results.tabs.interest')}</TabsTrigger>
             <TabsTrigger value="ability">{t('results.tabs.ability')}</TabsTrigger>
             <TabsTrigger value="knowledge">{t('results.tabs.knowledge')}</TabsTrigger>
             <TabsTrigger value="skills">{t('results.tabs.skills')}</TabsTrigger>
+            <TabsTrigger value="cluster-profile">{t('results.tabs.clusterProfile')}</TabsTrigger>
             <TabsTrigger value="careers">{t('results.tabs.careers')}</TabsTrigger>
           </TabsList>
 
@@ -411,6 +413,14 @@ export default function Results() {
 
           <TabsContent value="skills" className="space-y-4">
             <SkillResults results={assessment.skills.results} />
+          </TabsContent>
+
+          <TabsContent value="cluster-profile" className="space-y-4">
+            <ClusterProfileTab
+              recommendations={assessment.careerRecommendations}
+              onAnalyze={handleAnalyzeCareers}
+              isLoading={isAnalyzing}
+            />
           </TabsContent>
 
           <TabsContent value="careers" className="space-y-4">
