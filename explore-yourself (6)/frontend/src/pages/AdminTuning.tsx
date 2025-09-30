@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { useUserGuardContext } from 'app'
+import { auth, useUserGuardContext } from 'app'
 import { useTranslation } from 'react-i18next'
 
 type Json = Record<string, any>
@@ -26,9 +26,13 @@ export default function AdminTuning() {
   }, [])
 
   const postJson = useCallback(async (path: string, body: Json) => {
+    const token = await auth.getAuthToken()
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+    if (token) headers.Authorization = `Bearer ${token}`
+
     const res = await fetch(path, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify(body)
     })
     if (!res.ok) throw new Error(`${path} -> ${res.status}`)
@@ -36,7 +40,10 @@ export default function AdminTuning() {
   }, [])
 
   const getJson = useCallback(async (path: string) => {
-    const res = await fetch(path)
+    const token = await auth.getAuthToken()
+    const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {}
+
+    const res = await fetch(path, { headers })
     if (!res.ok) throw new Error(`${path} -> ${res.status}`)
     return res.json()
   }, [])

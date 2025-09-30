@@ -7,16 +7,19 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:80"
+    env_file:
+      - .env
     environment:
-      - DATABUTTON_PROJECT_ID=e450d618-b3ca-4f0d-8025-e82ad27b100e
-      - FIREBASE_PROJECT_ID=vacare-1abb5
-      - FIREBASE_API_KEY=***REMOVED-GOOGLE-API-KEY***
-      - FIREBASE_AUTH_DOMAIN=vacare-1abb5.firebaseapp.com
+      - DATABUTTON_PROJECT_ID=${DATABUTTON_PROJECT_ID}
+      - DATABUTTON_TOKEN=${DATABUTTON_TOKEN}
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
+      - FIREBASE_API_KEY=${FIREBASE_API_KEY}
+      - FIREBASE_AUTH_DOMAIN=${FIREBASE_AUTH_DOMAIN}
       - FIREBASE_STORAGE_BUCKET=vacare-1abb5.firebasestorage.app
       - FIREBASE_MESSAGING_SENDER_ID=881187333959
       - FIREBASE_APP_ID=1:881187333959:web:e6def9c68cbf8d13f14e62
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - OPENAI_REPORT_MODEL=gpt-4-turbo
+      - OPENAI_REPORT_MODEL=${OPENAI_REPORT_MODEL:-gpt-4-turbo}
     volumes:
       - ./data:/app/data
     restart: unless-stopped
@@ -32,9 +35,12 @@ services:
     ports:
       - "3000:3000"  # Frontend dev server
       - "8000:8000"  # Backend API
+    env_file:
+      - .env
     environment:
       - NODE_ENV=development
-      - DATABUTTON_PROJECT_ID=e450d618-b3ca-4f0d-8025-e82ad27b100e
+      - DATABUTTON_PROJECT_ID=${DATABUTTON_PROJECT_ID}
+      - DATABUTTON_TOKEN=${DATABUTTON_TOKEN}
     volumes:
       - ./frontend:/app/frontend
       - ./backend:/app/backend

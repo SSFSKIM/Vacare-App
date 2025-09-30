@@ -244,14 +244,22 @@ export function ClusterProfileTab({
   }, [profile.clusters, unknownLabel, othersLabel])
 
   const subClusters = useMemo(() => {
-    const localized = profile.subClusters.map((segment) =>
-      segment.isUnknown
-        ? { ...segment, label: unknownLabel }
-        : segment
-    )
+    const localized = profile.subClusters
+      .map((segment) =>
+        segment.isUnknown ? { ...segment, label: unknownLabel } : segment
+      )
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 8)
 
-    return applyColors(groupSegments(localized, othersLabel))
-  }, [profile.subClusters, unknownLabel, othersLabel])
+    // Renormalize percentages among the top 8 only
+    const topTotal = localized.reduce((sum, s) => sum + s.total, 0)
+    const normalized = localized.map((s) => ({
+      ...s,
+      percentage: topTotal > 0 ? (s.total / topTotal) * 100 : 0,
+    }))
+
+    return applyColors(normalized)
+  }, [profile.subClusters, unknownLabel])
 
   if (isLoading) {
     return (

@@ -85,6 +85,10 @@ DEFAULT_TOP_MATCHES = 40
 # Cache for Mahalanobis inverse covariance matrices per dataset and element subset
 COVARIANCE_CACHE: Dict[str, Dict[Tuple[str, ...], Optional[np.ndarray]]] = {}
 
+# In-memory fallback cache for validation datasets when Databutton storage
+# is unavailable or write permissions are missing.
+VALIDATION_DATASET_CACHE: Dict[str, pd.DataFrame] = {}
+
 
 @contextmanager
 def temporary_weight_overrides(
@@ -1098,18 +1102,33 @@ def _build_user_scores_from_row(row: pd.Series) -> UserScores:
 
 
 def _load_validation_dataframe(dataset_name: str) -> Optional[pd.DataFrame]:
-    if db is None:
-        logger.error("Databutton storage unavailable for weight optimization")
-        return None
-    try:
-        df = db.storage.dataframes.get(dataset_name)
-        if df is None or len(df) == 0:
-            logger.warning("Validation dataset '%s' is empty or missing", dataset_name)
-            return None
-        return df
-    except Exception as exc:  # pragma: no cover - external dependency
-        logger.error("Failed to load validation dataset '%s': %s", dataset_name, exc)
-        return None
+    """Load a validation dataframe from Databutton storage, with
+    an in-memory fallback cache if storage is unavailable.
+
+    Args:
+        dataset_name: The dataset identifier to fetch.
+
+    Returns:
+        A pandas DataFrame if available, otherwise None.
+    """
+    # Try Databutton storage first when available
+    if db is not None:
+        try:
+            df = db.storage.dataframes.get(dataset_name)
+            if df is not None and len(df) > 0:
+                return df
+            logger.warning("Validation dataset '%s' is empty or missing in storage", dataset_name)
+        except Exception as exc:  # pragma: no cover - external dependency
+            logger.error("Failed to load validation dataset '%s' from storage: %s", dataset_name, exc)
+
+    # Fallback to in-memory cache
+    cached = VALIDATION_DATASET_CACHE.get(dataset_name)
+    if cached is not None and len(cached) > 0:
+        logger.info("Using in-memory cached validation dataset '%s' (%d rows)", dataset_name, len(cached))
+        return cached
+
+    logger.error("Validation dataset '%s' unavailable (storage and cache)", dataset_name)
+    return None
 
 
 def _normalize_weights(weight_dict: Dict[str, float], expected_keys: List[str]) -> Dict[str, float]:
@@ -1468,9 +1487,13 @@ async def get_calibration() -> CalibrationResponse:
 
 @router.post("/calibrate")
 async def calibrate(req: CalibrationRequest) -> CalibrationResponse:
-    """Re-run calibration using live O*NET frames from Databutton storage."""
-    if db is None:
-        raise HTTPException(status_code=503, detail="Databutton storage unavailable in this environment")
+    """Re-run calibration.
+
+    If a dataset name is provided, attempt dataset-based optimization using
+    the validation loader (supports in-memory fallback). If no dataset is provided,
+    fall back to O*NET percentile-based thresholds; when Databutton is unavailable
+    this uses defaults.
+    """
     global IMPORTANCE_CRITICAL_THRESHOLD, MIN_REQUIREMENT_RATIO, CRITICAL_REQUIREMENTS
 
     top_k = int(req.top_k or 40)
@@ -1514,9 +1537,6 @@ async def calibrate(req: CalibrationRequest) -> CalibrationResponse:
 
 @router.post("/optimize-weights")
 async def optimize_weights(req: OptimizationRequest) -> OptimizationResponse:
-    if db is None:
-        raise HTTPException(status_code=503, detail="Databutton storage unavailable in this environment")
-
     result = optimize_weights_from_dataset(
         req.dataset_name or "career-validation-csv",
         dimension_candidates=req.dimension_candidates,
@@ -1536,9 +1556,6 @@ async def optimize_weights(req: OptimizationRequest) -> OptimizationResponse:
 
 @router.post("/calibrate-scores")
 async def calibrate_scores(req: ScoreCalibrationRequest) -> ScoreCalibrationResponse:
-    if db is None:
-        raise HTTPException(status_code=503, detail="Databutton storage unavailable in this environment")
-
     result = calibrate_scores_from_dataset(
         req.dataset_name or "career-validation-csv",
         learning_rate=float(req.learning_rate or 0.01),
@@ -1655,17 +1672,24 @@ async def bootstrap_validation(req: BootstrapValidationRequest) -> BootstrapVali
 
         df = pd.DataFrame(rows)
 
-        # Try to persist dataset into Databutton storage
+        # Persist dataset into Databutton storage when possible
         saved = False
-        for method in ("put", "set"):
-            try:
-                saver = getattr(db.storage.dataframes, method, None)
-                if saver is not None:
-                    saver(req.dataset_name or "career-validation-csv", df)
-                    saved = True
-                    break
-            except Exception:
-                continue
+        if db is not None:
+            for method in ("put", "set"):
+                try:
+                    saver = getattr(db.storage.dataframes, method, None)
+                    if saver is not None:
+                        saver(req.dataset_name or "career-validation-csv", df)
+                        saved = True
+                        break
+                except Exception as exc:
+                    logger.warning("Failed to save validation dataset via '%s': %s", method, exc)
+
+        # Always store a local in-memory copy as a fallback
+        try:
+            VALIDATION_DATASET_CACHE[req.dataset_name or "career-validation-csv"] = df
+        except Exception as exc:  # pragma: no cover - safety
+            logger.debug("Failed to cache validation dataset in-memory: %s", exc)
 
         return BootstrapValidationResponse(
             dataset_name=req.dataset_name or "career-validation-csv",

@@ -10,12 +10,15 @@ services:
     ports:
       - "3000:3000"  # Frontend dev server
       - "8000:8000"  # Backend API
+    env_file:
+      - .env
     environment:
       - NODE_ENV=development
       - PYTHONUNBUFFERED=1
       - FASTAPI_ENV=development
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - DATABUTTON_PROJECT_ID=${DATABUTTON_PROJECT_ID}
+      - DATABUTTON_TOKEN=${DATABUTTON_TOKEN}
       - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
       - FIREBASE_API_KEY=${FIREBASE_API_KEY}
       - FIREBASE_AUTH_DOMAIN=${FIREBASE_AUTH_DOMAIN}
@@ -38,9 +41,13 @@ services:
       target: frontend-dev
     ports:
       - "3001:3000"
+    env_file:
+      - .env
     environment:
       - NODE_ENV=development
       - REACT_APP_API_URL=http://localhost:8001
+      - DATABUTTON_PROJECT_ID=${DATABUTTON_PROJECT_ID}
+      - DATABUTTON_TOKEN=${DATABUTTON_TOKEN}
     volumes:
       - "./explore-yourself (6)/frontend:/app/frontend"
     networks:
@@ -56,10 +63,14 @@ services:
       target: backend-dev
     ports:
       - "8001:8000"
+    env_file:
+      - .env
     environment:
       - PYTHONUNBUFFERED=1
       - FASTAPI_ENV=development
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - DATABUTTON_PROJECT_ID=${DATABUTTON_PROJECT_ID}
+      - DATABUTTON_TOKEN=${DATABUTTON_TOKEN}
       - DATABASE_URL=${DATABASE_URL}
       - REDIS_URL=${REDIS_URL}
     volumes:
