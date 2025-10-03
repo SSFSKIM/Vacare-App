@@ -400,7 +400,23 @@
         "others": "Others"
       },
       "legend": {
-        "matches": "{{count}} matches"
+        "matches": "{{count}} matches",
+        "occupationsLabel": "Top occupations",
+        "viewAll": "+{{count}} more",
+        "viewAllAria": "View all occupations for {{cluster}} ({{count}} more)"
+      },
+      "details": {
+        "title": "{{name}} occupations",
+        "caption": "Occupations & match scores",
+        "prompt": "Hover or tap a cluster to reveal the occupations and their match scores.",
+        "empty": "We don't have specific occupations mapped for this group yet.",
+        "score": "{{value}}% match"
+      },
+      "summary": {
+        "title": "Top cluster highlights",
+        "coverage": "Top clusters cover {{percentage}}% of your mapped matches",
+        "leadingOccupation": "Leading occupation: {{occupation}}",
+        "noOccupation": "No mapped occupations yet"
       },
       "empty": {
         "title": "No cluster profile available yet",
@@ -413,6 +429,7 @@
         },
         "subCluster": {
           "title": "Sub-Cluster Distribution",
+          "note": "Showing the top 8 sub-clusters ranked by match weight.",
           "empty": "We couldn't map your top careers to any sub-clusters yet."
         },
         "emptyFallback": "We couldn't calculate a cluster profile from the current results. Try running the analysis again."

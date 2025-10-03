@@ -12,6 +12,12 @@ type ClusterData = Record<string, ClusterMapEntry>
 
 const rawClusterMap = clusterData as ClusterData
 
+export interface SegmentOccupationDetail {
+  occupation: string
+  score: number
+  title: string
+}
+
 export interface ClusterProfileSegment {
   id: string
   label: string
@@ -19,6 +25,7 @@ export interface ClusterProfileSegment {
   percentage: number
   matches: number
   occupations: string[]
+  details: SegmentOccupationDetail[]
   isUnknown?: boolean
 }
 
@@ -36,6 +43,7 @@ type SegmentAccumulator = {
   total: number
   count: number
   occupations: Set<string>
+  details: Map<string, SegmentOccupationDetail>
   isUnknown?: boolean
 }
 
@@ -116,6 +124,9 @@ function mapToSegments(map: Map<string, SegmentAccumulator>): ClusterProfileSegm
       percentage: total > 0 ? (item.total / total) * 100 : 0,
       matches: item.count,
       occupations: Array.from(item.occupations),
+      details: Array.from(item.details.values()).sort(
+        (a, b) => b.score - a.score
+      ),
       isUnknown: item.isUnknown,
     }))
     .sort((a, b) => b.total - a.total)
@@ -181,17 +192,36 @@ export function buildClusterProfile(
     const clusterLabel = entry.cluster || 'Unknown'
     const clusterExisting = clusterAccumulator.get(clusterId)
 
+    const occupationName = entry.occupation
+    const matchTitle = item.match.title ?? occupationName
+    const matchScore = item.match.correlation ?? 0
+
     if (clusterExisting) {
       clusterExisting.total += item.weight
       clusterExisting.count += 1
-      clusterExisting.occupations.add(entry.occupation)
+      clusterExisting.occupations.add(occupationName)
+      const existingDetail = clusterExisting.details.get(occupationName)
+      if (!existingDetail || existingDetail.score < matchScore) {
+        clusterExisting.details.set(occupationName, {
+          occupation: occupationName,
+          score: matchScore,
+          title: matchTitle,
+        })
+      }
     } else {
       clusterAccumulator.set(clusterId, {
         id: clusterId,
         label: clusterLabel,
         total: item.weight,
         count: 1,
-        occupations: new Set([entry.occupation]),
+        occupations: new Set([occupationName]),
+        details: new Map([
+          [occupationName, {
+            occupation: occupationName,
+            score: matchScore,
+            title: matchTitle,
+          }],
+        ]),
         isUnknown: clusterId === 'unknown-cluster',
       })
     }
@@ -207,14 +237,29 @@ export function buildClusterProfile(
     if (subClusterExisting) {
       subClusterExisting.total += item.weight
       subClusterExisting.count += 1
-      subClusterExisting.occupations.add(entry.occupation)
+      subClusterExisting.occupations.add(occupationName)
+      const existingDetail = subClusterExisting.details.get(occupationName)
+      if (!existingDetail || existingDetail.score < matchScore) {
+        subClusterExisting.details.set(occupationName, {
+          occupation: occupationName,
+          score: matchScore,
+          title: matchTitle,
+        })
+      }
     } else {
       subClusterAccumulator.set(subClusterId, {
         id: subClusterId,
         label: subClusterLabel,
         total: item.weight,
         count: 1,
-        occupations: new Set([entry.occupation]),
+        occupations: new Set([occupationName]),
+        details: new Map([
+          [occupationName, {
+            occupation: occupationName,
+            score: matchScore,
+            title: matchTitle,
+          }],
+        ]),
         isUnknown: subClusterId === 'unknown-sub-cluster',
       })
     }

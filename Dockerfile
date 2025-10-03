@@ -37,16 +37,17 @@ WORKDIR /app/backend
 COPY ["explore-yourself (6)/backend/requirements.txt", "./"]
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy backend source
+# Copy backend source (ensure all files including routers.json are included)
 COPY ["explore-yourself (6)/backend/", "./"]
 
-# Final production stage
-FROM ubuntu:22.04 AS production
+# Copy DataStorage files for local data access
+COPY ["explore-yourself (6)/DataStorage/", "./DataStorage/"]
+
+# Cloud Run optimized production stage (no nginx/supervisor)
+FROM ubuntu:22.04 AS production-cloudrun
 
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y \
-    nginx \
-    supervisor \
     python3 \
     python3-pip \
     && rm -rf /var/lib/apt/lists/* \
@@ -65,19 +66,69 @@ COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
 # Copy backend source
 COPY --from=backend-base /app/backend /app/backend
 
-# Nginx configuration
-COPY docker/nginx.conf /etc/nginx/nginx.conf
+# Environment variables
+ENV PYTHONPATH=/app/backend
+ENV NODE_ENV=production
+ENV PORT=8080
+
+# Cloud Run will provide env vars at runtime, no need to copy .env file
+WORKDIR /app/backend
+
+EXPOSE 8080
+
+# Run uvicorn directly - Cloud Run uses PORT env var
+CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080} --log-level info
+
+# Final production stage (with nginx/supervisor for local Docker)
+FROM ubuntu:22.04 AS production
+
+# Install runtime dependencies (including gettext-base for envsubst)
+RUN apt-get update && apt-get install -y \
+    nginx \
+    supervisor \
+    python3 \
+    python3-pip \
+    gettext-base \
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -sf /usr/bin/python3 /usr/bin/python \
+    && ln -sf /usr/bin/pip3 /usr/bin/pip
+
+WORKDIR /app
+
+# Copy Python dependencies from backend-base
+COPY --from=backend-base /usr/local/lib/python3.10/dist-packages /usr/local/lib/python3.10/dist-packages
+COPY --from=backend-base /usr/local/bin /usr/local/bin
+
+# Copy built frontend
+COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
+
+# Copy backend source (includes DataStorage from backend-base)
+COPY --from=backend-base /app/backend /app/backend
+
+# Nginx configuration template
+COPY docker/nginx.conf /etc/nginx/nginx.conf.template
 
 # Supervisor configuration
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+# FastAPI startup script
+COPY docker/start-fastapi.sh /app/start-fastapi.sh
+RUN chmod +x /app/start-fastapi.sh
+
 # Environment variables
 ENV PYTHONPATH=/app/backend
 ENV NODE_ENV=production
+ENV PORT=8080
 
-EXPOSE 80
+# Copy environment file if exists (for Cloud Run)
+COPY cloudrun.env /app/.env
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+EXPOSE 8080
+
+# Load environment variables and start services
+CMD set -a && . /app/.env && set +a && \
+    envsubst '${PORT}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && \
+    /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
 
 # -----------------------------
 # Development targets

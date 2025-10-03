@@ -1,6 +1,6 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-import databutton as db
+from app.storage_utils import get_text_data
 
 router = APIRouter()
 
@@ -52,7 +52,11 @@ def categorize_skill(name: str) -> str:
     return 'Other'
 
 def parse_skill_questions():
-    raw_data = db.storage.text.get("skills-cleaned-1-txt")
+    try:
+        raw_data = get_text_data("skills-cleaned-1-txt")
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Failed to load skills data: {str(e)}")
+
     questions = []
     current_question = None
     question_id = 1

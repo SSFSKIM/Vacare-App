@@ -1,0 +1,198 @@
+Element Name: Design
+Description: Knowledge of design techniques, tools, and principles involved in production of precision technical plans, blueprints, drawings, and models.
+Level Examples:
+Level 85: Develop detailed plans for a high-rise office building
+Level 57: Design plans for remodeling a kitchen
+Level 28: Draw a straight line 4 3/16 inches long
+Element Name: Chemistry
+Description: Knowledge of the chemical composition, structure, and properties of substances and of the chemical processes and transformations that they undergo. This includes uses of chemicals and their interactions, danger signs, production techniques, and disposal methods.
+Level Examples:
+Level 85: Develop a safe commercial cleaner
+Level 57: Use the proper concentration of chlorine to purify a water source
+Level 28: Use a common household bug spray
+Element Name: Transportation
+Description: Knowledge of principles and methods for moving people or goods by air, rail, sea, or road, including the relative costs and benefits.
+Level Examples:
+Level 85: Control air traffic at a busy airport
+Level 71: Drive a semi-truck through a busy city
+Level 28: Ride a train to work
+Element Name: Philosophy and Theology
+Description: Knowledge of different philosophical systems and religions. This includes their basic principles, values, ethics, ways of thinking, customs, practices, and their impact on human culture.
+Level Examples:
+Level 85: Compare the teachings of major philosophers
+Level 57: Understand another culture's religious practices
+Level 28: Watch a TV show on family values
+Element Name: Public Safety and Security
+Description: Knowledge of relevant equipment, policies, procedures, and strategies to promote effective local, state, or national security operations for the protection of people, data, property, and institutions.
+Level Examples:
+Level 85: Command a military operation
+Level 57: Inspect a building site for safety violations
+Level 14: Use a seatbelt
+Element Name: Sociology and Anthropology
+Description: Knowledge of group behavior and dynamics, societal trends and influences, human migrations, ethnicity, cultures, and their history and origins.
+Level Examples:
+Level 100: Create a new theory about the development of civilizations
+Level 71: Write an article about cultural differences
+Level 28: Identify two cultures in a story as being different
+Element Name: Telecommunications
+Description: Knowledge of transmission, broadcasting, switching, control, and operation of telecommunications systems.
+Level Examples:
+Level 100: Develop a new, world-wide telecommunications network
+Level 28: Install a wireless internet router
+Level 14: Send an email
+Element Name: Customer and Personal Service
+Description: Knowledge of principles and processes for providing customer and personal services. This includes customer needs assessment, meeting quality standards for services, and evaluation of customer satisfaction.
+Level Examples:
+Level 85: Respond to a citizen's request for assistance after a major disaster
+Level 57: Be responsible for 10 children at daycare
+Level 28: Process a customer's dry-cleaning drop off
+Element Name: Administrative
+Description: Knowledge of administrative and office procedures and systems such as word processing, managing files and records, stenography and transcription, designing forms, and workplace terminology.
+Level Examples:
+Level 71: Organize a digital storage system for company forms
+Level 42: Type 30 words per minute
+Level 28: Direct phone calls to the appropriate staff member
+Element Name: Computers and Electronics
+Description: Knowledge of circuit boards, processors, chips, electronic equipment, and computer hardware and software, including applications and programming.
+Level Examples:
+Level 85: Create a program to scan a computer for viruses
+Level 42: Use a computer to format a document
+Level 14: Operate a media player to watch a training video
+Element Name: Mathematics
+Description: Knowledge of arithmetic, algebra, geometry, calculus, statistics, and their applications.
+Level Examples:
+Level 85: Derive a complex mathematical equation
+Level 57: Analyze data to determine areas with the highest sales
+Level 14: Add two numbers
+Element Name: Medicine and Dentistry
+Description: Knowledge of the information and techniques needed to diagnose and treat human injuries, diseases, and deformities. This includes symptoms, treatment alternatives, drug properties and interactions, and preventive health-care measures.
+Level Examples:
+Level 100: Perform open heart surgery
+Level 71: Fill a tooth cavity
+Level 14: Use a band-aid
+Element Name: Production and Processing
+Description: Knowledge of raw materials, production processes, quality control, costs, and other techniques for maximizing the effective manufacture and distribution of goods.
+Level Examples:
+Level 85: Manage an international shipping company distribution center
+Level 57: Supervise an appliance assembly line
+Level 28: Put a computer back into its packing materials
+Element Name: Foreign Language
+Description: Knowledge of the structure and content of a foreign (non-English) language including the meaning and spelling of words, rules of composition and grammar, and pronunciation.
+Level Examples:
+Level 71: Write an English language review of a book written in a foreign language
+Level 42: Ask directions in a foreign city
+Level 14: Say "please" and "thank you" in a foreign language
+Element Name: Building and Construction
+Description: Knowledge of materials, methods, and the tools involved in the construction or repair of houses, buildings, or other structures such as highways and roads.
+Level Examples:
+Level 85: Build a high-rise office tower
+Level 57: Fix a plumbing leak in the ceiling
+Level 28: Choose the proper type of wood for adding a deck onto a house
+Element Name: Biology
+Description: Knowledge of plant and animal organisms, their tissues, cells, functions, interdependencies, and interactions with each other and the environment.
+Level Examples:
+Level 100: Isolate and identify a new virus
+Level 71: Investigate the effects of pollution on marine plants and animals
+Level 14: Feed domestic animals
+Element Name: English Language
+Description: Knowledge of the structure and content of the English language including the meaning and spelling of words, rules of composition, and grammar.
+Level Examples:
+Level 85: Teach a college English class
+Level 57: Edit an article for a news website
+Level 28: Write a thank you note
+Element Name: Therapy and Counseling
+Description: Knowledge of principles, methods, and procedures for diagnosis, treatment, and rehabilitation of physical and mental dysfunctions, and for career counseling and guidance.
+Level Examples:
+Level 85: Counsel an abused child
+Level 57: Provide job counseling to the unemployed
+Level 28: Put ice on a sprained ankle
+Element Name: Food Production
+Description: Knowledge of techniques and equipment for planting, growing, and harvesting food products (both plant and animal) for consumption, including storage/handling techniques.
+Level Examples:
+Level 85: Run a large production farm
+Level 71: Operate a commercial fishing boat
+Level 28: Grow herbs in the kitchen
+Element Name: Geography
+Description: Knowledge of principles and methods for describing the features of land, sea, and air masses, including their physical characteristics, locations, interrelationships, and distribution of plant, animal, and human life.
+Level Examples:
+Level 85: Develop a map of the world showing mountains, deserts, and rivers
+Level 57: Find a specific country on a world map
+Level 28: Know the capital of the United States
+Element Name: Sales and Marketing
+Description: Knowledge of principles and methods for showing, promoting, and selling products or services. This includes marketing strategy and tactics, product demonstration, sales techniques, and sales control systems.
+Level Examples:
+Level 85: Develop a marketing plan for a new nationwide high-speed internet system
+Level 57: Introduce clients to a new line of products
+Level 28: Sell cakes at a bake sale
+Element Name: Engineering and Technology
+Description: Knowledge of the practical application of engineering science and technology. This includes applying principles, techniques, procedures, and equipment to the design and production of various goods and services.
+Level Examples:
+Level 85: Plan for the impact of weather in designing a bridge
+Level 57: Design a custom office chair
+Level 28: Install a door lock
+Element Name: Physics
+Description: Knowledge and prediction of physical principles, laws, their interrelationships, and applications to understanding fluid, material, and atmospheric dynamics, and mechanical, electrical, atomic and sub-atomic structures and processes.
+Level Examples:
+Level 85: Design a cleaner burning gasoline engine
+Level 57: Calculate the speed of a falling object
+Level 14: Use a crowbar to pry open a box
+Element Name: Administration and Management
+Description: Knowledge of business and management principles involved in strategic planning, resource allocation, human resources modeling, leadership technique, production methods, and coordination of people and resources.
+Level Examples:
+Level 85: Manage a multimillion-dollar company
+Level 57: Monitor progress of a project to ensure timely completion
+Level 28: Approve a reimbursement request
+Element Name: History and Archeology
+Description: Knowledge of historical events and their causes, indicators, and effects on civilizations and cultures.
+Level Examples:
+Level 85: Determine the age of bones for placing them in fossil history
+Level 57: Teach local history to school children
+Level 42: Take a class in US history
+Element Name: Fine Arts
+Description: Knowledge of the theory and techniques required to compose, produce, and perform works of music, dance, visual arts, drama, and sculpture.
+Level Examples:
+Level 71: Design an exhibit for a major art show
+Level 42: Play a minor part in a local theater play
+Level 14: Attend a popular music concert
+Element Name: Education and Training
+Description: Knowledge of principles and methods for curriculum and training design, teaching and instruction for individuals and groups, and the measurement of training effects.
+Level Examples:
+Level 85: Design a training program for new employees
+Level 57: Lead a quality improvement seminar
+Level 28: Show someone how to bowl
+Element Name: Personnel and Human Resources
+Description: Knowledge of principles and procedures for personnel recruitment, selection, training, compensation and benefits, labor relations and negotiation, and personnel information systems.
+Level Examples:
+Level 85: Design a new personnel selection and promotion system for the Army
+Level 42: Interview applicants for an administrative position
+Level 28: Fill out a medical claim form
+Element Name: Communications and Media
+Description: Knowledge of media production, communication, and dissemination techniques and methods. This includes alternative ways to inform and entertain via written, oral, and visual media.
+Level Examples:
+Level 71: Write a novel
+Level 57: Host a music radio show
+Level 28: Write a thank you note
+Element Name: Mechanical
+Description: Knowledge of machines and tools, including their designs, uses, repair, and maintenance.
+Level Examples:
+Level 100: Overhaul an airplane jet engine
+Level 57: Replace a valve on a steam pipe
+Level 28: Replace the filters in a furnace
+Element Name: Psychology
+Description: Knowledge of human behavior and performance; individual differences in ability, personality, and interests; learning and motivation; psychological research methods; and the assessment and treatment of behavioral and affective disorders.
+Level Examples:
+Level 85: Treat a person with a severe mental illness
+Level 57: Understand the impact of alcohol on human responses
+Level 28: Monitor several children on a playground
+Element Name: Economics and Accounting
+Description: Knowledge of economic and accounting principles and practices, the financial markets, banking, and the analysis and reporting of financial data.
+Level Examples:
+Level 85: Keep a major corporation's financial records
+Level 57: Develop financial investment programs for individual clients
+Level 28: Answer billing questions from credit card customers
+Element Name: Law and Government
+Description: Knowledge of laws, legal codes, court procedures, precedents, government regulations, executive orders, agency rules, and the democratic political process.
+Level Examples:
+Level 85: Serve as a judge in a federal court
+Level 57: Prepare documents and title papers for the purchase of a new house
+Level 28: Describe the length of a U.S. presidential term

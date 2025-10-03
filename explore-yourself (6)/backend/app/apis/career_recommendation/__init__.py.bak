@@ -149,7 +149,7 @@ def _calibrate_thresholds(
         importance_percentile: Percentile to define "critical" Importance.
         level_percentile: Percentile of Level used to derive min requirement ratio.
     """
-    if False:  # DB check removed, using local files
+    if db is None:
         return DEFAULT_IMPORTANCE_CRITICAL_THRESHOLD, DEFAULT_MIN_REQUIREMENT_RATIO
 
     datasets = [
@@ -163,7 +163,7 @@ def _calibrate_thresholds(
 
     try:
         for dataset in datasets:
-            df = get_dataframe(dataset)
+            df = db.storage.dataframes.get(dataset)
             if df is None:
                 continue
 
@@ -207,11 +207,11 @@ def _calibrate_critical_requirements(
     level_ratio: Optional[float] = None
 ) -> List[Dict[str, Any]]:
     """Augment critical requirement rules with occupation lists when possible."""
-    if False:  # DB check removed, using local files
+    if db is None:
         return base_rules
 
     try:
-        abilities_df = get_dataframe("elements-abilities-csv")
+        abilities_df = db.storage.dataframes.get("elements-abilities-csv")
         if abilities_df is None:
             return base_rules
 
@@ -393,10 +393,10 @@ def load_element_matrices(
     importance_scale: str = "Importance"
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Load Level and Importance pivots for an O*NET data table."""
-    if False:  # DB check removed, using local files
+    if db is None:
         raise RuntimeError("Databutton storage is not available in this environment")
 
-    df = get_dataframe(dataframe_name)
+    df = db.storage.dataframes.get(dataframe_name)
     if df is None or len(df) == 0:
         logger.error("O*NET dataset '%s' unavailable or empty", dataframe_name)
         raise HTTPException(
@@ -732,13 +732,13 @@ def calculate_element_correlations_all(
     overlaps = {}
     matched_elements = {}
     
-    if False:  # DB check removed, using local files
+    if db is None:
         logger.error("Databutton storage unavailable for element correlations")
         return scores, overlaps, matched_elements
 
     try:
         # Load O*NET data
-        df = get_dataframe(dataframe_name)
+        df = db.storage.dataframes.get(dataframe_name)
         
         # Filter to the specified scale (Level for most, Importance as option)
         df_filtered = df[df["Scale Name"] == scale]
@@ -869,12 +869,12 @@ def calculate_interest_congruence_all(
     overlaps: Dict[str, int] = {}
     matched_elements: Dict[str, List[str]] = {}
 
-    if False:  # DB check removed, using local files
+    if db is None:
         logger.error("Databutton storage unavailable for interest congruence")
         return scores, overlaps, matched_elements
 
     try:
-        interests_df = get_dataframe("elements-interests-csv")
+        interests_df = db.storage.dataframes.get("elements-interests-csv")
 
         occupation_interests: Dict[str, Dict[str, float]] = {}
         for _, row in interests_df.iterrows():
@@ -1108,9 +1108,9 @@ def _load_validation_dataframe(dataset_name: str) -> Optional[pd.DataFrame]:
         A pandas DataFrame if available, otherwise None.
     """
     # Try Databutton storage first when available
-    if True:  # Always use local files
+    if db is not None:
         try:
-            df = get_dataframe(dataset_name)
+            df = db.storage.dataframes.get(dataset_name)
             if df is not None and len(df) > 0:
                 return df
             logger.warning("Validation dataset '%s' is empty or missing in storage", dataset_name)
@@ -1572,15 +1572,15 @@ async def bootstrap_validation(req: BootstrapValidationRequest) -> BootstrapVali
     and pairs them with positive (target occupation) and negative (other occupations)
     samples to enable initial weight/threshold optimization in the absence of logs.
     """
-    if False:  # DB check removed, using local files
+    if db is None:
         raise HTTPException(status_code=503, detail="Databutton storage unavailable in this environment")
 
     try:
         # Load frames
-        abil = get_dataframe("elements-abilities-csv")
-        skl = get_dataframe("elements-skills-csv")
-        knw = get_dataframe("elements-knowledge-2-csv")
-        itx = get_dataframe("elements-interests-csv") if req.include_interests else None
+        abil = db.storage.dataframes.get("elements-abilities-csv")
+        skl = db.storage.dataframes.get("elements-skills-csv")
+        knw = db.storage.dataframes.get("elements-knowledge-2-csv")
+        itx = db.storage.dataframes.get("elements-interests-csv") if req.include_interests else None
 
         if abil is None or skl is None or knw is None:
             raise HTTPException(status_code=503, detail="Required O*NET frames missing")
@@ -1668,9 +1668,18 @@ async def bootstrap_validation(req: BootstrapValidationRequest) -> BootstrapVali
 
         df = pd.DataFrame(rows)
 
-        # Persist dataset into local storage (no longer using Databutton storage)
+        # Persist dataset into Databutton storage when possible
         saved = False
-        # Skip saving - using read-only local files
+        if db is not None:
+            for method in ("put", "set"):
+                try:
+                    saver = getattr(db.storage.dataframes, method, None)
+                    if saver is not None:
+                        saver(req.dataset_name or "career-validation-csv", df)
+                        saved = True
+                        break
+                except Exception as exc:
+                    logger.warning("Failed to save validation dataset via '%s': %s", method, exc)
 
         # Always store a local in-memory copy as a fallback
         try:

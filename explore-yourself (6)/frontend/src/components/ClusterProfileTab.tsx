@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { LoadingSpinner } from './LoadingSpinner'
@@ -6,6 +6,7 @@ import type { CareerRecommendations } from '@/types'
 import {
   buildClusterProfile,
   type ClusterProfileSegment,
+  type SegmentOccupationDetail,
 } from '@/utils/cluster-profile'
 import {
   PieChart,
@@ -93,6 +94,7 @@ function groupSegments(
   let othersPercentage = 0
   let othersMatches = 0
   const othersOccupations = new Set<string>()
+  const othersDetails: SegmentOccupationDetail[] = []
 
   for (const segment of segments) {
     if (segment.isUnknown || segment.percentage >= MIN_SEGMENT_PERCENT) {
@@ -106,6 +108,7 @@ function groupSegments(
     for (const occupation of segment.occupations) {
       othersOccupations.add(occupation)
     }
+    othersDetails.push(...segment.details)
   }
 
   if (othersTotal > 0 || othersMatches > 0) {
@@ -116,6 +119,7 @@ function groupSegments(
       percentage: othersPercentage,
       matches: othersMatches,
       occupations: Array.from(othersOccupations),
+      details: othersDetails.sort((a, b) => b.score - a.score),
     })
   }
 
@@ -129,89 +133,201 @@ function applyColors(segments: ClusterProfileSegment[]): SegmentWithColor[] {
   }))
 }
 
-function ChartCard({
-  title,
-  items,
-  emptyMessage,
-  formatMatches,
-}: {
+interface DistributionSectionProps {
   title: string
+  note?: string
   items: SegmentWithColor[]
   emptyMessage: string
   formatMatches: (count: number) => string
-}) {
+  formatDetailsTitle: (segment: SegmentWithColor) => string
+  detailsCaption: string
+  detailsPrompt: string
+  detailsEmpty: string
+  formatScore: (score: number) => string
+}
+
+function DistributionSection({
+  title,
+  note,
+  items,
+  emptyMessage,
+  formatMatches,
+  formatDetailsTitle,
+  detailsCaption,
+  detailsPrompt,
+  detailsEmpty,
+  formatScore,
+}: DistributionSectionProps) {
+  const [activeId, setActiveId] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (items.length === 0) {
+      setActiveId(null)
+      return
+    }
+
+    if (activeId && items.some((item) => item.id === activeId)) {
+      return
+    }
+
+    setActiveId(null)
+  }, [items, activeId])
+
+  const activeSegment = activeId
+    ? items.find((item) => item.id === activeId) ?? null
+    : null
+
+  if (items.length === 0) {
+    return (
+      <Card className="h-full">
+        <CardHeader>
+          <CardTitle className="text-base font-semibold">{title}</CardTitle>
+          {note ? (
+            <p className="text-xs text-muted-foreground">{note}</p>
+          ) : null}
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">{emptyMessage}</p>
+        </CardContent>
+      </Card>
+    )
+  }
+
   return (
     <Card className="h-full">
-      <CardHeader>
+      <CardHeader className="space-y-2">
         <CardTitle className="text-base font-semibold">{title}</CardTitle>
+        {note ? (
+          <p className="text-xs text-muted-foreground">{note}</p>
+        ) : null}
       </CardHeader>
-      <CardContent>
-        {items.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{emptyMessage}</p>
-        ) : (
-          <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-            <div className="h-64 w-full md:h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={items}
-                    dataKey="total"
-                    nameKey="label"
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={55}
-                    outerRadius={110}
-                    paddingAngle={1}
-                    labelLine={false}
-                    label={renderPercentLabel}
-                  >
-                    {items.map((item, index) => (
-                      <Cell
-                        key={`cell-${title}-${index}`}
-                        fill={item.color}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    formatter={(_, name, entry) => {
-                      const segment = entry?.payload as SegmentWithColor | undefined
-                      if (!segment) {
-                        return ['', name]
-                      }
-                      const percentText = `${segment.percentage.toFixed(1)}%`
-                      const matchesText = formatMatches(segment.matches)
-                      return [`${percentText} • ${matchesText}`, name]
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <ul className="space-y-2 text-sm">
-              {items.map((item) => (
-                <li
-                  key={item.id}
-                  className="flex items-center justify-between gap-3 rounded-md border border-border/60 bg-muted/30 p-3"
+      <CardContent className="space-y-6">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+          <div className="mx-auto h-80 w-full max-w-xl">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={items}
+                  dataKey="total"
+                  nameKey="label"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={70}
+                  outerRadius={130}
+                  paddingAngle={1}
+                  labelLine={false}
+                  label={renderPercentLabel}
                 >
-                  <div className="flex items-start gap-3">
+                  {items.map((item, index) => (
+                    <Cell key={`cell-${title}-${index}`} fill={item.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(_, name, entry) => {
+                    const segment = entry?.payload as SegmentWithColor | undefined
+                    if (!segment) {
+                      return ['', name]
+                    }
+                    const percentText = `${segment.percentage.toFixed(1)}%`
+                    const matchesText = formatMatches(segment.matches)
+                    return [`${percentText} • ${matchesText}`, name]
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="rounded-md border border-border/60 bg-muted/30 p-4">
+            {activeSegment ? (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-sm font-semibold text-foreground">
+                    {formatDetailsTitle(activeSegment)}
+                  </p>
+                  <span className="text-sm font-semibold tabular-nums text-foreground/80">
+                    {activeSegment.percentage.toFixed(1)}%
+                  </span>
+                </div>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                  {detailsCaption}
+                </p>
+                {activeSegment.details.length > 0 ? (
+                  <div className="max-h-64 space-y-2 overflow-y-auto pr-1">
+                    <ul className="space-y-2 text-sm">
+                      {activeSegment.details.map((detail) => (
+                        <li
+                          key={`${activeSegment.id}-${detail.occupation}`}
+                          className="flex items-center justify-between gap-3 rounded-md border border-border/50 bg-background px-3 py-2"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate font-medium text-foreground">
+                              {detail.title}
+                            </p>
+                            {detail.title !== detail.occupation && (
+                              <p className="truncate text-xs text-muted-foreground">
+                                {detail.occupation}
+                              </p>
+                            )}
+                          </div>
+                          <span className="text-sm font-semibold tabular-nums">
+                            {formatScore(detail.score)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground">{detailsEmpty}</p>
+                )}
+              </div>
+            ) : (
+              <div className="flex h-full items-center justify-center text-center">
+                <p className="text-xs text-muted-foreground">{detailsPrompt}</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {items.map((item) => {
+            const isActive = item.id === activeId
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onMouseEnter={() => setActiveId(item.id)}
+                onFocus={() => setActiveId(item.id)}
+                onClick={() =>
+                  setActiveId((current) => (current === item.id ? null : item.id))
+                }
+                className={`rounded-md border bg-background/80 p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 ${
+                  isActive ? 'border-primary/70 shadow-sm' : 'border-border/60'
+                }`}
+                aria-pressed={isActive}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
                     <span
-                      className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full"
+                      className="h-2.5 w-2.5 rounded-full"
                       style={{ backgroundColor: item.color }}
                     />
-                    <div>
-                      <p className="font-medium leading-tight">{item.label}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatMatches(item.matches)}
-                      </p>
-                    </div>
+                    <p className="text-sm font-semibold leading-tight">
+                      {item.label}
+                    </p>
                   </div>
                   <span className="text-sm font-semibold tabular-nums">
                     {item.percentage.toFixed(1)}%
                   </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {formatMatches(item.matches)}
+                </p>
+              </button>
+            )
+          })}
+        </div>
+
+        
       </CardContent>
     </Card>
   )
@@ -232,6 +348,16 @@ export function ClusterProfileTab({
 
   const othersLabel = t('results.clusterProfile.labels.others')
   const unknownLabel = t('results.clusterProfile.labels.unknown')
+  const detailsCaption = t('results.clusterProfile.details.caption')
+  const detailsPrompt = t('results.clusterProfile.details.prompt')
+  const detailsEmpty = t('results.clusterProfile.details.empty')
+  const formatDetailsTitle = (segment: SegmentWithColor) =>
+    t('results.clusterProfile.details.title', { name: segment.label })
+  const formatScore = (score: number) =>
+    t('results.clusterProfile.details.score', {
+      value: (score * 100).toFixed(1),
+    })
+  const subClusterNote = t('results.clusterProfile.charts.subCluster.note')
 
   const clusters = useMemo(() => {
     const localized = profile.clusters.map((segment) =>
@@ -306,21 +432,32 @@ export function ClusterProfileTab({
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <ChartCard
+        <DistributionSection
           title={t('results.clusterProfile.charts.cluster.title')}
           items={clusters}
           emptyMessage={t('results.clusterProfile.charts.cluster.empty')}
           formatMatches={(count) =>
             t('results.clusterProfile.legend.matches', { count })
           }
+          formatDetailsTitle={formatDetailsTitle}
+          detailsCaption={detailsCaption}
+          detailsPrompt={detailsPrompt}
+          detailsEmpty={detailsEmpty}
+          formatScore={formatScore}
         />
-        <ChartCard
+        <DistributionSection
           title={t('results.clusterProfile.charts.subCluster.title')}
+          note={subClusterNote}
           items={subClusters}
           emptyMessage={t('results.clusterProfile.charts.subCluster.empty')}
           formatMatches={(count) =>
             t('results.clusterProfile.legend.matches', { count })
           }
+          formatDetailsTitle={formatDetailsTitle}
+          detailsCaption={detailsCaption}
+          detailsPrompt={detailsPrompt}
+          detailsEmpty={detailsEmpty}
+          formatScore={formatScore}
         />
       </div>
 

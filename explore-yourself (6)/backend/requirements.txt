@@ -11,3 +11,4 @@ requests
 scipy
 google-cloud-firestore
 firebase-admin
+PyJWT[crypto]

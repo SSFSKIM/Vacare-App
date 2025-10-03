@@ -2,7 +2,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import List, Dict
-import databutton as db
+from app.storage_utils import get_text_data
 
 router = APIRouter()
 
@@ -37,7 +37,14 @@ def categorize_ability(name: str) -> str:
     return 'Other'
 
 def parse_ability_questions():
-    raw_data = db.storage.text.get("abilty-cleaned-1-txt")
+    # Try to get from local file or databutton storage, fallback to legacy data
+    try:
+        raw_data = get_text_data("abilty-cleaned-1-txt")
+    except Exception as e:
+        print(f"Warning: Could not load ability data: {e}")
+        print("Falling back to legacy hardcoded data")
+        return _ABILITY_QUESTIONS_LEGACY
+
     questions = []
     current_question = None
     question_id = 1

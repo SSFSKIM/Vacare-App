@@ -1,0 +1,312 @@
+Element Name: Near Vision
+Description: The ability to see details at close range (within a few feet of the observer).
+Level Examples:
+Level 85: Detect minor defects in a diamond
+Level 71: Read the fine print of a legal document
+Level 28: Read indicators on the dashboard of a car
+Element Name: Multilimb Coordination
+Description: The ability to coordinate two or more limbs (for example, two arms, two legs, or one leg and one arm) while sitting, standing, or lying down. It does not involve performing the activities while the whole body is in motion.
+Level Examples:
+Level 85: Play the drum set in a jazz band
+Level 57: Operate a forklift truck in a warehouse
+Level 28: Row a boat
+Element Name: Static Strength
+Description: The ability to exert maximum muscle force to lift, push, pull, or carry objects.
+Level Examples:
+Level 85: Lift 75-pound bags of cement onto a truck
+Level 57: Pull a 40-pound sack of fertilizer across the lawn
+Level 14: Push an empty shopping cart
+Element Name: Dynamic Flexibility
+Description: The ability to quickly and repeatedly bend, stretch, twist, or reach out with your body, arms, and/or legs.
+Level Examples:
+Level 85: Maneuver a kayak through swift rapids
+Level 71: Perform a dance routine as part of a cheerleading squad
+Level 28: Hand pick a bushel of apples from a tree
+Element Name: Trunk Strength
+Description: The ability to use your abdominal and lower back muscles to support part of the body repeatedly or continuously over time without "giving out" or fatiguing.
+Level Examples:
+Level 85: Do 100 sit-ups
+Level 57: Shovel snow for half an hour
+Level 28: Sit up in an office chair
+Element Name: Wrist-Finger Speed
+Description: The ability to make fast, simple, repeated movements of the fingers, hands, and wrists.
+Level Examples:
+Level 85: Type 90 words per minute
+Level 42: Carve roast beef in a cafeteria
+Level 28: Use a screwdriver to twist in a screw
+Element Name: Auditory Attention
+Description: The ability to focus on a single source of sound in the presence of other distracting sounds.
+Level Examples:
+Level 85: Listen to instructions from a coworker in a noisy saw mill
+Level 57: Listen for your flight announcement at a busy airport
+Level 28: Listen to a lecture while people nearby are talking
+Element Name: Oral Expression
+Description: The ability to communicate information and ideas in speaking so others will understand.
+Level Examples:
+Level 85: Explain advanced principles of genetics to college freshmen
+Level 57: Give instructions to a lost motorist
+Level 28: Place an order at a restaurant drive-thru
+Element Name: Arm-Hand Steadiness
+Description: The ability to keep your hand and arm steady while moving your arm or while holding your arm and hand in one position.
+Level Examples:
+Level 85: Cut facets in a diamond
+Level 57: Thread a needle
+Level 28: Light a candle
+Element Name: Night Vision
+Description: The ability to see under low-light conditions.
+Level Examples:
+Level 85: Find your way through the woods on a moonless night
+Level 57: Read a book in a dimly lit setting
+Level 28: Read street signs at dusk (just after sunset)
+Element Name: Inductive Reasoning
+Description: The ability to combine pieces of information to form general rules or conclusions (includes finding a relationship among seemingly unrelated events).
+Level Examples:
+Level 85: Diagnose a disease using results of many different lab tests
+Level 57: Determine the prime suspect based on crime scene evidence
+Level 28: Decide what to wear based on the weather report
+Element Name: Flexibility of Closure
+Description: The ability to identify or detect a known pattern (a figure, object, word, or sound) that is hidden in other distracting material.
+Level Examples:
+Level 85: Identify camouflaged animals from a moving vehicle while on a safari
+Level 57: Look for a golf ball in tall grass
+Level 28: Detect that your phone is ringing while at a concert
+Element Name: Originality
+Description: The ability to come up with unusual or clever ideas about a given topic or situation, or to develop creative ways to solve a problem.
+Level Examples:
+Level 85: Invent a new type of man-made fiber
+Level 57: Redesign job tasks to be interesting for employees
+Level 28: Use a credit card to open a locked door
+Element Name: Selective Attention
+Description: The ability to concentrate on a task over a period of time without being distracted.
+Level Examples:
+Level 85: Study a technical manual while listening to loud construction sounds
+Level 57: Watch security monitors for intruders throughout the night shift
+Level 28: Answer a business call with coworkers talking nearby
+Element Name: Visual Color Discrimination
+Description: The ability to match or detect differences between colors, including shades of color and brightness.
+Level Examples:
+Level 85: Paint a color portrait of a person
+Level 57: Trace electrical circuits marked by various colored wires
+Level 14: Separate laundry into colors and whites
+Element Name: Written Expression
+Description: The ability to communicate information and ideas in writing so others will understand.
+Level Examples:
+Level 85: Write an advanced economics textbook
+Level 57: Write a job recommendation for a subordinate
+Level 14: Write a note to remind someone to take food out of the freezer
+Element Name: Speech Clarity
+Description: The ability to speak clearly so others can understand you.
+Level Examples:
+Level 85: Give a lecture to a large audience
+Level 57: Make stadium-wide announcements during a sporting event
+Level 14: Call numbers in a bingo game
+Element Name: Dynamic Strength
+Description: The ability to exert muscle force repeatedly or continuously over time. This involves muscular endurance and resistance to muscle fatigue.
+Level Examples:
+Level 85: Perform a gymnastics routine using the rings
+Level 71: Climb a 48-foot long ladder
+Level 28: Use pruning shears to trim a bush
+Element Name: Spatial Orientation
+Description: The ability to know your location in relation to the environment or to know where other objects are in relation to you.
+Level Examples:
+Level 85: Navigate an ocean voyage using a compass and landmarks
+Level 42: Find your way through a dark room without hitting anything
+Level 28: Use the floor plan to locate a store in a mall
+Element Name: Oral Comprehension
+Description: The ability to listen to and understand information and ideas presented through spoken words and sentences.
+Level Examples:
+Level 85: Understand a lecture on advanced physics
+Level 57: Understand a coach's oral instructions for a sport
+Level 28: Understand a television commercial
+Element Name: Finger Dexterity
+Description: The ability to make precisely coordinated movements of the fingers of one or both hands to grasp, manipulate, or assemble very small objects.
+Level Examples:
+Level 85: Put together the inner workings of a small wrist watch
+Level 57: Attach small dials to audio equipment on an assembly line
+Level 28: Put coins in a parking meter
+Element Name: Number Facility
+Description: The ability to add, subtract, multiply, or divide quickly and correctly.
+Level Examples:
+Level 71: Compute the interest payment that should be generated from an investment
+Level 42: Calculate a discounted price
+Level 14: Add 2 and 7
+Element Name: Category Flexibility
+Description: The ability to generate or use different sets of rules for combining or grouping things in different ways.
+Level Examples:
+Level 85: Classify man-made fibers in terms of their characteristics, like strength or cost
+Level 42: Classify flowers according to size, color, and smell
+Level 28: Sort paintbrushes based on length
+Element Name: Depth Perception
+Description: The ability to judge which of several objects is closer or farther away from you, or to judge the distance between you and an object.
+Level Examples:
+Level 85: Throw a long pass to a closely guarded teammate
+Level 57: Operate a crane to move materials from a truck bed to the ground
+Level 28: Merge a car into traffic on a city street
+Element Name: Speed of Limb Movement
+Description: The ability to quickly move the arms and legs.
+Level Examples:
+Level 85: Throw punches in a boxing match
+Level 57: Swat a fly with a fly swatter
+Level 28: Saw through a thin piece of wood
+Element Name: Sound Localization
+Description: The ability to tell the direction from which a sound originated.
+Level Examples:
+Level 85: Determining the direction of an emergency vehicle from the sound of the siren
+Level 57: Find a ringing phone in an unfamiliar apartment
+Level 28: Listen to a sound system to determine which speaker is working
+Element Name: Mathematical Reasoning
+Description: The ability to choose the right mathematical methods or formulas to solve a problem.
+Level Examples:
+Level 85: Determine the mathematics required to simulate a space craft landing on the moon
+Level 57: Decide how to calculate profits to determine the amounts of yearly bonuses
+Level 14: Determine how much 20 oranges will cost when they are priced at 5 for 4 dollars
+Element Name: Memorization
+Description: The ability to remember information such as words, numbers, pictures, and procedures.
+Level Examples:
+Level 85: Recite a 300-word speech after studying it for 15 minutes
+Level 57: Recite the first names of the five people you just met
+Level 14: Remember the number on your bus to be sure you get back on the right one
+Element Name: Visualization
+Description: The ability to imagine how something will look after it is moved around or when its parts are moved or rearranged.
+Level Examples:
+Level 85: Anticipate future moves in a chess game
+Level 57: Follow a diagram to assemble a metal storage cabinet
+Level 28: Imagine how to place paper in a printer so that the letterhead comes out on top
+Element Name: Written Comprehension
+Description: The ability to read and understand information and ideas presented in writing.
+Level Examples:
+Level 85: Understand an instruction book on repairing Artificial Intelligence systems
+Level 57: Understand an apartment lease
+Level 28: Understand signs on the highway
+Element Name: Peripheral Vision
+Description: The ability to see objects or movement of objects to one's side when the eyes are looking ahead.
+Level Examples:
+Level 85: Distinguish a teammate from a competitor passing by in a car race
+Level 57: Be aware of the location of your teammates while dribbling a basketball
+Level 28: Keep in step while marching in a band
+Element Name: Deductive Reasoning
+Description: The ability to apply general rules to specific problems to produce answers that make sense.
+Level Examples:
+Level 85: Design an aircraft wing using principles of aerodynamics
+Level 71: Decide what factors to consider in selecting stocks
+Level 28: Know that a stalled car can coast downhill
+Element Name: Time Sharing
+Description: The ability to shift back and forth between two or more activities or sources of information (such as speech, sounds, touch, or other sources).
+Level Examples:
+Level 85: Monitor radar and radio transmissions to keep track of heavy aircraft traffic
+Level 42: Watch street signs while driving at 30 miles an hour
+Level 28: Listen to music while entering numbers into a spreadsheet
+Element Name: Response Orientation
+Description: The ability to choose quickly between two or more movements in response to two or more different signals (lights, sounds, pictures). It includes the speed with which the correct response is started with the hand, foot, or other body part.
+Level Examples:
+Level 100: In an out-of-control commercial aircraft, react quickly to restore control
+Level 57: Use either the brake or gas pedal when your vehicle is skidding
+Level 28: When a doorbell and phone ring at the same time, quickly select which to answer first
+Element Name: Speed of Closure
+Description: The ability to quickly make sense of, combine, and organize information into meaningful patterns.
+Level Examples:
+Level 71: Interpret patterns on weather radar to decide if the weather is changing
+Level 57: Make sense of messy handwriting
+Level 42: Recognize a song after hearing only the first few notes
+Element Name: Fluency of Ideas
+Description: The ability to come up with a number of ideas about a topic (the number of ideas is important, not their quality, correctness, or creativity).
+Level Examples:
+Level 85: Identify as many strategies as possible for a company acquisition and merger
+Level 57: Think of as many ideas as possible for the name of a new company
+Level 28: Name four different uses for a screwdriver
+Element Name: Gross Body Coordination
+Description: The ability to coordinate the movement of your arms, legs, and torso together when the whole body is in motion.
+Level Examples:
+Level 85: Perform a ballet dance
+Level 57: Swim the length of a pool
+Level 28: Get in and out of a truck
+Element Name: Manual Dexterity
+Description: The ability to quickly move your hand, your hand together with your arm, or your two hands to grasp, manipulate, or assemble objects.
+Level Examples:
+Level 100: Perform open heart surgery with surgical instruments
+Level 57: Pack oranges in crates as quickly as possible
+Level 14: Screw a light bulb into a light socket
+Element Name: Gross Body Equilibrium
+Description: The ability to keep or regain your body balance or stay upright when in an unstable position.
+Level Examples:
+Level 85: Walk on narrow beams in high-rise construction
+Level 57: Walk on ice across a pond
+Level 28: Stand on a ladder
+Element Name: Reaction Time
+Description: The ability to quickly respond (with the hand, finger, or foot) to a signal (sound, light, picture) when it appears.
+Level Examples:
+Level 85: Hit the brake when a pedestrian steps in front of your car
+Level 57: Press a button to stop operation when a warning light goes off
+Level 28: Start to slow down the car when a traffic light turns yellow
+Element Name: Hearing Sensitivity
+Description: The ability to detect or tell the differences between sounds that vary in pitch and loudness.
+Level Examples:
+Level 85: Tune an orchestra
+Level 57: Diagnose what's wrong with a car engine from its sound
+Level 28: Notice a doorbell ringing
+Element Name: Information Ordering
+Description: The ability to arrange things or actions in a certain order or pattern according to a specific rule or set of rules (e.g., patterns of numbers, letters, words, pictures, mathematical operations).
+Level Examples:
+Level 85: Assemble a wind turbine
+Level 28: Follow the correct steps to make change
+Level 14: Put things in numerical order
+Element Name: Rate Control
+Description: The ability to time your movements or the movement of a piece of equipment in anticipation of changes in the speed and/or direction of a moving object or scene.
+Level Examples:
+Level 71: Shoot a duck in flight
+Level 57: Keep up with a car that changes speed
+Level 14: Ride a bicycle alongside a jogger
+Element Name: Stamina
+Description: The ability to exert yourself physically over long periods of time without getting winded or out of breath.
+Level Examples:
+Level 85: Run 10 miles
+Level 57: Climb 6 flights of stairs
+Level 14: Walk 1/4 mile
+Element Name: Glare Sensitivity
+Description: The ability to see objects in the presence of a glare or bright lighting.
+Level Examples:
+Level 85: Snow ski in bright sunlight
+Level 71: See boats on the horizon when sailing
+Level 28: Drive on a familiar road on a cloudy day
+Element Name: Control Precision
+Description: The ability to quickly and repeatedly adjust the controls of a machine or a vehicle to exact positions.
+Level Examples:
+Level 85: Drill a tooth
+Level 57: Adjust farm tractor controls
+Level 28: Adjust a room light with a dimmer switch
+Element Name: Perceptual Speed
+Description: The ability to quickly and accurately compare similarities and differences among sets of letters, numbers, objects, pictures, or patterns. The things to be compared may be presented at the same time or one after the other. This ability also includes comparing a presented object with a remembered object.
+Level Examples:
+Level 85: Inspect electrical parts for defects as they pass on a fast-moving assembly line
+Level 57: Read five pressure indicators in 10 seconds to make sure each is within safe limits
+Level 28: Sort mail according to ZIP codes with no time pressure
+Element Name: Problem Sensitivity
+Description: The ability to tell when something is wrong or is likely to go wrong. It does not involve solving the problem, only recognizing that there is a problem.
+Level Examples:
+Level 85: Recognize an illness at an early stage of a disease when there are only a few symptoms
+Level 57: Notice from a subtle difference in a client's mood that something is bothering them
+Level 28: Recognize that an unplugged lamp won't work
+Element Name: Far Vision
+Description: The ability to see details at a distance.
+Level Examples:
+Level 100: Detect differences in ships on the horizon
+Level 57: Read the slides on a presentation from across a room
+Level 28: Read a roadside billboard
+Element Name: Extent Flexibility
+Description: The ability to bend, stretch, twist, or reach with your body, arms, and/or legs.
+Level Examples:
+Level 85: Work under the dashboard of a car
+Level 57: Reach for a box on a high warehouse shelf
+Level 28: Reach to adjust the radio in a car
+Element Name: Explosive Strength
+Description: The ability to use short bursts of muscle force to propel oneself (as in jumping or sprinting), or to throw an object.
+Level Examples:
+Level 100: Throw a shot-put in a track meet
+Level 57: Jump onto a 3-foot high platform
+Level 28: Hit a nail with a hammer
+Element Name: Speech Recognition
+Description: The ability to identify and understand the speech of another person.
+Level Examples:
+Level 85: Understand a speech presented by someone with an unfamiliar accent
+Level 57: Identify a former customer's voice over the phone
+Level 28: Recognize the voice of a coworker

@@ -16,8 +16,8 @@ const constructBaseUrl = (): string => {
     return `https://${API_HOST}${API_PREFIX_PATH}`;
   }
 
-  // In deployed app (prod)
-  return `https://api.databutton.com${API_PATH}`;
+  // In deployed app (prod) - use relative path
+  return `${window.location.origin}${API_PATH}`;
 };
 
 type BaseApiParams = Omit<RequestParams, "signal" | "baseUrl" | "cancelToken">;

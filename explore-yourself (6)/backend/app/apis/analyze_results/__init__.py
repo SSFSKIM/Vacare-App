@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-import databutton as db
 import pandas as pd
 import numpy as np
 from typing import List, Dict, Optional
+from app.storage_utils import get_dataframe
 
 router = APIRouter()
 
@@ -46,7 +46,7 @@ def _analyze_skills(skills: List[ScoreItem]) -> AnalysisResponse:
     """Analyze user skills and find matching occupations"""
     try:
         # Load the skills data
-        skills_df = db.storage.dataframes.get("elements-skills-csv")
+        skills_df = get_dataframe("elements-skills-csv")
         
         # Filter to importance scores only
         skills_df = skills_df[skills_df["Scale Name"] == "Importance"]
@@ -90,7 +90,7 @@ def _analyze_abilities(abilities: List[ScoreItem]) -> AnalysisResponse:
     """Analyze user abilities and find matching occupations"""
     try:
         # Load the abilities data
-        abilities_df = db.storage.dataframes.get("elements-abilities-csv")
+        abilities_df = get_dataframe("elements-abilities-csv")
         
         # Filter to importance scores only
         abilities_df = abilities_df[abilities_df["Scale Name"] == "Importance"]
@@ -134,7 +134,7 @@ def _analyze_knowledge(knowledge: List[ScoreItem]) -> AnalysisResponse:
     """Analyze user knowledge and find matching occupations"""
     try:
         # Load the knowledge data
-        knowledge_df = db.storage.dataframes.get("elements-knowledge-2-csv")
+        knowledge_df = get_dataframe("elements-knowledge-2-csv")
         
         # Filter to importance scores only
         knowledge_df = knowledge_df[knowledge_df["Scale Name"] == "Importance"]

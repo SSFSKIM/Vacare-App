@@ -1108,7 +1108,7 @@ def _load_validation_dataframe(dataset_name: str) -> Optional[pd.DataFrame]:
         A pandas DataFrame if available, otherwise None.
     """
     # Try Databutton storage first when available
-    if True:  # Always use local files
+    if db is not None:
         try:
             df = get_dataframe(dataset_name)
             if df is not None and len(df) > 0:
@@ -1668,9 +1668,18 @@ async def bootstrap_validation(req: BootstrapValidationRequest) -> BootstrapVali
 
         df = pd.DataFrame(rows)
 
-        # Persist dataset into local storage (no longer using Databutton storage)
+        # Persist dataset into Databutton storage when possible
         saved = False
-        # Skip saving - using read-only local files
+        if db is not None:
+            for method in ("put", "set"):
+                try:
+                    saver = getattr(db.storage.dataframes, method, None)
+                    if saver is not None:
+                        saver(req.dataset_name or "career-validation-csv", df)
+                        saved = True
+                        break
+                except Exception as exc:
+                    logger.warning("Failed to save validation dataset via '%s': %s", method, exc)
 
         # Always store a local in-memory copy as a fallback
         try:
