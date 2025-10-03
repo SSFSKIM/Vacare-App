@@ -260,12 +260,21 @@ async def _call_openai(messages: List[Dict[str, str]]) -> str:
 
     for attempt in range(1, OPENAI_MAX_RETRIES + 1):
         try:
-            response = await client.chat.completions.create(
-                model=OPENAI_MODEL,
-                messages=messages,
-                max_tokens=2048,
-                temperature=0.4,
-            )
+            # Use max_completion_tokens for newer models (gpt-5-mini), max_tokens for older models
+            completion_params = {
+                "model": OPENAI_MODEL,
+                "messages": messages,
+            }
+
+            # GPT-5-mini and newer models use max_completion_tokens and only support temperature=1
+            if "gpt-5" in OPENAI_MODEL.lower():
+                completion_params["max_completion_tokens"] = 2048
+                # GPT-5 only supports default temperature of 1, so we don't set it
+            else:
+                completion_params["max_tokens"] = 2048
+                completion_params["temperature"] = 0.4
+
+            response = await client.chat.completions.create(**completion_params)
             if response.choices and len(response.choices) > 0:
                 choice = response.choices[0]
                 if choice.message and choice.message.content:
