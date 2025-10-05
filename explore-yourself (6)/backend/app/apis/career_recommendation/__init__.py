@@ -1107,23 +1107,30 @@ def _load_validation_dataframe(dataset_name: str) -> Optional[pd.DataFrame]:
     Returns:
         A pandas DataFrame if available, otherwise None.
     """
-    # Try Databutton storage first when available
+    logger.info(f"[DEBUG] Attempting to load validation dataset: {dataset_name}")
+    logger.info(f"[DEBUG] In-memory cache keys: {list(VALIDATION_DATASET_CACHE.keys())}")
+
+    # Try storage first (includes /tmp check)
     if True:  # Always use local files
         try:
+            logger.info(f"[DEBUG] Attempting get_dataframe for {dataset_name}")
             df = get_dataframe(dataset_name)
             if df is not None and len(df) > 0:
+                logger.info(f"[DEBUG] Successfully loaded {dataset_name} from storage with {len(df)} rows")
                 return df
-            logger.warning("Validation dataset '%s' is empty or missing in storage", dataset_name)
+            logger.warning(f"[DEBUG] Dataset '{dataset_name}' is empty or missing in storage")
         except Exception as exc:  # pragma: no cover - external dependency
-            logger.error("Failed to load validation dataset '%s' from storage: %s", dataset_name, exc)
+            logger.error(f"[DEBUG] Failed to load validation dataset '{dataset_name}' from storage: {exc}")
+            import traceback
+            logger.error(f"[DEBUG] Traceback: {traceback.format_exc()}")
 
     # Fallback to in-memory cache
     cached = VALIDATION_DATASET_CACHE.get(dataset_name)
     if cached is not None and len(cached) > 0:
-        logger.info("Using in-memory cached validation dataset '%s' (%d rows)", dataset_name, len(cached))
+        logger.info(f"[DEBUG] Using in-memory cached validation dataset '{dataset_name}' ({len(cached)} rows)")
         return cached
 
-    logger.error("Validation dataset '%s' unavailable (storage and cache)", dataset_name)
+    logger.error(f"[DEBUG] Validation dataset '{dataset_name}' unavailable (storage and cache)")
     return None
 
 
@@ -1481,6 +1488,41 @@ async def get_calibration() -> CalibrationResponse:
         score_calibration=dict(SCORE_CALIBRATION),
     )
 
+@router.get("/debug/storage", dependencies=[])
+async def debug_storage():
+    """Debug endpoint to check storage state (no auth required for debugging)."""
+    import os
+    from pathlib import Path
+
+    debug_info = {
+        "in_memory_cache_keys": list(VALIDATION_DATASET_CACHE.keys()),
+        "in_memory_cache_sizes": {k: len(v) for k, v in VALIDATION_DATASET_CACHE.items()},
+        "tmp_dir_exists": Path("/tmp/datastorage").exists(),
+        "tmp_dir_files": [],
+        "data_dir_info": {}
+    }
+
+    # Check /tmp/datastorage
+    tmp_dir = Path("/tmp/datastorage")
+    if tmp_dir.exists():
+        try:
+            debug_info["tmp_dir_files"] = [str(f.name) for f in tmp_dir.iterdir()]
+        except Exception as e:
+            debug_info["tmp_dir_error"] = str(e)
+
+    # Check DataStorage directories
+    from app.storage_utils import DATA_DIR
+    if DATA_DIR:
+        debug_info["data_dir_info"]["path"] = str(DATA_DIR)
+        debug_info["data_dir_info"]["exists"] = DATA_DIR.exists()
+        if DATA_DIR.exists():
+            try:
+                debug_info["data_dir_info"]["files"] = [str(f.name) for f in DATA_DIR.iterdir()][:20]
+            except Exception as e:
+                debug_info["data_dir_info"]["error"] = str(e)
+
+    return debug_info
+
 @router.post("/calibrate")
 async def calibrate(req: CalibrationRequest) -> CalibrationResponse:
     """Re-run calibration.
@@ -1585,11 +1627,13 @@ async def bootstrap_validation(req: BootstrapValidationRequest) -> BootstrapVali
         if abil is None or skl is None or knw is None:
             raise HTTPException(status_code=503, detail="Required O*NET frames missing")
 
-        # Helper to compute top-N element lists per occupation
-        def topn(df: pd.DataFrame, n: int) -> Dict[str, List[Tuple[str, float]]]:
+        # Helper to compute top-N element lists per occupation and the max level scale
+        def topn(df: pd.DataFrame, n: int) -> Tuple[Dict[str, List[Tuple[str, float]]], float]:
+            if n <= 0:
+                return {}, 1.0
             df_imp = df[df["Scale Name"] == "Importance"][["Title", "Element Name", "Data Value"]]
-            df_lvl = df[df["Scale Name"] == "Level"]["Data Value"]
-            merged = df[df["Scale Name"] == "Level"][['Title', 'Element Name', 'Data Value']].copy()
+            level_slice = df[df["Scale Name"] == "Level"]
+            merged = level_slice[['Title', 'Element Name', 'Data Value']].copy()
             merged.rename(columns={"Data Value": "Level"}, inplace=True)
             df_imp2 = df_imp.rename(columns={"Data Value": "Importance"})
             merged = merged.merge(df_imp2, on=["Title", "Element Name"], how="left")
@@ -1598,11 +1642,13 @@ async def bootstrap_validation(req: BootstrapValidationRequest) -> BootstrapVali
             for title, grp in merged.groupby("Title"):
                 top = grp.sort_values("score", ascending=False).head(n)
                 top_map[str(title)] = [(str(r["Element Name"]), float(r["Level"])) for _, r in top.iterrows()]
-            return top_map
+            max_level = float(level_slice["Data Value"].max() or 1.0)
+            scale_factor = 100.0 / max_level if max_level > 0 else 1.0
+            return top_map, scale_factor
 
-        top_abil = topn(abil, int(req.topn_abilities or 0)) if (req.topn_abilities or 0) > 0 else {}
-        top_skl = topn(skl, int(req.topn_skills or 0)) if (req.topn_skills or 0) > 0 else {}
-        top_knw = topn(knw, int(req.topn_knowledge or 0)) if (req.topn_knowledge or 0) > 0 else {}
+        top_abil, abil_scale = topn(abil, int(req.topn_abilities or 0)) if (req.topn_abilities or 0) > 0 else ({}, 1.0)
+        top_skl, skl_scale = topn(skl, int(req.topn_skills or 0)) if (req.topn_skills or 0) > 0 else ({}, 1.0)
+        top_knw, knw_scale = topn(knw, int(req.topn_knowledge or 0)) if (req.topn_knowledge or 0) > 0 else ({}, 1.0)
 
         occ_titles = sorted(set(top_abil.keys()) | set(top_skl.keys()) | set(top_knw.keys()))
         if req.sample_occupations and req.sample_occupations > 0:
@@ -1618,10 +1664,11 @@ async def bootstrap_validation(req: BootstrapValidationRequest) -> BootstrapVali
         rng = np.random.default_rng()
         rows: List[Dict[str, Any]] = []
 
-        def make_items(pairs: List[Tuple[str, float]], noise_std: float) -> List[Dict[str, Any]]:
+        def make_items(pairs: List[Tuple[str, float]], scale_factor: float, noise_std: float) -> List[Dict[str, Any]]:
             items = []
             for name, level in pairs:
-                noisy = float(np.clip(level + rng.normal(0.0, noise_std), 0.0, 100.0))
+                base = float(level) * scale_factor
+                noisy = float(np.clip(base + rng.normal(0.0, noise_std), 0.0, 100.0))
                 items.append({"name": name, "rating": noisy})
             return items
 
@@ -1630,9 +1677,9 @@ async def bootstrap_validation(req: BootstrapValidationRequest) -> BootstrapVali
         noise = float(req.noise_std or 0.0)
 
         for title in occ_titles:
-            abil_items = make_items(top_abil.get(title, []), noise)
-            skl_items = make_items(top_skl.get(title, []), noise)
-            knw_items = make_items(top_knw.get(title, []), noise)
+            abil_items = make_items(top_abil.get(title, []), abil_scale, noise)
+            skl_items = make_items(top_skl.get(title, []), skl_scale, noise)
+            knw_items = make_items(top_knw.get(title, []), knw_scale, noise)
 
             interests_items: List[Dict[str, Any]] = []
             if req.include_interests and title in occ_interests:
@@ -1641,13 +1688,18 @@ async def bootstrap_validation(req: BootstrapValidationRequest) -> BootstrapVali
                 for k, v in prof.items():
                     interests_items.append({"name": k, "rating": float(100.0 * v / total)})
 
+            abil_payload = json.dumps(abil_items) if abil_items else None
+            skl_payload = json.dumps(skl_items) if skl_items else None
+            knw_payload = json.dumps(knw_items) if knw_items else None
+            interest_payload = json.dumps(interests_items) if interests_items else None
+
             for _ in range(max(1, pos_per_occ)):
                 # Positive sample
                 rows.append({
-                    "interests": interests_items or None,
-                    "abilities": abil_items or None,
-                    "knowledge": knw_items or None,
-                    "skills": skl_items or None,
+                    "interests": interest_payload,
+                    "abilities": abil_payload,
+                    "knowledge": knw_payload,
+                    "skills": skl_payload,
                     "occupation": title,
                     "label": 1
                 })
@@ -1658,25 +1710,40 @@ async def bootstrap_validation(req: BootstrapValidationRequest) -> BootstrapVali
                     pick = rng.choice(neg_choices, size=min(neg_per_pos, len(neg_choices)), replace=False)
                     for neg_title in np.atleast_1d(pick):
                         rows.append({
-                            "interests": interests_items or None,
-                            "abilities": abil_items or None,
-                            "knowledge": knw_items or None,
-                            "skills": skl_items or None,
+                            "interests": interest_payload,
+                            "abilities": abil_payload,
+                            "knowledge": knw_payload,
+                            "skills": skl_payload,
                             "occupation": str(neg_title),
                             "label": 0
                         })
 
         df = pd.DataFrame(rows)
 
-        # Persist dataset into local storage (no longer using Databutton storage)
-        saved = False
-        # Skip saving - using read-only local files
+        # Persist dataset to /tmp for Cloud Run persistence within same instance
+        dataset_filename = req.dataset_name or "career-validation-csv"
+        try:
+            import tempfile
+            from pathlib import Path
+            tmp_dir = Path("/tmp/datastorage")
+            tmp_dir.mkdir(exist_ok=True)
+            tmp_path = tmp_dir / f"{dataset_filename}.csv"
+            df.to_csv(tmp_path, index=False)
+            logger.info(f"[DEBUG] Saved validation dataset to {tmp_path}")
+            logger.info(f"[DEBUG] File exists check: {tmp_path.exists()}")
+            logger.info(f"[DEBUG] File size: {tmp_path.stat().st_size if tmp_path.exists() else 'N/A'}")
+        except Exception as exc:
+            logger.error(f"[DEBUG] Failed to save validation dataset to /tmp: {exc}")
+            import traceback
+            logger.error(f"[DEBUG] Traceback: {traceback.format_exc()}")
 
         # Always store a local in-memory copy as a fallback
         try:
-            VALIDATION_DATASET_CACHE[req.dataset_name or "career-validation-csv"] = df
+            VALIDATION_DATASET_CACHE[dataset_filename] = df
+            logger.info(f"[DEBUG] Cached dataset '{dataset_filename}' in memory with {len(df)} rows")
+            logger.info(f"[DEBUG] Current cache keys: {list(VALIDATION_DATASET_CACHE.keys())}")
         except Exception as exc:  # pragma: no cover - safety
-            logger.debug("Failed to cache validation dataset in-memory: %s", exc)
+            logger.error(f"[DEBUG] Failed to cache validation dataset in-memory: {exc}")
 
         return BootstrapValidationResponse(
             dataset_name=req.dataset_name or "career-validation-csv",

@@ -1,0 +1,50 @@
+{
+    "importance_critical_threshold": 3.12,
+    "min_requirement_ratio": 0.65,
+    "rules_count": 3,
+    "sample_rules": [
+        {
+            "element": "Near Vision",
+            "threshold_ratio": 0.8,
+            "keywords": [
+                "surgeon",
+                "dentist",
+                "jeweler"
+            ]
+        },
+        {
+            "element": "Physical Strength",
+            "threshold_ratio": 0.82,
+            "keywords": [
+                "firefighter",
+                "construction",
+                "responder"
+            ]
+        },
+        {
+            "element": "Mathematical Reasoning",
+            "threshold_ratio": 0.88,
+            "keywords": [
+                "actuary",
+                "statistician",
+                "data scientist"
+            ]
+        }
+    ],
+    "dimension_weights": {
+        "interests": 0.35,
+        "abilities": 0.25,
+        "knowledge": 0.2,
+        "skills": 0.2
+    },
+    "combination_weights": {
+        "fit": 0.4,
+        "cosine": 0.3,
+        "mahalanobis": 0.3
+    },
+    "score_calibration": {
+        "A": 0.0,
+        "B": 0.0,
+        "enabled": false
+    }
+}

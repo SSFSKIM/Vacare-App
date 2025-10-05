@@ -19,6 +19,9 @@ _possible_paths = [
     Path(__file__).parent.parent.parent / "DataStorage",  # development
 ]
 
+# Temporary storage for runtime-generated datasets (e.g., validation datasets)
+TMP_DATA_DIR = Path("/tmp/datastorage")
+
 DATA_DIR = None
 for path in _possible_paths:
     if path.exists():
@@ -94,7 +97,17 @@ def get_dataframe(name: str) -> pd.DataFrame:
         "career-validation-csv": "career-validation-csv",
     }
 
-    # Try local file first
+    # Try temporary storage first (for runtime-generated datasets)
+    tmp_filename = f"{name}.csv"
+    tmp_path = TMP_DATA_DIR / tmp_filename
+
+    if tmp_path.exists():
+        try:
+            return pd.read_csv(tmp_path)
+        except Exception as e:
+            print(f"[DataStorage] Failed to read from /tmp: {e}")
+
+    # Try local file
     local_filename = file_mapping.get(name, f"{name}.csv")
     local_path = DATA_DIR / local_filename
 
