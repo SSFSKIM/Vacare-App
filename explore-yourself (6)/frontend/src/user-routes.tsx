@@ -46,6 +46,7 @@ const SystemsSkillsTest = lazy(() => import("./pages/SystemsSkillsTest.tsx"));
 const TechnicalSkillsTest = lazy(() => import("./pages/TechnicalSkillsTest.tsx"));
 const TransportationKnowledgeTest = lazy(() => import("./pages/TransportationKnowledgeTest.tsx"));
 const AdminTuning = lazy(() => import("./pages/AdminTuning.tsx"));
+const CareerDetail = lazy(() => import("./pages/CareerDetail.tsx"));
 
 export const userRoutes: RouteObject[] = [
 
@@ -120,5 +121,6 @@ export const userRoutes: RouteObject[] = [
 	{ path: "/transportation-knowledge-test", element: <UserGuard><TransportationKnowledgeTest /></UserGuard>},
 	{ path: "/transportationknowledgetest", element: <UserGuard><TransportationKnowledgeTest /></UserGuard>},
 	{ path: "/admin-tuning", element: <UserGuard><AdminTuning /></UserGuard>},
+	{ path: "/career/:onetCode", element: <UserGuard><CareerDetail /></UserGuard>},
 
 ];

@@ -319,6 +319,7 @@ class CategoryContribution(BaseModel):
 
 class OccupationMatch(BaseModel):
     title: str
+    onet_code: Optional[str] = None
     correlation: float
     description: Optional[str] = None
     contributions: Optional[List[CategoryContribution]] = None
@@ -333,6 +334,38 @@ class RecommendationResponse(BaseModel):
     categories_used: List[str] = []
 
 # ============= Helper Functions =============
+
+def get_onet_code_for_title(occupation_title: str) -> Optional[str]:
+    """
+    Get O*NET-SOC code for an occupation title by looking it up in the datasets.
+    Returns the first matching code found across all datasets.
+    """
+    datasets = [
+        "elements-abilities-csv",
+        "elements-knowledge-2-csv",
+        "elements-skills-csv",
+        "elements-interests-csv"
+    ]
+
+    for dataset_name in datasets:
+        try:
+            df = get_dataframe(dataset_name)
+            if df is None:
+                continue
+
+            # Look for exact title match
+            matching_rows = df[df["Title"] == occupation_title]
+            if not matching_rows.empty and "O*NET-SOC Code" in matching_rows.columns:
+                code = matching_rows.iloc[0]["O*NET-SOC Code"]
+                if code and isinstance(code, str):
+                    return code
+
+        except Exception as e:
+            logger.debug(f"Could not search {dataset_name} for O*NET code: {e}")
+            continue
+
+    return None
+
 
 def get_non_empty_categories(user_scores: UserScores) -> Dict[str, List]:
     """
@@ -1808,9 +1841,17 @@ def analyze_multi_category(user_scores: UserScores) -> RecommendationResponse:
 
         raw_score = float(score)
         calibrated_score = apply_score_calibration(raw_score)
+        onet_code = get_onet_code_for_title(occupation)
+
+        # Debug logging
+        if onet_code:
+            logger.info(f"Found O*NET code for '{occupation}': {onet_code}")
+        else:
+            logger.warning(f"No O*NET code found for '{occupation}'")
 
         matches.append(OccupationMatch(
             title=occupation,
+            onet_code=onet_code,
             correlation=round(calibrated_score, 3),
             description=description,
             contributions=contributions,

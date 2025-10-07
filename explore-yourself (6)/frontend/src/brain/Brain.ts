@@ -312,4 +312,19 @@ export class Brain<SecurityDataType = unknown> extends HttpClient<SecurityDataTy
       type: ContentType.Json,
       ...params,
     });
+
+  /**
+   * @description Fetch career overview from O*NET API
+   *
+   * @tags dbtn/module:onet_career_api, dbtn/hasAuth
+   * @name get_career_overview
+   * @summary Get Career Overview
+   * @request GET:/routes/onet-career/overview/{onet_code}
+   */
+  get_career_overview = (onet_code: string, params: RequestParams = {}) =>
+    this.request<any, any>({
+      path: `/routes/onet-career/overview/${onet_code}`,
+      method: "GET",
+      ...params,
+    });
 }

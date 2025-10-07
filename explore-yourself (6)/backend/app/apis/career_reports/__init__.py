@@ -24,10 +24,11 @@ from app.services.firebase import (
     get_assessments_collection,
     get_reports_collection,
 )
+from app.storage_utils import get_text_data
 
 # Constants -----------------------------------------------------------------
 OPENAI_MODEL = os.getenv("OPENAI_REPORT_MODEL", "gpt-4")
-PROMPT_VERSION = "2025-03-24"
+PROMPT_VERSION = "2025-10-05-personality-insights"
 GENERATION_COOLDOWN_SECONDS = int(os.getenv("REPORT_GENERATION_COOLDOWN_SECONDS", "45"))
 OPENAI_TIMEOUT_SECONDS = int(os.getenv("OPENAI_REPORT_TIMEOUT_SECONDS", "120"))
 OPENAI_MAX_RETRIES = int(os.getenv("OPENAI_REPORT_MAX_RETRIES", "3"))
@@ -165,6 +166,115 @@ router = APIRouter()
 # Helpers -------------------------------------------------------------------
 
 
+def _load_assessment_element_definitions() -> Dict[str, Dict[str, Any]]:
+    """Load detailed definitions for all assessment elements (abilities, knowledge, skills)."""
+    definitions = {}
+
+    # Load abilities
+    try:
+        ability_data = get_text_data("abilty-cleaned-1-txt")
+        current_element = None
+
+        for line in ability_data.split('\n'):
+            line = line.strip()
+            if not line:
+                continue
+
+            if line.startswith('Element Name:'):
+                if current_element:
+                    definitions[current_element['name']] = current_element
+                name = line.replace('Element Name:', '').strip()
+                current_element = {
+                    'name': name,
+                    'type': 'ability',
+                    'description': '',
+                    'examples': []
+                }
+            elif line.startswith('Description:') and current_element:
+                current_element['description'] = line.replace('Description:', '').strip()
+            elif line.startswith('Level ') and current_element:
+                try:
+                    example = line.split(':', 1)[1].strip()
+                    current_element['examples'].append(example)
+                except IndexError:
+                    pass
+
+        if current_element:
+            definitions[current_element['name']] = current_element
+    except Exception as e:
+        print(f"Warning: Could not load ability definitions: {e}")
+
+    # Load knowledge
+    try:
+        knowledge_data = get_text_data("knowledge-cleaned-1-txt")
+        current_element = None
+
+        for line in knowledge_data.split('\n'):
+            line = line.strip()
+            if not line:
+                continue
+
+            if line.startswith('Element Name:'):
+                if current_element:
+                    definitions[current_element['name']] = current_element
+                name = line.replace('Element Name:', '').strip()
+                current_element = {
+                    'name': name,
+                    'type': 'knowledge',
+                    'description': '',
+                    'examples': []
+                }
+            elif line.startswith('Description:') and current_element:
+                current_element['description'] = line.replace('Description:', '').strip()
+            elif line.startswith('Level ') and current_element:
+                try:
+                    example = line.split(':', 1)[1].strip()
+                    current_element['examples'].append(example)
+                except IndexError:
+                    pass
+
+        if current_element:
+            definitions[current_element['name']] = current_element
+    except Exception as e:
+        print(f"Warning: Could not load knowledge definitions: {e}")
+
+    # Load skills
+    try:
+        skills_data = get_text_data("skills-cleaned-1-txt")
+        current_element = None
+
+        for line in skills_data.split('\n'):
+            line = line.strip()
+            if not line:
+                continue
+
+            if line.startswith('Element Name:'):
+                if current_element:
+                    definitions[current_element['name']] = current_element
+                name = line.replace('Element Name:', '').strip()
+                current_element = {
+                    'name': name,
+                    'type': 'skill',
+                    'description': '',
+                    'examples': []
+                }
+            elif line.startswith('Description:') and current_element:
+                current_element['description'] = line.replace('Description:', '').strip()
+            elif line.startswith('Level ') and current_element:
+                try:
+                    example = line.split(':', 1)[1].strip()
+                    current_element['examples'].append(example)
+                except IndexError:
+                    pass
+
+        if current_element:
+            definitions[current_element['name']] = current_element
+    except Exception as e:
+        print(f"Warning: Could not load skills definitions: {e}")
+
+    return definitions
+
+
 def _now() -> datetime:
     return datetime.now(timezone.utc)
 
@@ -207,17 +317,82 @@ def _summarise_snapshot(snapshot: Dict[str, Any]) -> Dict[str, Any]:
 
 def _build_system_prompt() -> str:
     return (
-        "You are an empathetic, evidence-based career counselor. "
-        "Interpret multi-dimensional assessment data (interests, abilities, knowledge, skills, career matches) "
-        "to craft a comprehensive career development report. Your tone should be professional, encouraging, and actionable. "
-        "Provide specific recommendations backed by the user data and ensure the output strictly follows the JSON schema provided."
+        "You are a deeply insightful career counselor and personality analyst with expertise in vocational psychology, "
+        "the RIASEC model, and O*NET career frameworks such as ability/skill/knowledge. Your mission is to provide profound, meaningful insights about "
+        "who this person truly is - not just what they scored on tests.\n\n"
+
+        "CRITICAL GUIDELINES:\n"
+        "1. GO BEYOND SUMMARIZATION: Don't just repeat test scores. Instead, synthesize patterns to reveal:\n"
+        "   - The person's core nature and intrinsic motivations\n"
+        "   - What kinds of activities would bring them genuine joy and fulfillment\n"
+        "   - What they're naturally gifted at (even if they don't realize it yet)\n"
+        "   - What types of environments would energize vs drain them\n"
+        "   - The unique combination of traits that makes them who they are\n\n"
+
+        "2. UNDERSTAND THE ELEMENTS DEEPLY:\n"
+        "   - Each ability, knowledge area, and skill has been defined with examples at different proficiency levels\n"
+        "   - Use these definitions to understand what high/low scores truly mean about the person\n"
+        "   - Consider the interplay between different elements (e.g., high visual-spatial + high originality suggests creative visual thinking)\n\n"
+
+        "3. PROVIDE MEANINGFUL INSIGHTS:\n"
+        "   - Identify what drives and excites this person\n"
+        "   - Reveal potential they might not see in themselves\n"
+        "   - Explain HOW their unique pattern of strengths can be leveraged\n"
+        "   - Suggest what types of work would feel 'right' vs 'wrong' for them\n"
+        "   - Paint a picture of their ideal work environment and activities\n\n"
+
+        "4. BE SPECIFIC AND PERSONALIZED:\n"
+        "   - Avoid generic statements that could apply to anyone\n"
+        "   - Reference specific combinations of their results\n"
+        "   - Give concrete examples of how their strengths manifest in real activities\n"
+        "   - Suggest specific types of projects, roles, or pursuits they'd find meaningful\n\n"
+
+        "5. FOCUS ON PASSION AND PURPOSE:\n"
+        "   - What would this person find genuinely fun or engaging?\n"
+        "   - What causes or types of problems would they care about solving?\n"
+        "   - What kind of impact would be most fulfilling for them?\n\n"
+
+        "Your tone should be warm, insightful, validating, and empowering. Make the person feel truly SEEN and understood. "
+        "Help them recognize their unique gifts and potential paths to fulfillment.\n\n"
+
+        "Output must be valid JSON matching the schema provided, but the CONTENT should be rich with psychological insight and meaning."
     )
 
 
 def _build_user_payload(user_id: str, snapshot: Dict[str, Any], summary: Dict[str, Any]) -> Dict[str, Any]:
+    # Load element definitions for context
+    element_definitions = _load_assessment_element_definitions()
+
+    # Build contextual information about what the scores mean
+    context_insights = {
+        "elementDefinitions": element_definitions,
+        "interpretationGuide": {
+            "abilities": "Each ability score represents proficiency level. Use the examples to understand what high/low scores mean in practical terms.",
+            "knowledge": "Knowledge areas indicate familiarity and depth. High scores suggest genuine expertise and interest in that domain.",
+            "skills": "Skills represent learned capabilities. Consider which skills the person has developed and what that reveals about their experiences and interests.",
+            "interests": "RIASEC scores reveal core motivations. The highest areas show what energizes them; combinations reveal unique personality patterns."
+        },
+        "analysisPrompts": [
+            "What unique combination of traits does this person possess?",
+            "What would genuinely excite and fulfill this person?",
+            "What natural gifts might they not fully recognize in themselves?",
+            "What type of work environment would bring out their best?",
+            "What kinds of problems or causes would they be passionate about?",
+            "How do their interests, abilities, knowledge, and skills work together?",
+            "What activities would feel intrinsically rewarding to them?"
+        ]
+    }
+
     return {
         "instructions": (
-            "Produce valid JSON (no markdown) that matches the schema hints exactly. Use the assessment data as evidence."
+            "Produce valid JSON (no markdown) that matches the schema hints exactly.\n\n"
+            "YOUR PRIMARY GOAL: Provide deep, meaningful insights about who this person is - their core nature, "
+            "what drives them, what they'd find fulfilling, and their unique gifts. Go FAR beyond just summarizing scores.\n\n"
+            "USE THE ELEMENT DEFINITIONS: Understand what each ability/knowledge/skill actually means by reading the "
+            "descriptions and examples. This will help you interpret scores in a meaningful way.\n\n"
+            "SYNTHESIZE PATTERNS: Look for the interplay between different assessment areas. How do their interests "
+            "align with their abilities? What unique combinations emerge? What does this reveal about them?\n\n"
+            "BE INSIGHTFUL: Every section should reveal something meaningful about the person - not just report data."
         ),
         "schema": _EXECUTIVE_SCHEMA_HINT,
         "userContext": {
@@ -227,9 +402,18 @@ def _build_user_payload(user_id: str, snapshot: Dict[str, Any], summary: Dict[st
             "dataQuality": summary["data_quality"],
         },
         "assessmentData": snapshot,
+        "context": context_insights,
+        "reportingGuidance": {
+            "executiveSummary": "Paint a vivid picture of who this person is at their core. What makes them unique? What drives them? What would bring them fulfillment?",
+            "strengthsAnalysis": "Go beyond listing strengths - explain what each strength reveals about the person and how it manifests in their life. Make connections between different strengths.",
+            "careerPathRecommendations": "Explain WHY each career would be fulfilling (not just a good match). What about it would excite them? What needs would it satisfy?",
+            "interestExplorationGuide": "Suggest activities they'd find genuinely fun, meaningful, or energizing. Help them discover passions they might not have considered.",
+            "nextSteps": "Provide actionable steps that align with who they are and what would be meaningful to them."
+        },
         "style": {
-            "tone": "Professional, strengths-based, encouraging",
-            "audience": "Adult learner exploring career fit",
+            "tone": "Warm, insightful, validating, empowering - make them feel truly seen and understood",
+            "approach": "Psychological depth with practical application",
+            "focus": "Meaning, fulfillment, and self-understanding",
             "format": "JSON"
         },
     }

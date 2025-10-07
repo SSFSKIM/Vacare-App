@@ -52,6 +52,66 @@ cd frontend && yarn lint
 cd backend && uv run pytest
 ```
 
+### Production Deployment to Google Cloud Run
+
+**Prerequisites:**
+- Docker Desktop running
+- Google Cloud SDK (`gcloud`) authenticated
+- Environment variables configured in `cloudrun.env.yaml`
+
+**Quick Deploy (Automated):**
+```bash
+./deploy.sh [image-tag]
+# Default tag: onet-integration
+# Example: ./deploy.sh v1.2.3
+```
+
+**Manual Deployment Steps:**
+
+```bash
+# 1. Build Docker image (takes ~4-5 minutes)
+docker build --target production-cloudrun \
+  -t us-central1-docker.pkg.dev/vacare-1abb5/va-care/vacare-app:onet-integration .
+
+# 2. Push to Artifact Registry (takes ~30 seconds)
+docker push us-central1-docker.pkg.dev/vacare-1abb5/va-care/vacare-app:onet-integration
+
+# 3. Deploy to Cloud Run (takes ~2 minutes)
+gcloud run deploy vacare-app \
+  --image us-central1-docker.pkg.dev/vacare-1abb5/va-care/vacare-app:onet-integration \
+  --region us-central1 \
+  --platform managed \
+  --env-vars-file cloudrun.env.yaml \
+  --allow-unauthenticated
+
+# 4. Update 'latest' tag
+docker tag us-central1-docker.pkg.dev/vacare-1abb5/va-care/vacare-app:onet-integration \
+  us-central1-docker.pkg.dev/vacare-1abb5/va-care/vacare-app:latest
+docker push us-central1-docker.pkg.dev/vacare-1abb5/va-care/vacare-app:latest
+```
+
+**Verify Deployment:**
+```bash
+# Get service URL
+gcloud run services describe vacare-app --region=us-central1 --format='value(status.url)'
+
+# Check logs
+gcloud run services logs read vacare-app --region=us-central1 --limit=20
+
+# Verify environment variables
+gcloud run services describe vacare-app --region=us-central1 \
+  --format='value(spec.template.spec.containers[0].env)' | grep ONET
+```
+
+**Service Details:**
+- **Project**: vacare-1abb5
+- **Region**: us-central1
+- **Service Name**: vacare-app
+- **Repository**: va-care
+- **Service URL**: https://vacare-app-881187333959.us-central1.run.app
+
+For detailed deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md)
+
 ## Project Structure
 
 **Main Directory**: `explore-yourself (6)/` contains the actual application code.
@@ -76,6 +136,8 @@ explore-yourself (6)/
 │   │       ├── skills_assessment_api/
 │   │       ├── analyze_results/
 │   │       ├── career_recommendation/
+│   │       ├── career_reports/
+│   │       ├── onet_career_api/      # O*NET Web Services integration
 │   │       └── user_data/
 │   ├── main.py           # FastAPI app entry
 │   └── pyproject.toml
@@ -136,6 +198,9 @@ Never edit these files manually:
 - **Frontend**: Uses Databutton extensions via `DATABUTTON_EXTENSIONS` env var
 - **Backend**: Firebase service account key for admin operations
 - **Proxy**: Vite proxies `/routes` to backend on port 8000
+- **O*NET API**: Requires `ONET_USERNAME` and `ONET_PASSWORD` environment variables
+  - Production credentials in `cloudrun.env.yaml`
+  - See [ENV_SETUP.md](./ENV_SETUP.md) for configuration details
 
 ### Testing Approach
 - **Frontend**: Tests available via `yarn test`
@@ -174,12 +239,35 @@ The application implements a multi-phase career assessment:
 3. **Knowledge Assessment**: 10 subsets × ~3 questions → knowledge areas
 4. **Skills Assessment**: 7 subsets × varying questions → skill proficiencies
 5. **Career Recommendation**: Aggregates all scores → O*NET occupation matches
+6. **Career Details**: O*NET Web Services API integration for real-time occupation data
 
 Each assessment module follows the same pattern:
 - Questions defined in backend API modules
 - Frontend components for question display
 - Results calculated server-side
 - Progress synced with Firestore
+
+### O*NET Integration
+
+The app integrates with O*NET Web Services API to provide detailed career information:
+
+**Backend Endpoint**: `/routes/onet-career/overview/{onet_code}`
+- Fetches real-time occupation data from O*NET
+- Returns job descriptions, tasks, alternative titles, and growth outlook
+- Requires authentication (UserGuard protected)
+
+**Frontend Components**:
+- **Career Detail Page**: `/career/:onetCode` - Full occupation details
+- **Clickable Career Cards**: In Results → Careers tab
+- Auto-links when O*NET code is available in recommendations
+
+**Data Flow**:
+1. Career recommendation includes `onet_code` field
+2. User clicks career card → navigates to `/career/{code}`
+3. Frontend fetches from `/routes/onet-career/overview/{code}`
+4. Displays: job description, tasks, bright outlook, knowledge/skills/abilities links
+
+See [ONET_INTEGRATION_SUMMARY.md](./ONET_INTEGRATION_SUMMARY.md) for complete details.
 
 ## When Working in This Codebase
 
@@ -190,11 +278,38 @@ Each assessment module follows the same pattern:
 5. **Test thoroughly** - include loading states, error states, empty states
 6. **Check AGENTS.md** for detailed implementation guidelines and architecture decisions
 
+## Deployment Best Practices
+
+When deploying changes to production:
+
+1. **Test locally first**: Run both frontend and backend locally
+2. **Check environment variables**: Ensure `cloudrun.env.yaml` is up to date
+3. **Use deployment script**: `./deploy.sh` handles all steps automatically
+4. **Monitor logs**: Check Cloud Run logs after deployment
+5. **Verify endpoints**: Test new API endpoints in production
+6. **Update documentation**: Keep CLAUDE.md and other docs current
+
+**Common deployment issues:**
+- Docker not running → Start Docker Desktop
+- Build fails → Clear Docker cache: `docker builder prune`
+- Env vars missing → Check `cloudrun.env.yaml` exists and is complete
+- Authentication errors → Verify Firebase service account key is valid
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment guide.
+
 ## Linting and Code Quality
 
 - Frontend uses ESLint (run with `yarn lint`)
 - TypeScript configuration allows some flexibility but maintain good practices
 - Tailwind configuration includes shadcn/ui theme extensions
 - Use Biome for additional code formatting if available
+
+## Additional Documentation
+
+- **[ENV_SETUP.md](./ENV_SETUP.md)** - Environment variable configuration
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Complete deployment guide
+- **[DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md)** - Step-by-step checklist
+- **[ONET_INTEGRATION_SUMMARY.md](./ONET_INTEGRATION_SUMMARY.md)** - O*NET API integration details
+- **[deploy.sh](./deploy.sh)** - Automated deployment script
 
 See AGENTS.md for comprehensive development guidelines, troubleshooting, and implementation patterns.

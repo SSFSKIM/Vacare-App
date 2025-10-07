@@ -5,6 +5,9 @@
 .env
 .env.*
 !*.example
+cloudrun.env
+cloudrun.env.yaml
+cloudrun.env.backup
 
 # Docker environment secrets
 docker/.env.production

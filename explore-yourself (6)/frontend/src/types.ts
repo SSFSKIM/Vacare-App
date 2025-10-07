@@ -62,6 +62,7 @@ export interface SkillTestResult {
 
 export interface CareerRecommendationMatch {
   title: string
+  onet_code?: string | null
   description?: string | null
   correlation?: number | null
   contributions?: Array<{

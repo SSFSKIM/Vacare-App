@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { CareerRecommendations as CareerRecommendationsData } from '@/types'
 import { LoadingSpinner } from "./LoadingSpinner";
 import { Button } from "@/components/ui/button";
-import { Briefcase, TrendingUp, Award, Target } from "lucide-react";
+import { Briefcase, TrendingUp, Award, Target, ExternalLink } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 interface Props {
@@ -17,11 +18,20 @@ const ITEMS_PER_BATCH = 5;
 
 function CareerRecommendationsComponent({ recommendations, onAnalyze, isLoading }: Props) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const defaultAnalysisError = t('careerRecommendations.error.generic');
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(0);
   const observerRef = useRef<HTMLDivElement | null>(null);
+
+  const handleCareerClick = useCallback((onetCode: string | null | undefined) => {
+    if (!onetCode) {
+      console.warn('No O*NET code available for this career');
+      return;
+    }
+    navigate(`/career/${onetCode}`);
+  }, [navigate]);
 
   const handleAnalysis = useCallback(async () => {
     if (hasAnalyzed) return;
@@ -49,8 +59,18 @@ function CareerRecommendationsComponent({ recommendations, onAnalyze, isLoading 
   const matches = recommendations?.matches ?? [];
 
   const sortedMatches = useMemo(
-    () =>
-      [...matches].sort((a, b) => (b.correlation || 0) - (a.correlation || 0)),
+    () => {
+      const sorted = [...matches].sort((a, b) => (b.correlation || 0) - (a.correlation || 0));
+      // Debug: Check if onet_code is present
+      if (sorted.length > 0) {
+        console.log('First 3 career matches:', sorted.slice(0, 3).map(m => ({
+          title: m.title,
+          onet_code: m.onet_code,
+          hasCode: !!m.onet_code
+        })));
+      }
+      return sorted;
+    },
     [matches]
   );
 
@@ -211,11 +231,20 @@ function CareerRecommendationsComponent({ recommendations, onAnalyze, isLoading 
       </CardHeader>
       <CardContent className="space-y-4">
         {visibleMatches.map((match, index) => (
-          <Card key={`${match.title}-${index}`} className="border border-muted">
+          <Card
+            key={`${match.title}-${index}`}
+            className={`border border-muted ${match.onet_code ? 'cursor-pointer hover:border-primary hover:shadow-md transition-all' : ''}`}
+            onClick={() => match.onet_code && handleCareerClick(match.onet_code)}
+          >
             <CardContent className="p-4">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-lg mb-1">{match.title}</h3>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-semibold text-lg">{match.title}</h3>
+                    {match.onet_code && (
+                      <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </div>
                   {match.description && (
                     <p className="text-sm text-muted-foreground mb-2">
                       {match.description}
@@ -223,7 +252,7 @@ function CareerRecommendationsComponent({ recommendations, onAnalyze, isLoading 
                   )}
                 </div>
                 <div className="flex flex-col items-end gap-2 ml-4">
-                  <Badge 
+                  <Badge
                     className={`${getCorrelationColor(match.correlation || 0)} border`}
                     variant="outline"
                   >
@@ -235,7 +264,7 @@ function CareerRecommendationsComponent({ recommendations, onAnalyze, isLoading 
                   </span>
                 </div>
               </div>
-              
+
               {/* Additional match details could go here */}
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span>{t('careerRecommendations.matchLabel', { index: index + 1 })}</span>
