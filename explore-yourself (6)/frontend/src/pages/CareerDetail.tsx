@@ -863,7 +863,7 @@ export default function CareerDetail() {
                 {resourceError}
               </div>
             ) : (
-              <ScrollArea className="max-h-[55vh] pr-4">
+              <ScrollArea className="h-[55vh] max-h-[65vh] pr-4">
                 <div className="space-y-4 pb-2 text-sm">
                   {renderResourceContent(selectedResourceKey, resourceData)}
                 </div>
@@ -885,6 +885,33 @@ export default function CareerDetail() {
                 </Button>
               </div>
             )}
+
+            <div className="mt-6 space-y-1 text-xs text-muted-foreground">
+              <p>
+                This experience includes information from the{' '}
+                <a
+                  href="https://www.onetcenter.org/license_db.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                >
+                  O*NET&reg; 30.0 Database
+                </a>{' '}
+                by the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA). Used under the{' '}
+                <a
+                  href="https://creativecommons.org/licenses/by/4.0/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                >
+                  CC BY 4.0
+                </a>{' '}
+                license.
+              </p>
+              <p>
+                VA Care has modified this information to support personalized recommendations. USDOL/ETA has not approved, endorsed, or tested these modifications. O*NET&reg; is a trademark of USDOL/ETA.
+              </p>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

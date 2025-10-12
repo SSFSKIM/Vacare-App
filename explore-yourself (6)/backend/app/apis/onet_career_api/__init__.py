@@ -1,7 +1,10 @@
 """O*NET Career Overview API integration."""
 import os
 import logging
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Tuple
+from urllib.parse import urlparse
+import json
+import html
 import httpx
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -132,6 +135,58 @@ async def get_career_overview(onet_code: str) -> CareerOverview:
         )
 
 
+# Hostname allow list with rendering mode
+ALLOWED_HOSTS: Dict[str, str] = {
+    "www.onetonline.org": "html",
+    "services.onetcenter.org": "json",
+}
+
+
+def _render_json_to_html(source_url: str, payload: Dict[str, Any]) -> str:
+    """Convert O*NET JSON payload to a simple HTML document for display."""
+
+    pretty_json = html.escape(json.dumps(payload, indent=2, ensure_ascii=False))
+    return (
+        "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\">"
+        "<title>O*NET Detail</title>"
+        "<style>body{font-family:Inter,system-ui,-apple-system,'Segoe UI',sans-serif;"
+        "margin:40px;line-height:1.6;background:#f8fafc;color:#0f172a;}"
+        "pre{background:#0f172a;color:#f8fafc;padding:24px;border-radius:12px;"
+        "overflow:auto;box-shadow:0 20px 45px rgba(15,23,42,0.2);}"
+        "a{color:#2563eb;text-decoration:none;}a:hover{text-decoration:underline;}"
+        "header{margin-bottom:24px;}h1{margin:0 0 8px 0;font-size:28px;}"
+        "p{margin:0 0 16px 0;max-width:720px;}</style></head><body>"
+        f"<header><h1>O*NET Web Services Detail</h1>"
+        f"<p>This data was retrieved from <a href=\"{html.escape(source_url)}\" target=\"_blank\" rel=\"noopener noreferrer\">{html.escape(source_url)}</a>.</p>"
+        "<p>Below is the raw response formatted for readability.</p></header>"
+        f"<pre>{pretty_json}</pre>"
+        "</body></html>"
+    )
+
+
+def _normalize_onet_url(url: str) -> Tuple[str, str]:
+    """Validate and normalize O*NET URL returning (url, mode)."""
+
+    try:
+        parsed = urlparse(url)
+    except Exception as exc:  # pragma: no cover - defensive guard
+        logger.debug("Failed to parse O*NET URL %s: %s", url, exc)
+        raise HTTPException(status_code=400, detail="Invalid O*NET URL provided")
+
+    if not parsed.scheme:
+        raise HTTPException(status_code=400, detail="O*NET URL must include scheme")
+
+    if parsed.scheme not in {"https", "http"}:
+        raise HTTPException(status_code=400, detail="Only http/https URLs are allowed")
+
+    host_mode = ALLOWED_HOSTS.get(parsed.hostname or "")
+    if host_mode is None:
+        raise HTTPException(status_code=400, detail="Only O*NET Online URLs are allowed")
+
+    normalized_url = parsed.geturl()
+    return normalized_url, host_mode
+
+
 @router.get("/proxy")
 async def proxy_onet_resource(url: str):
     """
@@ -144,22 +199,23 @@ async def proxy_onet_resource(url: str):
     Returns:
         The HTML content from the O*NET resource
     """
-    # Validate that the URL is from O*NET
-    if not url.startswith("https://www.onetonline.org/") and not url.startswith("http://www.onetonline.org/"):
-        raise HTTPException(
-            status_code=400,
-            detail="Only O*NET Online URLs are allowed"
-        )
+    normalized_url, host_mode = _normalize_onet_url(url)
 
     try:
         async with httpx.AsyncClient(timeout=ONET_TIMEOUT, follow_redirects=True) as client:
+            headers = {
+                "User-Agent": "Mozilla/5.0 (compatible; VACareApp/1.0)",
+            }
+
+            if host_mode == "html":
+                headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+            else:
+                headers["Accept"] = "application/json"
+
             response = await client.get(
-                url,
+                normalized_url,
                 auth=(ONET_USERNAME, ONET_PASSWORD),
-                headers={
-                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-                    "User-Agent": "Mozilla/5.0 (compatible; VACareApp/1.0)"
-                }
+                headers=headers,
             )
 
             if response.status_code == 401:
@@ -175,9 +231,23 @@ async def proxy_onet_resource(url: str):
                     detail=f"Failed to fetch O*NET resource: {response.status_code}"
                 )
 
-            # Return HTML response
             from fastapi.responses import HTMLResponse
-            return HTMLResponse(content=response.text, status_code=200)
+
+            if host_mode == "html":
+                return HTMLResponse(content=response.text, status_code=200)
+
+            # Convert JSON payload to readable HTML
+            try:
+                payload = response.json()
+            except ValueError:
+                logger.error("Expected JSON payload from O*NET services but received non-JSON content")
+                raise HTTPException(
+                    status_code=502,
+                    detail="Received unexpected data format from O*NET"
+                )
+
+            html_doc = _render_json_to_html(normalized_url, payload)
+            return HTMLResponse(content=html_doc, status_code=200)
 
     except httpx.TimeoutException:
         raise HTTPException(
@@ -194,6 +264,69 @@ async def proxy_onet_resource(url: str):
         raise
     except Exception as error:
         logger.error(f"Unexpected error proxying O*NET resource: {error}")
+        raise HTTPException(
+            status_code=500,
+            detail="Internal server error"
+        )
+
+
+@router.get("/resource-data")
+async def get_onet_resource_json(url: str) -> Dict[str, Any]:
+    """Return raw JSON payload for an O*NET resource endpoint."""
+
+    normalized_url, host_mode = _normalize_onet_url(url)
+
+    if host_mode != "json":
+        raise HTTPException(
+            status_code=400,
+            detail="Only O*NET Web Services URLs are allowed"
+        )
+
+    try:
+        async with httpx.AsyncClient(timeout=ONET_TIMEOUT, follow_redirects=True) as client:
+            response = await client.get(
+                normalized_url,
+                auth=(ONET_USERNAME, ONET_PASSWORD),
+                headers={
+                    "Accept": "application/json",
+                    "User-Agent": "Mozilla/5.0 (compatible; VACareApp/1.0)",
+                },
+            )
+
+            if response.status_code == 401:
+                raise HTTPException(
+                    status_code=500,
+                    detail="O*NET authentication failed"
+                )
+
+            if response.status_code != 200:
+                logger.error(
+                    "O*NET resource data returned status %s for %s",
+                    response.status_code,
+                    normalized_url,
+                )
+                raise HTTPException(
+                    status_code=502,
+                    detail=f"Failed to fetch O*NET resource: {response.status_code}"
+                )
+
+            return response.json()
+
+    except httpx.TimeoutException:
+        raise HTTPException(
+            status_code=504,
+            detail="Request timed out"
+        )
+    except httpx.RequestError as req_error:
+        logger.error(f"Request to O*NET failed: {req_error}")
+        raise HTTPException(
+            status_code=502,
+            detail="Failed to connect to O*NET"
+        )
+    except HTTPException:
+        raise
+    except Exception as error:  # pragma: no cover - defensive guard
+        logger.error(f"Unexpected error fetching O*NET resource JSON: {error}")
         raise HTTPException(
             status_code=500,
             detail="Internal server error"

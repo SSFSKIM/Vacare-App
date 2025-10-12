@@ -4,6 +4,10 @@
 
 VA Care is a comprehensive career aptitude assessment platform that helps users discover their ideal career paths through systematic evaluation of interests, abilities, knowledge, and skills. The app uses RIASEC methodology and O*NET data to provide personalized career recommendations.
 
+### O*NET Attribution
+
+This application includes information from the O*NET&reg; 30.0 Database by the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA). Used under the [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) license. VA Care has modified this information to support personalized recommendations. USDOL/ETA has not approved, endorsed, or tested these modifications. O*NET&reg; is a trademark of USDOL/ETA. Assessment content derived from the O*NET Career Exploration Tools is used under the O*NET Tools Developer License.
+
 ## Tech Stack
 
 - **Frontend**: React 18 + TypeScript + Vite

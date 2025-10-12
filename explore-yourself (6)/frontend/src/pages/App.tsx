@@ -56,6 +56,40 @@ function Home() {
               totalSections={7}  // Total number of skill assessment sections
             />
           </div>
+
+          <section className="mt-12 rounded-lg border border-border bg-card p-6 text-sm text-muted-foreground">
+            <p>
+              This platform includes assessment content adapted from the{' '}
+              <a
+                href="https://www.onetcenter.org/license_tools.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
+                O*NET&reg; Career Exploration Tools
+              </a>{' '}
+              and occupational insights from the{' '}
+              <a
+                href="https://www.onetcenter.org/license_db.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
+                O*NET&reg; 30.0 Database
+              </a>{' '}by the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA).
+            </p>
+            <p className="mt-2">
+              VA Care has modified this information to support personalized recommendations. USDOL/ETA has not approved, endorsed, or tested these modifications. O*NET&reg; is a trademark of USDOL/ETA. Content is used under the{' '}
+              <a
+                href="https://creativecommons.org/licenses/by/4.0/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
+                CC BY 4.0
+              </a>{' '}license and the O*NET Tools Developer License.
+            </p>
+          </section>
         </div>
       </main>
     </div>
